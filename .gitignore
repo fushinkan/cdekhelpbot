@@ -1,0 +1,4 @@
+.idea
+__pycache__/
+.env
+api/setup_db.py
