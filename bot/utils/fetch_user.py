@@ -1,7 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from db.base import async_session_factory
-from api.handlers.get_user import get_user_by_phone
+from app.db.base import async_session_factory
+from app.api.handlers.get_user import get_user_by_phone
 from bot.utils.exceptions import UserNotExistsException
 
 async def fetch_user_by_phone(phone: str):

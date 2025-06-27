@@ -5,11 +5,11 @@ from fastapi import (APIRouter,
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from api.handlers.normalize import normalize_phone
+from app.api.handlers.get_user import get_user_by_phone
+from app.api.handlers.normalize import normalize_phone
 from bot.utils.exceptions import UserNotExistsException, IncorrectPhone
-from api.handlers.get_user import get_user_by_phone
-from db.base import get_session
-from schemas.users import UsersSchema
+from app.db.base import get_session
+from app.schemas.users import UsersSchema
 
 router = APIRouter()
 
@@ -33,6 +33,7 @@ async def check_phone_endpoint(phone_number: str, session: AsyncSession = Depend
         phone = normalize_phone(phone_number)
         user = await get_user_by_phone(phone, session)
         return UsersSchema.model_validate(user)
+    
     except (UserNotExistsException) as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

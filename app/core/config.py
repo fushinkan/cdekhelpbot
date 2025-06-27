@@ -10,7 +10,7 @@ class Settings(BaseSettings):
     ADMIN_ID: int
     
     # Redis URL
-    REDIS_URL: str
+    REDIS_URL: str 
     
     # PostgreSQL settings
     DB_USER: str

@@ -1,13 +1,13 @@
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import String, DateTime, func, BigInteger, Boolean, text
 
-from db.base import Base
+from app.db.base import Base
 
 from datetime import datetime
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from db.models.invoices import Invoice
+    from app.db.models.invoices import Invoice
 
 
 class Users(Base):
@@ -21,7 +21,7 @@ class Users(Base):
     contract_number: Mapped[str] = mapped_column(String(20), nullable=False)
     city: Mapped[str] = mapped_column(String(32), nullable=False)
     contractor: Mapped[str] = mapped_column(String(100), nullable=False)
-    phone_number: Mapped[str] = mapped_column(String(150), unique=True, nullable=False)
+    phone_number: Mapped[str] = mapped_column(String(150), unique=False, nullable=False)
     hashed_psw: Mapped[str] = mapped_column(String(255), nullable=False)
     is_logged: Mapped[bool] = mapped_column(Boolean, server_default=text("false"), default=False)
     

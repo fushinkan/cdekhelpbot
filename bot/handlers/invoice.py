@@ -3,11 +3,10 @@ import asyncio
 from aiogram.fsm.context import FSMContext
 from aiogram import F, Router
 from aiogram.types import Message, CallbackQuery
-from aiogram.exceptions import TelegramBadRequest
 
 
-from api.handlers.user_info import get_contract_number_from_db
-from api.handlers.normalize import normalize_phone
+from app.api.handlers.user_info import get_contract_number_from_db
+from app.api.handlers.normalize import normalize_phone
 from bot.utils.validate import InvoiceValidator
 from bot.utils.exceptions import UserNotExistsException, IncorrectPhone, IncorrectInsurance
 from bot.utils.delete_messages import delete_prev_messages
@@ -15,7 +14,7 @@ from bot.states.invoice import InvoiceForm, INVOICE_PROMPTS
 from bot.keyboards.customer import CustomerKeyboards
 from bot.keyboards.backbuttons import BackButtons
 from bot.utils.invoice import StateUtils
-from db.base import async_session_factory
+from app.db.base import async_session_factory
 
 
 router = Router()

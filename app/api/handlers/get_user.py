@@ -2,9 +2,8 @@ from fastapi import Depends
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from schemas.users import UsersSchema
 from bot.utils.exceptions import UserNotExistsException
-from db.models.users import Users
+from app.db.models.users import Users
 
 
 async def get_user_by_phone(phone_number: str, session: AsyncSession):

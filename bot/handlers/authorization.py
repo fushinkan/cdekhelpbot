@@ -4,8 +4,8 @@ from aiogram.fsm.context import FSMContext
 from aiogram import F, Router
 from aiogram.types import CallbackQuery, Message
 
-from api.handlers.normalize import normalize_phone
-from api.utils.security import verify_password
+from app.api.handlers.normalize import normalize_phone
+from app.api.utils.security import verify_password
 from bot.utils.exceptions import UserNotExistsException, IncorrectPhone, IncorrectPasswordException
 from bot.keyboards.admin import AdminKeyboards
 from bot.keyboards.customer import CustomerKeyboards
