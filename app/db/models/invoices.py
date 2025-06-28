@@ -20,4 +20,4 @@ class Invoice(Base):
     invoice_number: Mapped[int] = mapped_column(BigInteger, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     
-    user: Mapped["Users"] = relationship(back_populates="invoices")
+    user: Mapped["Users"] = relationship("Users", back_populates="invoices")

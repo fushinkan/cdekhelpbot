@@ -15,32 +15,36 @@ class BackButtons:
     
     @classmethod
     async def back_to_welcoming_screen(cls):
-        return await cls.get_back_button(callback_data="back_to_welcoming_screen")
+        return await cls.get_back_button(callback_data="go_back_to_welcoming_screen")
         
     @classmethod
     async def back_to_phone(cls):    
-        return await cls.get_back_button(callback_data="back_to_phone")
+        return await cls.get_back_button(callback_data="go_back_to_phone")
     
     @classmethod
     async def back_to_menu(cls):
-        return await cls.get_back_button(callback_data="back_to_menu")
+        return await cls.get_back_button(callback_data="go_back_to_menu")
     
     @classmethod
     async def back_to_departure_city(cls):
-        return await cls.get_back_button(callback_data="back_to_city")
+        return await cls.get_back_button(callback_data="go_back_to_city")
     
     @classmethod
     async def back_to_departure_address(cls):
-        return await cls.get_back_button(callback_data="back_to_address")
+        return await cls.get_back_button(callback_data="go_back_to_address")
     
     @classmethod
     async def back_to_recipient_phone(cls):
-        return await cls.get_back_button(callback_data="back_to_recipient_phone")
+        return await cls.get_back_button(callback_data="go_back_to_recipient_phone")
     
     @classmethod
     async def back_to_recipient_city(cls):
-        return await cls.get_back_button(callback_data="back_to_recipient_city")
+        return await cls.get_back_button(callback_data="go_back_to_recipient_city")
     
     @classmethod
     async def back_to_recipient_address(cls):
-        return await cls.get_back_button(callback_data="back_to_recipient_address")
+        return await cls.get_back_button(callback_data="go_back_to_recipient_address")
+    
+    @classmethod
+    async def back_to_summary(cls):
+        return await cls.get_back_button(callback_data="back_to_summary")

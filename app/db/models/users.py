@@ -30,4 +30,4 @@ class Users(Base):
     
     role: Mapped[str] = mapped_column(String(10), default="user", nullable=False)
     
-    invoices: Mapped[list["Invoice"]] = relationship(back_populates="user", cascade="all, delete-orphan")
+    invoices: Mapped[list["Invoice"]] = relationship("Invoice", back_populates="user", cascade="all, delete-orphan")

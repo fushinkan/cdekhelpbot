@@ -25,6 +25,9 @@ if config.config_file_name is not None:
 from app.db.base import Base
 from app.db.models.users import Users
 from app.db.models.invoices import Invoice
+from app.db.models.extra_services import ExtraServices
+from app.db.models.tariffs import Tariffs
+
 target_metadata = Base.metadata
 
 # other values from the config, defined by the needs of env.py,

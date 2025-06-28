@@ -8,9 +8,9 @@ from aiogram.types import Message, CallbackQuery
 from app.api.handlers.user_info import get_contract_number_from_db
 from app.api.handlers.normalize import normalize_phone
 from bot.utils.validate import InvoiceValidator
-from bot.utils.exceptions import UserNotExistsException, IncorrectPhone, IncorrectInsurance
+from bot.utils.exceptions import UserNotExistsException, IncorrectPhone, IncorrectInsurance, IncorrectAgreement
 from bot.utils.delete_messages import delete_prev_messages
-from bot.states.invoice import InvoiceForm, INVOICE_PROMPTS
+from bot.states.invoice import InvoiceForm, INVOICE_PROMPTS, STATE_MAP
 from bot.keyboards.customer import CustomerKeyboards
 from bot.keyboards.backbuttons import BackButtons
 from bot.utils.invoice import StateUtils
@@ -38,11 +38,16 @@ async def get_contract_number(callback: CallbackQuery, state: FSMContext):
     async with async_session_factory() as session:
         try:
             contract_number = await get_contract_number_from_db(phone, session)
-            await state.update_data(contract_number=contract_number, phone=phone)
+            
+            await state.set_state(InvoiceForm.contract_number)
+            await state.update_data(contract_number=contract_number)
+            await StateUtils.push_state_to_history(state, InvoiceForm.contract_number)
+            
             await state.set_state(InvoiceForm.departure_city)
             await StateUtils.push_state_to_history(state, InvoiceForm.departure_city)
+            
             sent = await callback.message.edit_text("🏙 Пожалуйста, введите город отправления", reply_markup=await BackButtons.back_to_menu())
-            await state.update_data(last_bot_message=sent.message_id)
+            await state.update_data(last_bot_message=sent.message_id, phone=phone)
     
         except (UserNotExistsException, IncorrectPhone) as e:
             sent = await callback.message.answer(str(e))
@@ -248,7 +253,47 @@ async def confirmation(message: Message, state: FSMContext):
     await state.update_data(last_bot_message=sent.message_id)
     
     
-@router.callback_query(F.data.startswith("back_to_"))
+@router.message()
+async def edit_field_value(message: Message, state: FSMContext):
+    data = await state.get_data()
+    editing_field = data.get("editing_field")
+    
+    if not editing_field:
+        # Пользователь не в режиме редактирования, просто игнорируем
+        return
+    
+    new_value = message.text.strip()
+    
+    try:
+        if editing_field == "recipient_phone":
+            await InvoiceValidator.correct_phone(new_value)
+        elif editing_field == "insurance_amount":
+            await InvoiceValidator.correct_insurance(new_value)
+        elif editing_field == "contract_number":
+            await InvoiceValidator.correct_agreement(new_value)
+
+    except (IncorrectPhone, IncorrectInsurance, IncorrectAgreement) as e:
+        sent = await message.answer(str(e), parse_mode="HTML")
+        await asyncio.sleep(5)
+        await sent.delete()
+        await message.delete()
+        return  # Валидация не прошла — не меняем данные
+    
+    # Если всё хорошо — обновляем данные
+    await state.update_data({editing_field: new_value})
+    await state.update_data(editing_field=None)
+    
+    await message.delete()
+    
+    data = await state.get_data()
+    sent = await StateUtils.get_summary(message, data)
+    
+    await state.set_state(InvoiceForm.confirmation)
+    await state.update_data(last_bot_message=sent.message_id)
+    
+    
+    
+@router.callback_query(F.data.startswith("go_back_to_"))
 async def go_back(callback: CallbackQuery, state: FSMContext):
     """
     Обработчик для отката состояний.
@@ -316,5 +361,59 @@ async def no_extra_services(callback: CallbackQuery, state: FSMContext):
     
     sent = await StateUtils.get_summary(callback.message, data)
     
-    
+    await state.set_state(InvoiceForm.confirmation)
     await state.update_data(last_bot_message=sent.message_id)
+    
+    
+@router.callback_query(F.data == "back_to_summary")
+async def back_to_summary(callback: CallbackQuery, state: FSMContext):
+    """
+    По кнопке 'Назад' в изменении пунктов, откатывает пользователя до полной сводки.
+    """
+    
+    await asyncio.sleep(0.2)
+
+    await callback.answer()
+    
+    
+    data = await state.get_data()
+        
+    
+    await state.set_state(InvoiceForm.confirmation)
+    await state.update_data(editing_field=None)
+
+
+    sent = await StateUtils.get_summary(callback.message, data)
+    await callback.message.edit_text(sent.text, reply_markup=await CustomerKeyboards.edit_or_confirm(), parse_mode="HTML")
+
+@router.callback_query(F.data.startswith("edit_"))
+async def edit_invoice(callback: CallbackQuery, state: FSMContext):
+    """
+    По кнопке 'Изменить <пункт>' перезаписывает данные в состояние и динамически изменяет сводку
+    """
+    print(f"[edit_invoice] callback.data = {callback.data}")
+    await asyncio.sleep(0.2)
+    await callback.answer()
+    
+    
+    field = callback.data.removeprefix("edit_")
+    new_state = STATE_MAP.get(field)
+    
+    if not new_state:
+        await callback.answer("❌ Неизвестное поле для редактирования.")
+        return
+    
+    
+    prompt, _ = INVOICE_PROMPTS.get(new_state.state)
+    keyboard = await BackButtons.back_to_summary()
+    
+    
+    await callback.message.edit_text(prompt, reply_markup=keyboard)
+    
+    
+    await state.set_state(new_state)
+    await state.update_data(editing_field=field)
+    
+    
+
+    
