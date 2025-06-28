@@ -23,6 +23,7 @@ async def process_phone(callback: CallbackQuery, state: FSMContext):
     """
     По кнопке 'Войти' просим пользователя отправить номер телефона.
     """
+
     
     await asyncio.sleep(0.2)
     await callback.answer()

@@ -1,6 +1,6 @@
 import re
 
-from bot.utils.exceptions import IncorrectPhone, IncorrectAgreement, IncorrectInsurance
+from bot.utils.exceptions import IncorrectPhone, IncorrectInsurance
 
 class InvoiceValidator:
     """
@@ -24,20 +24,16 @@ class InvoiceValidator:
     
     
        
-    @classmethod
-    async def correct_agreement(cls, text: str) -> bool:
-        """
-
-        Проверяет номер договора.
-
-        Формат: префикс из IM|SZ|KU|ИМ|СЗ|КУ, дефис, три буквы (лат/кирилл), одна цифра, дефис, от 1 до 3 цифр.
-
-        Пример: IM-ABC1-123
-
-        """
-        if not await cls.correct_agreement_validator(text):
-            raise IncorrectAgreement(IncorrectAgreement.__doc__)
-        return True
+    #@classmethod
+    #async def correct_agreement(cls, text: str) -> bool:
+    #    """
+    #    Проверяет номер договора.
+    #    Формат: префикс из IM|SZ|KU|ИМ|СЗ|КУ, дефис, три буквы (лат/кирилл), одна цифра, дефис, от 1 до 3 цифр.
+    #    Пример: IM-ABC1-123
+    #    """
+    #    if not await cls.correct_agreement_validator(text):
+    #        raise IncorrectAgreement(IncorrectAgreement.__doc__)
+    #    return True
 
     @classmethod
     async def correct_phone(cls, text: str) -> bool:

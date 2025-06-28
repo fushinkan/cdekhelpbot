@@ -1,0 +1,41 @@
+import asyncio
+
+from aiogram.fsm.context import FSMContext
+from aiogram import F, Router
+from aiogram.types import Message
+
+from bot.utils.delete_messages import delete_prev_messages
+from bot.states.invoice import InvoiceForm
+from bot.keyboards.backbuttons import BackButtons
+from bot.utils.invoice import StateUtils
+
+
+router = Router()
+    
+
+@router.message(InvoiceForm.recipient_city)
+async def get_recipient_city(message: Message, state: FSMContext):
+    """
+    Обработчик для поулчения города получателя.
+    """
+    
+    data = await state.get_data()
+    last_bot_message_id = data.get("last_bot_message")
+    recipient_city = message.text.strip()
+
+
+    await asyncio.sleep(0.3)
+    await message.delete()
+    await delete_prev_messages(message, last_bot_message_id) 
+    
+    
+    await state.update_data(recipient_city=recipient_city)
+    await state.set_state(InvoiceForm.recipient_address)
+    await StateUtils.push_state_to_history(state, InvoiceForm.recipient_address)
+    
+    
+    sent = await message.answer("📍 Отлично! Теперь укажите адрес получения/доставки", reply_markup=await BackButtons.back_to_recipient_city())
+    
+    
+    await state.update_data(last_bot_message=sent.message_id)
+    

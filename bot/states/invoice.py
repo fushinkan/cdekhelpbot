@@ -28,7 +28,6 @@ INVOICE_STATE = {
 }
 
 INVOICE_PROMPTS = {
-        InvoiceForm.contract_number.state: ("📝 Пожалуйста, введите номер договора", BackButtons.back_to_summary),
         InvoiceForm.departure_city.state: ("🏙 Пожалуйста, введите город отправления", BackButtons.back_to_menu),
         InvoiceForm.departure_address.state: ("📍 Введите адрес отправления/забора груза 🏠", BackButtons.back_to_departure_city),
         InvoiceForm.recipient_phone.state: ("📱 Введите номер телефона получателя", BackButtons.back_to_departure_address),
@@ -39,7 +38,6 @@ INVOICE_PROMPTS = {
 }
 
 STATE_MAP = {
-    "contract_number": InvoiceForm.contract_number,
     "departure_city": InvoiceForm.departure_city,
     "departure_address": InvoiceForm.departure_address,
     "recipient_phone": InvoiceForm.recipient_phone,
