@@ -3,8 +3,6 @@ import asyncio
 from aiogram.fsm.context import FSMContext
 from aiogram import F, Router
 from aiogram.types import Message
-
-from bot.utils.delete_messages import delete_prev_messages
 from bot.states.invoice import InvoiceForm
 
 from bot.utils.invoice import StateUtils

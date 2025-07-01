@@ -9,5 +9,5 @@ router = Router()
 router.include_routers(
     pp_router,
     pphone_router,
-    pr_router
+    pr_router,
 )

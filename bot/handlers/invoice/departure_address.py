@@ -6,7 +6,7 @@ from aiogram.types import Message
 from bot.states.invoice import InvoiceForm
 from bot.keyboards.backbuttons import BackButtons
 from bot.utils.invoice import StateUtils
-from bot.utils.delete_messages import delete_prev_messages
+from bot.utils.delete_messages import BotUtils
 
 router = Router()
 
@@ -29,7 +29,7 @@ async def get_departure_address(message: Message, state: FSMContext):
         updated_data = await state.get_data()
         updated_summary = await StateUtils.get_summary(message, updated_data)
         await state.update_data(last_bot_message_id=updated_summary.message_id)
-        await delete_prev_messages(message, updated_data.get("last_bot_message_id"))
+        await BotUtils.delete_prev_messages(message, updated_data.get("last_bot_message_id"))
         return
     
     

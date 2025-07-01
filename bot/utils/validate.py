@@ -6,13 +6,13 @@ class InvoiceValidator:
     """
     Класс для валидации введеных данных.
     """
-    AGREEMENT_PATTERN = re.compile(r"^(IM|SZ|KU|ИМ|СЗ|КУ)-([A-Za-z]{3}|[А-Яа-я]{3})\d-\d{1,3}$")
+    #AGREEMENT_PATTERN = re.compile(r"^(IM|SZ|KU|ИМ|СЗ|КУ)-([A-Za-z]{3}|[А-Яа-я]{3})\d-\d{1,3}$")
     PHONE_NUMBER = re.compile(r"^8\d{10}$")
     INSURANCE_AMOUNT = re.compile(r"^\d+$")
     
-    @classmethod
-    async def correct_agreement_validator(cls, text: str) -> bool:
-        return bool(cls.AGREEMENT_PATTERN.fullmatch(text))
+    #@classmethod
+    #async def correct_agreement_validator(cls, text: str) -> bool:
+    #    return bool(cls.AGREEMENT_PATTERN.fullmatch(text))
     
     @classmethod
     async def correct_phone_validator(cls, text: str) -> bool:

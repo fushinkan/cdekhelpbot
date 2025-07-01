@@ -95,7 +95,23 @@ class StateUtils():
             except TelegramBadRequest:
                 pass
             
-        await delete_prev_messages(message, last_bot_message_id)
+        await BotUtils.delete_prev_messages(message, last_bot_message_id)
     
         
         return data
+    
+    
+    @classmethod
+    async def edit_invoice(data: dict, message: Message, state: FSMContext):
+        """
+        Проверяет идет ли редактирование пункта.
+        """
+        
+        if data.get("editing_field"):
+            await state.update_data(editing_field=None)
+            updated_data = await state.get_data()
+            updated_summary = await StateUtils.get_summary(message, updated_data)
+            await state.update_data(last_bot_message_id=updated_summary.message_id)
+            await BotUtils.delete_prev_messages(message, updated_data.get("last_bot_message_id"))
+            return
+            

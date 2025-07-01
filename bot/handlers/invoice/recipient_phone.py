@@ -8,7 +8,7 @@ from bot.utils.exceptions import IncorrectPhone
 from bot.states.invoice import InvoiceForm
 from bot.keyboards.backbuttons import BackButtons
 from bot.utils.invoice import StateUtils
-from bot.utils.delete_messages import delete_prev_messages
+from bot.utils.delete_messages import BotUtils
 
 router = Router()
 
@@ -29,25 +29,26 @@ async def get_recipient_phone(message: Message, state: FSMContext):
         await InvoiceValidator.correct_phone(recipient_phone)
     except IncorrectPhone as e:
         sent = await message.answer(str(e), parse_mode="HTML")
-        
         await state.update_data(error_message=sent.message_id)
         return 
 
 
-    if data.get("editing_field"):
-        await state.update_data(editing_field=None)
-        updated_data = await state.get_data()
-        updated_summary = await StateUtils.get_summary(message, updated_data)
-        await state.update_data(last_bot_message_id=updated_summary.message_id)
-        await delete_prev_messages(message, updated_data.get("last_bot_message_id"))
-        return
+    await StateUtils.edit_invoice(data, message, state)
+
+    #if data.get("editing_field"):
+    #    await state.update_data(editing_field=None)
+    #    updated_data = await state.get_data()
+    #    updated_summary = await StateUtils.get_summary(message, updated_data)
+    #    await state.update_data(last_bot_message_id=updated_summary.message_id)
+    #    await BotUtils.delete_prev_messages(message, updated_data.get("last_bot_message_id"))
+    #    return
         
         
     data = await state.get_data()
     error_message = data.get("error_message")
     try:
         if error_message:
-            await delete_prev_messages(message, error_message)      
+            await BotUtils.delete_prev_messages(message, error_message)      
     except TelegramBadRequest:
         pass
 
