@@ -1,12 +1,15 @@
 import asyncio
 
-from aiogram.types import Message
+from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
+from aiogram.exceptions import TelegramBadRequest
 
-from bot.utils.delete_messages import delete_prev_messages
+from bot.utils.delete_messages import BotUtils
 from bot.keyboards.customer import CustomerKeyboards
 from bot.states.invoice import InvoiceForm
 from bot.states.invoice import INVOICE_STATE
+
+from typing import Union
 
 class StateUtils():
     """
@@ -66,37 +69,33 @@ class StateUtils():
     
     
     @classmethod
-    async def handle_step(
-        message: Message,
-        state: FSMContext,
-        field_name: str,
-        next_state,
-        prompt_text: str,
-        back_keyboard,
-        validator=None
-    ):
+    async def prepare_next_state(cls, obj: Union[Message, CallbackQuery], state: FSMContext) -> dict:
+        """
+        Подготовка следующего состояния.
+        """
+        
+        await asyncio.sleep(0.3)
+        
+        
         data = await state.get_data()
         last_bot_message_id = data.get("last_bot_message")
-        value = message.text.strip()
-
-        # Валидация
-        if validator:
+        
+        
+        if isinstance(obj, CallbackQuery):
+            await obj.answer()
             try:
-                await validator(value)
-            except Exception as e:
-                sent = await message.answer(str(e), parse_mode="HTML")
-                await asyncio.sleep(5)
-                await sent.delete()
-                await message.delete()
-                return
-
-        await asyncio.sleep(0.3)
-        await message.delete()
+                await obj.message.delete()
+                message = obj.message
+            except TelegramBadRequest:
+                pass
+        else:
+            try:
+                await obj.delete()
+                message = obj        
+            except TelegramBadRequest:
+                pass
+            
         await delete_prev_messages(message, last_bot_message_id)
-
-        await state.update_data({field_name: value})
-        await state.set_state(next_state)
-        await StateUtils.push_state_to_history(state, next_state)
-
-        sent = await message.answer(prompt_text, reply_markup=await back_keyboard())
-        await state.update_data(last_bot_message=sent.message_id)
+    
+        
+        return data

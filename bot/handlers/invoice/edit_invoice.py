@@ -4,13 +4,12 @@ from aiogram.fsm.context import FSMContext
 from aiogram import F, Router
 from aiogram.types import CallbackQuery
 
-
 from bot.states.invoice import INVOICE_PROMPTS, STATE_MAP
-
 from bot.keyboards.backbuttons import BackButtons
 
 
 router = Router()
+
 
 @router.callback_query(F.data.startswith("edit_"))
 async def edit_invoice(callback: CallbackQuery, state: FSMContext):

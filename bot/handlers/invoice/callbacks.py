@@ -5,7 +5,7 @@ from aiogram import F, Router
 from aiogram.types import CallbackQuery
 
 from app.api.handlers.normalize import normalize_phone
-from bot.utils.delete_messages import delete_prev_messages
+from bot.utils.delete_messages import BotUtils
 from bot.states.invoice import InvoiceForm, INVOICE_PROMPTS, STATE_MAP
 from bot.keyboards.customer import CustomerKeyboards
 from bot.keyboards.backbuttons import BackButtons
@@ -73,15 +73,12 @@ async def no_extra_services(callback: CallbackQuery, state: FSMContext):
     Обработчик присылает сводку без дополнительных услуг.
     """
     
-    data = await state.get_data()
-    last_bot_message_id = data.get("last_bot_message")
-        
-        
-    await asyncio.sleep(0.3)
-    await delete_prev_messages(callback, last_bot_message_id)
+    data = await StateUtils.prepare_next_state(callback, state)
+
     
     
     sent = await StateUtils.get_summary(callback.message, data)
+    
     
     await state.set_state(InvoiceForm.confirmation)
     await state.update_data(last_bot_message=sent.message_id)
@@ -93,12 +90,7 @@ async def back_to_summary(callback: CallbackQuery, state: FSMContext):
     По кнопке 'Назад' в изменении пунктов, откатывает пользователя до полной сводки.
     """
     
-    await asyncio.sleep(0.2)
-    await callback.message.delete()
-    await callback.answer()
-    
-    
-    data = await state.get_data()
+    data = await StateUtils.prepare_next_state(callback, state)
         
     
     await state.set_state(InvoiceForm.confirmation)
@@ -114,7 +106,7 @@ async def edit_invoice(callback: CallbackQuery, state: FSMContext):
     """
     По кнопке 'Изменить <пункт>' перезаписывает данные в состояние и динамически изменяет сводку
     """
-    print(f"[edit_invoice] callback.data = {callback.data}")
+
     await asyncio.sleep(0.2)
     await callback.answer()
     
