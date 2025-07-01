@@ -3,6 +3,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram import F, Router
 from aiogram.types import Message
 
+from app.api.handlers.normalize import normalize_phone
 from bot.utils.validate import InvoiceValidator
 from bot.utils.exceptions import IncorrectPhone
 from bot.states.invoice import InvoiceForm
@@ -33,17 +34,9 @@ async def get_recipient_phone(message: Message, state: FSMContext):
         return 
 
 
-    await StateUtils.edit_invoice(data, message, state)
+    if await StateUtils.edit_invoice(data, message, state):
+        return
 
-    #if data.get("editing_field"):
-    #    await state.update_data(editing_field=None)
-    #    updated_data = await state.get_data()
-    #    updated_summary = await StateUtils.get_summary(message, updated_data)
-    #    await state.update_data(last_bot_message_id=updated_summary.message_id)
-    #    await BotUtils.delete_prev_messages(message, updated_data.get("last_bot_message_id"))
-    #    return
-        
-        
     data = await state.get_data()
     error_message = data.get("error_message")
     try:

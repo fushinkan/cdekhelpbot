@@ -26,9 +26,9 @@ class CustomerKeyboards():
     @classmethod
     async def edit_or_confirm(cls):
         return InlineKeyboardMarkup(inline_keyboard=[
-            [InlineKeyboardButton(text="✏️ Сумма страховки", callback_data="edit_insurance_amount"), InlineKeyboardButton(text="✏️ Город отправления", callback_data="edit_departure_city")],
-            [InlineKeyboardButton(text="✏️ Адрес отправления", callback_data="edit_departure_address"), InlineKeyboardButton(text="✏️ Телефон получателя", callback_data="edit_recipient_phone")],
-            [InlineKeyboardButton(text="✏️ Город получателя", callback_data="edit_recipient_city"), InlineKeyboardButton(text="✏️ Адрес доставки", callback_data="edit_recipient_address")],
+            [InlineKeyboardButton(text="✏️ Город отправления", callback_data="edit_departure_city"), InlineKeyboardButton(text="✏️ Город получателя", callback_data="edit_recipient_city")],
+            [InlineKeyboardButton(text="✏️ Адрес отправления", callback_data="edit_departure_address"), InlineKeyboardButton(text="✏️ Адрес доставки", callback_data="edit_recipient_address")],
+            [InlineKeyboardButton(text="✏️ Телефон получателя", callback_data="edit_recipient_phone"), InlineKeyboardButton(text="✏️ Сумма страховки", callback_data="edit_insurance_amount")],
             
             [InlineKeyboardButton(text="✅ Подтвердить", callback_data="confirm"), 
              InlineKeyboardButton(text="❌ Отмена", callback_data="cancel")]

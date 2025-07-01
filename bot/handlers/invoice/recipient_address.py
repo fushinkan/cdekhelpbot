@@ -18,18 +18,11 @@ async def get_recipient_address(message: Message, state: FSMContext):
     """
         
     data = await StateUtils.prepare_next_state(message, state)
-
-
     recipient_address = message.text.strip()
     await state.update_data(recipient_address=recipient_address)
     
     
-    if data.get("editing_field"):
-        await state.update_data(editing_field=None)
-        updated_data = await state.get_data()
-        updated_summary = await StateUtils.get_summary(message, updated_data)
-        await state.update_data(last_bot_message_id=updated_summary.message_id)
-        await BotUtils.delete_prev_messages(message, updated_data.get("last_bot_message_id"))
+    if await StateUtils.edit_invoice(data, message, state):
         return
     
     

@@ -102,7 +102,7 @@ class StateUtils():
     
     
     @classmethod
-    async def edit_invoice(data: dict, message: Message, state: FSMContext):
+    async def edit_invoice(cls, data: dict, message: Message, state: FSMContext):
         """
         Проверяет идет ли редактирование пункта.
         """
@@ -113,5 +113,7 @@ class StateUtils():
             updated_summary = await StateUtils.get_summary(message, updated_data)
             await state.update_data(last_bot_message_id=updated_summary.message_id)
             await BotUtils.delete_prev_messages(message, updated_data.get("last_bot_message_id"))
-            return
+            return True
+        
+        return False
             

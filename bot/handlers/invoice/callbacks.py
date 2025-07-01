@@ -5,7 +5,6 @@ from aiogram import F, Router
 from aiogram.types import CallbackQuery
 
 from app.api.handlers.normalize import normalize_phone
-from bot.utils.bot_utils import BotUtils
 from bot.states.invoice import InvoiceForm, INVOICE_PROMPTS, STATE_MAP
 from bot.keyboards.customer import CustomerKeyboards
 from bot.keyboards.backbuttons import BackButtons

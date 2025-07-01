@@ -22,10 +22,9 @@ async def get_insurance_amount(message: Message, state: FSMContext):
     """
     
     data = await StateUtils.prepare_next_state(message, state)
-    
-    
     insurance_amount = message.text.strip()
     await state.update_data(insurance_amount=insurance_amount)
+    
     
     try:
         await InvoiceValidator.correct_insurance(insurance_amount)
@@ -35,12 +34,7 @@ async def get_insurance_amount(message: Message, state: FSMContext):
         return 
     
     
-    if data.get("editing_field"):
-        await state.update_data(editing_field=None)
-        updated_data = await state.get_data()
-        updated_summary = await StateUtils.get_summary(message, updated_data)
-        await state.update_data(last_bot_message_id=updated_summary.message_id)
-        await BotUtils.delete_prev_messages(message, updated_data.get("last_bot_message_id"))
+    if await StateUtils.edit_invoice(data, message, state):
         return
         
         
@@ -48,7 +42,7 @@ async def get_insurance_amount(message: Message, state: FSMContext):
     error_message = data.get("error_message")
     try:
         if error_message:
-            await delete_prev_messages(message, error_message)
+            await BotUtils.delete_prev_messages(message, error_message)
     except TelegramBadRequest:
         pass    
 
