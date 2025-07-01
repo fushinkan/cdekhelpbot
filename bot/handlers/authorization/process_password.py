@@ -2,13 +2,13 @@ import asyncio
 
 from aiogram.fsm.context import FSMContext
 from aiogram import F, Router
-from aiogram.types import CallbackQuery, Message
+from aiogram.types import Message
 
 from app.api.utils.security import verify_password
 from bot.utils.exceptions import IncorrectPasswordException
 from bot.keyboards.admin import AdminKeyboards
 from bot.utils.fetch_user import fetch_user_by_phone
-from bot.utils.delete_messages import BotUtils
+from bot.utils.bot_utils import BotUtils
 from bot.states.admin import AdminAuth
 
 router = Router()

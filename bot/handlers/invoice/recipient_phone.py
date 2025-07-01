@@ -8,7 +8,7 @@ from bot.utils.exceptions import IncorrectPhone
 from bot.states.invoice import InvoiceForm
 from bot.keyboards.backbuttons import BackButtons
 from bot.utils.invoice import StateUtils
-from bot.utils.delete_messages import BotUtils
+from bot.utils.bot_utils import BotUtils
 
 router = Router()
 

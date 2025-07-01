@@ -9,7 +9,7 @@ from bot.utils.exceptions import UserNotExistsException, IncorrectPhone
 from bot.keyboards.customer import CustomerKeyboards
 from bot.keyboards.backbuttons import BackButtons
 from bot.utils.fetch_user import fetch_user_by_phone
-from bot.utils.delete_messages import delete_prev_messages
+from bot.utils.bot_utils import BotUtils
 from bot.states.admin import AdminAuth
 
 router = Router()
@@ -33,7 +33,7 @@ async def process_role(message: Message, state: FSMContext):
     try:
         phone = await normalize_phone(message.text)
         user = await fetch_user_by_phone(phone)     
-        await delete_prev_messages(message, message_id=last_bot_message_id)
+        await BotUtils.delete_prev_messages(message, message_id=last_bot_message_id)
         await message.delete()
         
     except (IncorrectPhone, UserNotExistsException) as e:

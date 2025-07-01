@@ -9,7 +9,7 @@ from bot.utils.exceptions import IncorrectInsurance
 from bot.utils.invoice import StateUtils
 from bot.states.invoice import InvoiceForm
 from bot.keyboards.customer import CustomerKeyboards
-from bot.utils.delete_messages import BotUtils
+from bot.utils.bot_utils import BotUtils
 
 
 router = Router()

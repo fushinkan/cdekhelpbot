@@ -6,6 +6,7 @@ from aiogram.types import CallbackQuery
 
 from app.api.handlers.normalize import normalize_phone
 from bot.keyboards.customer import CustomerKeyboards
+from bot.keyboards.backbuttons import BackButtons
 from bot.keyboards.basic import BasicKeyboards
 from bot.states.admin import AdminAuth
 
@@ -45,7 +46,7 @@ async def back_to_phone_screen(callback: CallbackQuery, state: FSMContext):
     await state.clear()
     
     
-    await callback.message.edit_text("Отправь свой номер телефона для авторизации.", reply_markup=await BasicKeyboards.back_to_welcoming_screen())
+    await callback.message.edit_text("Отправь свой номер телефона для авторизации.", reply_markup=await BackButtons.back_to_welcoming_screen())
     
     
     await state.set_state(AdminAuth.waiting_for_phone)
@@ -58,7 +59,7 @@ async def without_password(callback: CallbackQuery, state: FSMContext):
     """
     
     data = await state.get_data()
-    last_bot_message_id = data.get("last_bot_message")
+    #last_bot_message_id = data.get("last_bot_message")
     phone_raw = data.get("phone")
     phone = await normalize_phone(phone_raw)
 

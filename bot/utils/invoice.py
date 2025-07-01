@@ -4,7 +4,7 @@ from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
 from aiogram.exceptions import TelegramBadRequest
 
-from bot.utils.delete_messages import BotUtils
+from bot.utils.bot_utils import BotUtils
 from bot.keyboards.customer import CustomerKeyboards
 from bot.states.invoice import InvoiceForm
 from bot.states.invoice import INVOICE_STATE

@@ -10,7 +10,7 @@ class BotUtils:
     """
     
     @classmethod
-    async def delete_prev_messages(obj: Union[Message, CallbackQuery], message_id: int):
+    async def delete_prev_messages(cls, obj: Union[Message, CallbackQuery], message_id: int):
         """
         Удаляет сообщение бота. 
         
