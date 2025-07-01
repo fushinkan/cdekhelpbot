@@ -7,7 +7,7 @@ class InvoiceValidator:
     Класс для валидации введеных данных.
     """
     #AGREEMENT_PATTERN = re.compile(r"^(IM|SZ|KU|ИМ|СЗ|КУ)-([A-Za-z]{3}|[А-Яа-я]{3})\d-\d{1,3}$")
-    PHONE_NUMBER = re.compile(r"^8\d{10}$")
+    PHONE_NUMBER = re.compile(r"^7\d{10}$")
     INSURANCE_AMOUNT = re.compile(r"^\d+$")
     
     #@classmethod
@@ -40,9 +40,9 @@ class InvoiceValidator:
         """
         Проверяет формат введенного номера телефона.
         
-        Формат: 8ХХХХХХХХХХ
+        Формат: 7ХХХХХХХХХХ
         
-        Пример: 89042803001
+        Пример: 79042803001
 
         """
         
