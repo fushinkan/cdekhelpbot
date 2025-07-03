@@ -7,11 +7,12 @@ from aiogram.fsm.storage.redis import RedisStorage
 
 #from api.setup_db import setup_db
 
+
 from app.core.config import settings
 from bot.handlers.invoice import router as invoice_router
 from bot.handlers.command_start import router as welcoming_router
 from bot.handlers.authorization import router as authorize_router
-
+from bot.handlers.me import router as me_router
 
 async def startup(dispatcher: Dispatcher):
     print("Starting up...")
@@ -38,7 +39,8 @@ async def start_bot():
     dp.include_routers(
         welcoming_router,
         authorize_router,
-        invoice_router
+        invoice_router,
+        me_router,
     )
     
     # Запуск бота
@@ -48,3 +50,4 @@ async def start_bot():
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     asyncio.run(start_bot())
+    

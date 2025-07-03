@@ -21,5 +21,5 @@ class Admins(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
     
-    role: Mapped[str] = mapped_column(String(10), default="user", nullable=False)
+    role: Mapped[str] = mapped_column(String(10), default="admin", nullable=False)
     

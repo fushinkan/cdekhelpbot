@@ -27,6 +27,8 @@ from app.db.models.users import Users
 from app.db.models.invoices import Invoice
 from app.db.models.extra_services import ExtraServices
 from app.db.models.tariffs import Tariffs
+from app.db.models.phone_numbers import PhoneNumbers
+from app.db.models.admins import Admins
 
 target_metadata = Base.metadata
 
