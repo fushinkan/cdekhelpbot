@@ -13,7 +13,7 @@ class Admins(Base):
     
     telegram_id: Mapped[int | None] = mapped_column(BigInteger, unique=True, nullable=True)
     telegram_name: Mapped[str | None] = mapped_column(String(100), nullable=True)
-    fullname: Mapped[str] = mapped_column(String(100), nullable=False)
+    contractor: Mapped[str] = mapped_column(String(100), nullable=False)
     phone_number: Mapped[str] = mapped_column(String(150), unique=False, nullable=False)
     hashed_psw: Mapped[str] = mapped_column(String(255), nullable=False)
     is_logged: Mapped[bool] = mapped_column(Boolean, server_default=text("false"), default=False)

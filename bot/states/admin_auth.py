@@ -7,5 +7,4 @@ class AdminAuth(StatesGroup):
 
     """
     
-    waiting_for_phone = State()
-    waiting_for_password = State()
+    password = State()

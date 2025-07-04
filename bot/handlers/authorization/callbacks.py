@@ -8,7 +8,7 @@ from app.api.handlers.normalize import normalize_phone
 from bot.keyboards.customer import CustomerKeyboards
 from bot.keyboards.backbuttons import BackButtons
 from bot.keyboards.basic import BasicKeyboards
-from bot.states.admin import AdminAuth
+from bot.states.auth import Auth
 
 router = Router()
 
@@ -46,10 +46,10 @@ async def back_to_phone_screen(callback: CallbackQuery, state: FSMContext):
     await state.clear()
     
     
-    await callback.message.edit_text("Отправь свой номер телефона для авторизации.", reply_markup=await BackButtons.back_to_welcoming_screen())
+    sent = await callback.message.edit_text("Отправь свой номер телефона для авторизации.", reply_markup=await BackButtons.back_to_welcoming_screen())
     
-    
-    await state.set_state(AdminAuth.waiting_for_phone)
+    await state.update_data(last_bot_message=sent.message_id)
+    await state.set_state(Auth.waiting_for_phone)
     
 
 @router.callback_query(F.data.in_(["continue", "cancel"]))

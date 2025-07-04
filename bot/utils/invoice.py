@@ -36,6 +36,7 @@ class StateUtils():
         
         return sent
     
+    
     @classmethod
     async def push_state_to_history(cls, state: FSMContext, new_state: InvoiceForm):
         """

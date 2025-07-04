@@ -1,31 +1,76 @@
 from fastapi import Depends
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from bot.utils.exceptions import UserNotExistsException
 from app.db.models.users import Users
+from app.db.models.admins import Admins
+from app.db.models.phone_numbers import PhoneNumbers
 
 
-async def get_user_by_phone(phone_number: str, session: AsyncSession):
+class UserInDB:
     """
-    Функция проверяет наличие пользователя в БД.
-
-    Args:
-        phone_number (str): Номер телефона, который пользователь отправляет боту
-        session (AsyncSession): Сессия подключения к БД (по умолчанию взята из настроек)
-
-    Raises:
-        UserNotExistsException: Кастомный класс с ошибкой.
-
-    Returns:
-        PydanticSchema: Pydantic-схема для дальнейшей работы API.
+    Класс с методами для проверки наличия пользователя в базе данных.
     """
-    result = await session.execute(
-        select(Users).where(Users.phone_number == phone_number)
-    )
     
-    existing_user = result.scalar_one_or_none()
-    if not existing_user:
-        raise UserNotExistsException(UserNotExistsException.__doc__)
-    
-    return existing_user
+    @classmethod
+    async def get_client_by_phone(cls, phone_number: str, session: AsyncSession):
+        """
+        Функция проверяет наличие пользователя в БД.
+
+        Args:
+            phone_number (str): Номер телефона, который пользователь отправляет боту
+            session (AsyncSession): Сессия подключения к БД (по умолчанию взята из настроек)
+
+        Raises:
+            UserNotExistsException: Кастомный класс с ошибкой.
+
+        Returns:
+            ORM Model: ORM Модель для дальнейшей работы с API.
+        """
+        
+        user_res = await session.execute(
+            select(Users)
+            .join(Users.phones)
+            .where(PhoneNumbers.number == phone_number)
+            .options(selectinload(Users.phones))
+        )
+
+        user = user_res.scalars().all()
+        
+        
+        if not user:
+            raise UserNotExistsException(UserNotExistsException.__doc__)
+        
+        
+        return user
+
+    @classmethod
+    async def get_admin_by_phone(cls, phone_number: str, session: AsyncSession):
+        """
+        Функция проверяет наличие админа в БД.
+
+        Args:
+            phone_number (str): Номер телефона, который админ отправляет боту
+            session (AsyncSession): Сессия подключения к БД (по умолчанию взята из настроек)
+
+        Raises:
+            UserNotExistsException: Кастомный класс с ошибкой.
+
+        Returns:
+            ORM Model: ORM Модель для дальнейшей работы с API.
+        """
+        
+        admin_res = await session.execute(
+            select(Admins).where(Admins.phone_number == phone_number)
+        )
+        
+        admin = admin_res.scalar_one_or_none()
+        
+        
+        if not admin:
+            raise UserNotExistsException(UserNotExistsException.__doc__)
+        
+        
+        return admin

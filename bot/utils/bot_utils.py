@@ -16,6 +16,9 @@ class BotUtils:
         
         Принимает либо Message либо CallbackQuery.
         """
+        if message_id is None:
+            return
+        
         if isinstance(obj, Message):
             chat_id = obj.chat.id
         elif isinstance(obj, CallbackQuery):

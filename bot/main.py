@@ -12,7 +12,7 @@ from app.core.config import settings
 from bot.handlers.invoice import router as invoice_router
 from bot.handlers.command_start import router as welcoming_router
 from bot.handlers.authorization import router as authorize_router
-from bot.handlers.me import router as me_router
+
 
 async def startup(dispatcher: Dispatcher):
     print("Starting up...")
@@ -40,7 +40,6 @@ async def start_bot():
         welcoming_router,
         authorize_router,
         invoice_router,
-        me_router,
     )
     
     # Запуск бота

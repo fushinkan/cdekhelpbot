@@ -6,7 +6,7 @@ from aiogram.types import CallbackQuery
 
 from bot.keyboards.backbuttons import BackButtons
 
-from bot.states.admin import AdminAuth
+from bot.states.auth import Auth
 
 router = Router()
 
@@ -25,5 +25,5 @@ async def process_phone(callback: CallbackQuery, state: FSMContext):
     sent = await callback.message.edit_text("Отправь свой номер телефона для авторизации.", reply_markup=await BackButtons.back_to_welcoming_screen())
     
     
-    await state.set_state(AdminAuth.waiting_for_phone)
+    await state.set_state(Auth.waiting_for_phone)
     await state.update_data(last_bot_message=sent.message_id)
