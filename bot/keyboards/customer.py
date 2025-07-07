@@ -9,7 +9,7 @@ class CustomerKeyboards():
     async def password_kb(cls):
         return InlineKeyboardMarkup(inline_keyboard=[
             [InlineKeyboardButton(text="🔒 Установить пароль", callback_data="set_password"),
-            InlineKeyboardButton(text="✅ Продолжить", callback_data="continue")]
+            InlineKeyboardButton(text="✅ Продолжить", callback_data="continue")],
         ])
     
     @classmethod  

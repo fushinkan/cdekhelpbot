@@ -1,5 +1,5 @@
 from aiogram.fsm.context import FSMContext
-from aiogram import F, Router
+from aiogram import Router
 from aiogram.types import Message
 
 

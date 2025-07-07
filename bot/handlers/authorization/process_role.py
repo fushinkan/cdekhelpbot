@@ -1,7 +1,7 @@
 import asyncio
 from aiogram.exceptions import TelegramBadRequest
 from aiogram.fsm.context import FSMContext
-from aiogram import F, Router
+from aiogram import Router
 from aiogram.types import Message
 
 from app.api.utils.auth import AuthUtils
@@ -47,7 +47,7 @@ async def process_role(message: Message, state: FSMContext):
             await BotUtils.delete_prev_messages(message, message_id=last_bot_message_id)
             await message.delete()
             
-        except (UserNotExistsException) as e:
+        except UserNotExistsException as e:
             sent = await message.answer(str(e), parse_mode="HTML")
             await asyncio.sleep(2)
             await message.delete()

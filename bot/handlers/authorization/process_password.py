@@ -1,7 +1,7 @@
 import asyncio
 from aiogram.exceptions import TelegramBadRequest
 from aiogram.fsm.context import FSMContext
-from aiogram import F, Router
+from aiogram import Router
 from aiogram.types import Message
 
 from app.api.utils.security import verify_password
@@ -12,6 +12,7 @@ from bot.keyboards.admin import AdminKeyboards
 from bot.utils.bot_utils import BotUtils
 from bot.states.admin_auth import AdminAuth
 from bot.utils.exceptions import UserNotExistsException
+from bot.keyboards.backbuttons import BackButtons
 
 router = Router()
 
@@ -50,34 +51,34 @@ async def process_password(message: Message, state: FSMContext):
     
     entered_password = message.text.strip()
     
-       
-    await BotUtils.delete_prev_messages(obj=message, message_id=last_bot_message_id)
-        
-    try:   
-        if verify_password(entered_password, user.hashed_psw):
-            sent = await message.answer((
+    
+    try:
+        if last_bot_message_id:
+            await BotUtils.delete_prev_messages(obj=message, message_id=last_bot_message_id)
+    except TelegramBadRequest:
+        pass
+    
+    
+    if verify_password(entered_password, user.hashed_psw):
+        sent = await message.answer((
             f"👋 Здравствуйте, {user.contractor}\n\n"
             "Добро пожаловать в панель управления.\n"
             "Здесь вы можете управлять пользователями и контролировать систему.\n"
             "Выберите нужный пункт меню, чтобы начать работу."
         ), reply_markup=await AdminKeyboards.get_admin_kb())
         await message.delete()
-            
-    except IncorrectPasswordException as e:
-        sent = await message.answer(str(e), parse_mode="HTML")
-        await state.update_data(error_message=sent.message_id)
-        return 
+        await state.clear()
+         
+    else:
+        sent = await message.answer(str(IncorrectPasswordException(IncorrectPasswordException.__doc__)), parse_mode="HTML", reply_markup=await BackButtons.back_to_phone())
+        await state.update_data(last_bot_message=sent.message_id)
+
+    
+        
+    
+
     
     
-    data = await state.get_data()
-    error_message = data.get("error_message")
-    try:
-        if error_message:
-            await BotUtils.delete_prev_messages(message, error_message)      
-    except TelegramBadRequest:
-        pass
-    
-    
-    await state.clear()
+
     
  
