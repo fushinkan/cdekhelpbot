@@ -15,7 +15,7 @@ class BackButtons:
     
     @classmethod
     async def back_to_welcoming_screen(cls):
-        return await cls.get_back_button(callback_data="go_back_to_welcoming_screen")
+        return await cls.get_back_button(callback_data="back_to_welcoming_screen")
     
     @classmethod # Кнопка для возврата при авторизации
     async def back_to_phone(cls):    

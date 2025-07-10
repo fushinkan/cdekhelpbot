@@ -5,7 +5,7 @@ from aiogram import F, Router
 from aiogram.types import CallbackQuery
 
 
-from app.api.handlers.user_info import get_contract_number_from_db
+from app.api.handlers.get_user import UserInDB
 from app.api.handlers.normalize import normalize_phone
 from bot.utils.exceptions import UserNotExistsException, IncorrectPhone
 from bot.states.invoice import InvoiceForm
@@ -34,7 +34,10 @@ async def get_contract_number(callback: CallbackQuery, state: FSMContext):
     
     async with async_session_factory() as session:
         try:
-            contract_number = await get_contract_number_from_db(phone, session)
+            customers = await UserInDB.get_client_by_phone(phone, session)
+            customer = customers[0]
+            
+            contract_number = customer.contract_number
 
 
             await state.update_data(contract_number=contract_number)

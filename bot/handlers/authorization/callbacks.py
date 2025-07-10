@@ -1,9 +1,13 @@
 import asyncio
 
+from sqlalchemy import select, update
 from aiogram.fsm.context import FSMContext
 from aiogram import F, Router
 from aiogram.types import CallbackQuery
 
+from app.db.models.admins import Admins
+from app.db.models.users import Users
+from app.db.base import async_session_factory
 from app.api.handlers.normalize import normalize_phone
 from bot.keyboards.customer import CustomerKeyboards
 from bot.keyboards.backbuttons import BackButtons
@@ -18,6 +22,35 @@ async def back_to_welcoming_screen(callback: CallbackQuery, state: FSMContext):
     """
     По кнопке 'Назад' возвращает на меню приветствия.
     """
+    telegram_id = callback.from_user.id
+    
+    async with async_session_factory() as session:
+        admin = await session.execute(
+            select(Admins)
+            .where(Admins.telegram_id == telegram_id)
+        )
+        admin = admin.scalars().first()
+        
+        if admin:
+            await session.execute(
+                update(Admins)
+                .where(Admins.telegram_id == telegram_id)
+                .values(is_logged=False)
+            )
+        else:
+            user = await session.execute(
+                select(Users)
+                .where(Users.telegram_id == telegram_id)
+            )    
+            user = user.scalars().first()
+            
+            if user:
+                await session.execute(
+                    update(Users)
+                    .where(Users.telegram_id == telegram_id)
+                    .values(is_logged=False)
+                )
+        await session.commit()
     
     await asyncio.sleep(0.2)
     await state.clear()

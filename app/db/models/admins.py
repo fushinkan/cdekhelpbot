@@ -7,7 +7,7 @@ from datetime import datetime
 
 
 class Admins(Base):
-    __tablename__ = "admins"
+    __tablename__ = "admins"    
     
     id: Mapped[int] = mapped_column(primary_key=True)
     
