@@ -5,13 +5,17 @@ from aiogram.enums import ChatAction
 from aiogram import filters, types
 from aiogram import Router
 
+from bot.keyboards.customer import CustomerKeyboards
+from bot.keyboards.admin import AdminKeyboards
+from bot.utils.middlewares import LoggingMiddleware
 from bot.keyboards.basic import BasicKeyboards
 
 router = Router()
+router.message.middleware(LoggingMiddleware())
 
 
-@router.message(filters.CommandStart())
-async def cmd_start(message: types.Message, state: FSMContext):
+@router.message(filters.CommandStart(), flags={"data": True})
+async def cmd_start(message: types.Message, state: FSMContext, **data: dict):
     """
     Обработчик команды /start. Отправляет приветственное сообщение и предлагает действия.
     
@@ -23,6 +27,30 @@ async def cmd_start(message: types.Message, state: FSMContext):
     await state.clear()
     
     
+    is_logged = data.get("is_logged", False)
+    role = data.get("role", None)
+    user_obj = data.get("obj")
+    
+    
+    if is_logged and user_obj:
+        if role == "admin":
+            sent = await message.answer((
+                f"👋 Здравствуйте, {user_obj.contractor}\n\n"
+                "Добро пожаловать в панель управления.\n"
+                "Здесь вы можете управлять пользователями и контролировать систему.\n"
+                "Выберите нужный пункт меню, чтобы начать работу."
+            ), reply_markup=await AdminKeyboards.get_admin_kb())
+            return
+        
+        elif role == "user":
+            sent = await message.answer((
+                "👋 Приветствую!\n\n"
+                "Здесь ты можешь быстро оформить накладную, подобрать тарифы и подключить дополнительные услуги. 🚀\n"
+                "Не нужно ломать голову — просто выбери, что нужно, и я всё сделаю быстро и без лишних хлопот! 💼✨\n"
+                "Если возникнут вопросы — пиши, всегда рад помочь! 😊👍"
+            ), reply_markup=await CustomerKeyboards.customer_kb())
+            return
+
     welcoming_text = (
         "👋 Привет!\n\n"
         "Я — электронный помощник менеджера по продажам СДЭК.\n\n"

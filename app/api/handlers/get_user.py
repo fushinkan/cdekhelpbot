@@ -37,14 +37,14 @@ class UserInDB:
             .options(selectinload(Users.phones))
         )
 
-        user = user_res.scalars().all()
+        users = user_res.scalars().all()
         
         
-        if not user:
+        if not users:
             raise UserNotExistsException(UserNotExistsException.__doc__)
         
         
-        return user
+        return users
 
     @classmethod
     async def get_admin_by_phone(cls, phone_number: str, session: AsyncSession):
@@ -74,3 +74,29 @@ class UserInDB:
         
         
         return admin
+    
+    @classmethod
+    async def get_client_by_telegram_id(cls, telegram_id: int, session: AsyncSession):
+        """
+        Поиск пользователя по Telegram ID.
+        """
+        
+        result = await session.execute(
+            select(Users)
+            .where(Users.telegram_id == telegram_id)
+        )
+        
+        return result.scalar_one_or_none()
+    
+    @classmethod
+    async def get_admin_by_telegram_id(cls, telegram_id: int, session: AsyncSession):
+        """
+        Поиск пользователя по Telegram ID.
+        """
+        
+        result = await session.execute(
+            select(Admins)
+            .where(Admins.telegram_id == telegram_id)
+        )
+        
+        return result.scalar_one_or_none()

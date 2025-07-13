@@ -3,7 +3,6 @@ from typing import Union
 from aiogram.types import Message, CallbackQuery
 from aiogram.exceptions import TelegramBadRequest
 
-
 class BotUtils:
     """
     Дополнительные возможности бота.
