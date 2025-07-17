@@ -1,0 +1,45 @@
+from aiogram import Router
+from aiogram.types import Message
+from aiogram.fsm.context import FSMContext
+from sqlalchemy import update
+
+from app.api.utils.security import hashed_password
+from app.db.base import async_session_factory
+from app.db.models.users import Users
+from bot.states.customer_auth import CustomerAuth
+from bot.handlers.authorization.main_menu import proceed_to_main_menu
+from bot.utils.invoice import StateUtils
+
+
+router = Router()
+
+
+@router.message(CustomerAuth.confirm_password)
+async def confirm_password(message: Message, state: FSMContext):
+    data = await StateUtils.prepare_next_state(message, state)
+    
+    if message.text.strip() != data["new_password"]:
+        await message.answer("Пароли не совпадают, попробуйте заново")
+        await state.set_state(CustomerAuth.set_password)
+        return
+    
+    hashed_psw = hashed_password(message.text.strip())
+    
+
+    async with async_session_factory() as session:
+        await session.execute(
+            update(Users)
+            .where(Users.id == int(data["user_id"]))
+            .values(
+                hashed_psw=str(hashed_psw),
+                telegram_name=message.from_user.full_name,
+                telegram_id=message.from_user.id,
+                is_logged=True
+        )
+            )
+        await session.commit()
+            
+        user = await session.get(Users, data["user_id"])
+            
+        await proceed_to_main_menu(user, message)
+        await state.clear()

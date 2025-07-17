@@ -5,8 +5,8 @@ from aiogram import F, Router
 from aiogram.types import CallbackQuery
 
 from bot.keyboards.backbuttons import BackButtons
-
 from bot.states.auth import Auth
+
 
 router = Router()
 
@@ -14,7 +14,7 @@ router = Router()
 @router.callback_query(F.data == "enter")
 async def process_phone(callback: CallbackQuery, state: FSMContext):
     """
-    По кнопке 'Войти' просим пользователя отправить номер телефона.
+    По кнопке 'Войти' просит пользователя отправить номер телефона.
     """
 
     

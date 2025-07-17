@@ -80,24 +80,25 @@ class StateUtils():
         
         data = await state.get_data()
         last_bot_message_id = data.get("last_bot_message")
-        
+        message = None
         
         if isinstance(obj, CallbackQuery):
             await obj.answer()
             try:
                 await obj.message.delete()
-                message = obj.message
             except TelegramBadRequest:
                 pass
+            message = obj.message
         else:
             try:
-                await obj.delete()
-                message = obj        
+                await obj.delete()      
             except TelegramBadRequest:
                 pass
+            message = obj  
             
-        await BotUtils.delete_prev_messages(message, last_bot_message_id)
-    
+        if message and last_bot_message_id:
+            await BotUtils.delete_prev_messages(message, last_bot_message_id)
+   
         
         return data
     

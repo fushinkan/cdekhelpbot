@@ -3,7 +3,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from bot.utils.exceptions import UserNotExistsException
+from bot.utils.exceptions import UserNotExistsException, AdminNotExistsException
 from app.db.models.users import Users
 from app.db.models.admins import Admins
 from app.db.models.phone_numbers import PhoneNumbers
@@ -56,7 +56,7 @@ class UserInDB:
             session (AsyncSession): Сессия подключения к БД (по умолчанию взята из настроек)
 
         Raises:
-            UserNotExistsException: Кастомный класс с ошибкой.
+            AdminNotExistsException: Кастомный класс с ошибкой.
 
         Returns:
             ORM Model: ORM Модель для дальнейшей работы с API.
@@ -70,7 +70,7 @@ class UserInDB:
         
         
         if not admin:
-            raise UserNotExistsException(UserNotExistsException.__doc__)
+            raise AdminNotExistsException(AdminNotExistsException.__doc__)
         
         
         return admin
@@ -97,6 +97,40 @@ class UserInDB:
         result = await session.execute(
             select(Admins)
             .where(Admins.telegram_id == telegram_id)
+        )
+        
+        return result.scalar_one_or_none()
+    
+    
+    @classmethod
+    async def get_client_by_id(cls, id: int, session: AsyncSession):
+ 
+        user_res = await session.execute(
+                select(Users)
+                .join(Users.phones)
+                .where(PhoneNumbers.user_id == id)
+                .options(selectinload(Users.phones))
+            )
+
+        users = user_res.scalars().all()
+            
+            
+        if not users:
+            raise UserNotExistsException(UserNotExistsException.__doc__)
+            
+            
+        return users
+        
+        
+    @classmethod
+    async def get_admin_by_id(cls, id: int, session: AsyncSession):
+        """
+        Поиск пользователя по ID.
+        """
+        
+        result = await session.execute(
+            select(Admins)
+            .where(Admins.id == id)
         )
         
         return result.scalar_one_or_none()

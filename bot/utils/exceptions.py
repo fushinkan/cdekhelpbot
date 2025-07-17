@@ -1,5 +1,11 @@
 # Custom Exceptions
 
+class AdminNotExistsException(Exception):
+    """
+    Админа не существует. Попробуйте заново.
+    """
+    pass
+
 class UserNotExistsException(Exception):
     """
     Пользователя не существует. Попробуйте заново.

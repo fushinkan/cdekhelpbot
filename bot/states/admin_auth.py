@@ -6,5 +6,7 @@ class AdminAuth(StatesGroup):
     Состояние для авторизации администартора в Telegram-боте.
 
     """
-    
-    password = State()
+    phone = State()
+    set_password = State()
+    confirm_password = State()
+    enter_password = State()
