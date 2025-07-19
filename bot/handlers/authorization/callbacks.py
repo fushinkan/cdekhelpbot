@@ -1,6 +1,6 @@
 import asyncio
 
-from sqlalchemy import select, update
+from sqlalchemy import select
 from aiogram.fsm.context import FSMContext
 from aiogram import F, Router
 from aiogram.types import CallbackQuery
@@ -23,8 +23,10 @@ async def back_to_welcoming_screen(callback: CallbackQuery, state: FSMContext):
     По кнопке 'Назад' возвращает на меню приветствия.
     """
     telegram_id = callback.from_user.id
+    telegram_name = callback.from_user.full_name
     
     async with async_session_factory() as session:
+        
         admin = await session.execute(
             select(Admins)
             .where(Admins.telegram_id == telegram_id)
@@ -32,24 +34,21 @@ async def back_to_welcoming_screen(callback: CallbackQuery, state: FSMContext):
         admin = admin.scalars().first()
         
         if admin:
-            await session.execute(
-                update(Admins)
-                .where(Admins.telegram_id == telegram_id)
-                .values(is_logged=False)
-            )
+            admin.is_logged = False
+            admin.telegram_name = telegram_name
+
         else:
             user = await session.execute(
                 select(Users)
                 .where(Users.telegram_id == telegram_id)
-            )    
+            )   
+             
             user = user.scalars().first()
             
             if user:
-                await session.execute(
-                    update(Users)
-                    .where(Users.telegram_id == telegram_id)
-                    .values(is_logged=False)
-                )
+                user.is_logged = False
+                user.telegram_name = telegram_name
+
         await session.commit()
     
     await asyncio.sleep(0.2)
@@ -92,7 +91,6 @@ async def without_password(callback: CallbackQuery, state: FSMContext):
     """
     
     data = await state.get_data()
-    #last_bot_message_id = data.get("last_bot_message")
     phone_raw = data.get("phone")
     phone = await normalize_phone(phone_raw)
 
@@ -110,6 +108,5 @@ async def without_password(callback: CallbackQuery, state: FSMContext):
     
     
     await asyncio.sleep(1)
-    #await delete_prev_messages(callback, last_bot_message_id)
     await state.clear()
     await state.update_data(phone=phone)

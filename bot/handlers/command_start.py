@@ -33,6 +33,7 @@ async def cmd_start(message: types.Message, state: FSMContext, **data: dict):
     
     
     if is_logged and user_obj:
+        
         if role == "admin":
             sent = await message.answer((
                 f"👋 Здравствуйте, {user_obj.contractor}\n\n"
@@ -43,6 +44,8 @@ async def cmd_start(message: types.Message, state: FSMContext, **data: dict):
             return
         
         elif role == "user":
+            await state.update_data(phone=user_obj.phones[0].number)
+            
             sent = await message.answer((
                 "👋 Приветствую!\n\n"
                 "Здесь ты можешь быстро оформить накладную, подобрать тарифы и подключить дополнительные услуги. 🚀\n"
@@ -69,3 +72,9 @@ async def cmd_start(message: types.Message, state: FSMContext, **data: dict):
     
     await asyncio.sleep(1)
     await message.delete()
+
+
+@router.message(filters.Command("chat_id"))
+async def chat_id(message: types.Message):
+    chat_id = message.chat.id
+    await message.answer(f"ID: {chat_id}")

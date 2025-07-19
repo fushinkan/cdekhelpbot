@@ -7,7 +7,7 @@ def hashed_password(password: str) -> str:
     Returns:
         str: Хэш в виде строки (utf-8).
     """
-    return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt())
+    return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:

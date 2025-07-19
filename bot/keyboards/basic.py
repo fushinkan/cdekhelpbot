@@ -10,6 +10,7 @@ class BasicKeyboards():
     async def get_welcoming_kb(cls):
         return InlineKeyboardMarkup(inline_keyboard=[
             [InlineKeyboardButton(text="👤 Войти", callback_data="enter"),
-            InlineKeyboardButton(text="❓ Помощь", callback_data="help")]
+            InlineKeyboardButton(text="❓ Помощь", callback_data="help")],
+            [InlineKeyboardButton(text="✍️ Заключить договор", callback_data="create_agreement")]
         ])
         

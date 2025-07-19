@@ -9,3 +9,4 @@ class CustomerAuth(StatesGroup):
     set_password = State()
     confirm_password = State()
     enter_password = State()
+    main_menu = State()

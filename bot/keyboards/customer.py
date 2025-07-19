@@ -16,8 +16,7 @@ class CustomerKeyboards():
     async def customer_kb(cls):
         return InlineKeyboardMarkup(inline_keyboard=[
             [InlineKeyboardButton(text="📝 Накладная", callback_data="create_invoice"), InlineKeyboardButton(text="💬 Поддержка", callback_data="support")],
-            [InlineKeyboardButton(text="✍️ Договор", callback_data="create_agreement"), InlineKeyboardButton(text="➕ Услуги", callback_data="services")],
-            [InlineKeyboardButton(text="💰 Тарифы", callback_data="tariffs")],
+            [InlineKeyboardButton(text="💰 Тарифы", callback_data="tariffs"), InlineKeyboardButton(text="➕ Услуги", callback_data="services")],
             [InlineKeyboardButton(text="🎁 Получить мерч", callback_data="get_merch")],
             [InlineKeyboardButton(text="⚙ Настройки", callback_data="settings")],
             [InlineKeyboardButton(text="🚪 Выйти", callback_data="back_to_welcoming_screen")]

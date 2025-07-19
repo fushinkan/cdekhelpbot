@@ -23,16 +23,18 @@ router = Router()
 async def accept_enter(message: Message, state: FSMContext):
 
     data = await StateUtils.prepare_next_state(message, state)
+    phone = data.get("phone")
 
     try:
         async with async_session_factory() as session:
-            user = await UserInDB.get_client_by_phone(phone_number=data["phone"], session=session)
+            user = await UserInDB.get_client_by_phone(phone_number=phone, session=session)
             
             if not user:
                 raise UserNotExistsException(UserNotExistsException.__doc__)
             
             elif not verify_password(plain_password=message.text.strip(), hashed_password=user[0].hashed_psw):
                 raise IncorrectPasswordException(IncorrectPasswordException.__doc__)
+            
             else:
                 await session.execute(
                     update(Users)
@@ -46,7 +48,10 @@ async def accept_enter(message: Message, state: FSMContext):
                 await session.commit()
                 
                 await proceed_to_main_menu(user[0], message)
+                
             await state.clear()
+            await state.set_state(CustomerAuth.main_menu)
+            await state.update_data(phone=phone)
     
     except (UserNotExistsException, IncorrectPasswordException) as e:
         sent = await message.answer(str(e), parse_mode="HTML")

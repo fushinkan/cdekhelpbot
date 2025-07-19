@@ -84,9 +84,11 @@ class UserInDB:
         result = await session.execute(
             select(Users)
             .where(Users.telegram_id == telegram_id)
+            .options(selectinload(Users.phones))
         )
         
         return result.scalar_one_or_none()
+
     
     @classmethod
     async def get_admin_by_telegram_id(cls, telegram_id: int, session: AsyncSession):
@@ -100,6 +102,7 @@ class UserInDB:
         )
         
         return result.scalar_one_or_none()
+        
     
     
     @classmethod

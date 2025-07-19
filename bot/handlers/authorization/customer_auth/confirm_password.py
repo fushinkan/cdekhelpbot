@@ -17,6 +17,7 @@ router = Router()
 @router.message(CustomerAuth.confirm_password)
 async def confirm_password(message: Message, state: FSMContext):
     data = await StateUtils.prepare_next_state(message, state)
+    phone = data.get("phone")
     
     if message.text.strip() != data["new_password"]:
         await message.answer("Пароли не совпадают, попробуйте заново")
@@ -43,3 +44,5 @@ async def confirm_password(message: Message, state: FSMContext):
             
         await proceed_to_main_menu(user, message)
         await state.clear()
+        await state.set_state(CustomerAuth.main_menu)
+        await state.update_data(phone=phone)

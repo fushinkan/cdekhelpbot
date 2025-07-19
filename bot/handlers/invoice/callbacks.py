@@ -97,7 +97,7 @@ async def back_to_summary(callback: CallbackQuery, state: FSMContext):
 
 
     await StateUtils.get_summary(callback.message, data)
-    #await callback.message.edit_text(sent, reply_markup=await CustomerKeyboards.edit_or_confirm(), parse_mode="HTML")
+
 
 
 @router.callback_query(F.data.startswith("edit_"))
@@ -129,5 +129,17 @@ async def edit_invoice(callback: CallbackQuery, state: FSMContext):
     await state.update_data(editing_field=field)
     
     
-
+@router.callback_query(F.data == "confirm")
+async def send_invoice_summary(callback: CallbackQuery, state: FSMContext):
+    data = await StateUtils.prepare_next_state(callback, state)
+    
+    data["user_full_name"] = callback.from_user.full_name
+    
+    await StateUtils.send_summary(
+        message=callback,
+        data=data,
+        chat_id=-1002716160058
+    )
+    
+    await callback.answer("✅ Данные отправлены менеджеру.", show_alert=True)
     
