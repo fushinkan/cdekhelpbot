@@ -17,24 +17,27 @@ router.message.middleware(LoggingMiddleware())
 @router.message(filters.CommandStart(), flags={"data": True})
 async def cmd_start(message: types.Message, state: FSMContext, **data: dict):
     """
-    Обработчик команды /start. Отправляет приветственное сообщение и предлагает действия.
-    
-    Показывает кнопки:
-        - Войти (начать процесс авторизации)
-        - Помощь (информация о возможностях бота)
+    Обработчик команды /start.
+
+    Отправляет приветственное сообщение пользователю и предлагает выбрать действие:
+        - Войти: начать процесс авторизации.
+        - Помощь: получить информацию о возможностях бота.
+
+    Args:
+        message (types.Message): Входящее сообщение с командой /start от пользователя.
+        state (FSMContext): Контейнер для хранения и управления текущим состоянием пользователя.
+        **data (dict): Дополнительные данные, передаваемые из middleware.
     """
     
     await state.clear()
-    
     
     is_logged = data.get("is_logged", False)
     role = data.get("role", None)
     user_obj = data.get("obj")
     
-    
     if is_logged and user_obj:
-        
         if role == "admin":
+            
             sent = await message.answer((
                 f"👋 Здравствуйте, {user_obj.contractor}\n\n"
                 "Добро пожаловать в панель управления.\n"
@@ -66,9 +69,7 @@ async def cmd_start(message: types.Message, state: FSMContext, **data: dict):
     await message.bot.send_chat_action(chat_id=message.chat.id, action=ChatAction.TYPING)
     await asyncio.sleep(1)    
     
-    
     await message.answer(welcoming_text, reply_markup=await BasicKeyboards.get_welcoming_kb())
-    
     
     await asyncio.sleep(1)
     await message.delete()
@@ -76,5 +77,14 @@ async def cmd_start(message: types.Message, state: FSMContext, **data: dict):
 
 @router.message(filters.Command("chat_id"))
 async def chat_id(message: types.Message):
+    """
+    Обработчик команды /chat_id.
+
+    Отвечает сообщением с уникальным идентификатором Telegram-чата, из которого было отправлено сообщение.
+
+    Args:
+        message (types.Message): Входящее сообщение от пользователя.
+    """
+    
     chat_id = message.chat.id
     await message.answer(f"ID: {chat_id}")

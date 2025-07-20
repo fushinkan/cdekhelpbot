@@ -14,8 +14,15 @@ router = Router()
 @router.callback_query(F.data.startswith("edit_"))
 async def edit_invoice(callback: CallbackQuery, state: FSMContext):
     """
-    По кнопке 'Изменить <пункт>' перезаписывает данные в состояние и динамически изменяет сводку
+    Обрабатывает нажатие кнопки 'Изменить <пункт>'.
+
+    Перезаписывает соответствующие данные в состоянии пользователя и динамически обновляет сводку заказа.
+
+    Args:
+        callback (CallbackQuery): Объект callback-запроса от Telegram при нажатии кнопки.
+        state (FSMContext): Контейнер для хранения и управления текущим состоянием пользователя.
     """
+    
     await asyncio.sleep(0.2)
     
     field = callback.data.removeprefix("edit_")

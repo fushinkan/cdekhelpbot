@@ -1,9 +1,18 @@
 from bot.utils.exceptions import IncorrectPhone
 
 
-async def normalize_phone(phone: str) -> str:
+async def normalize_phone(*, phone: str) -> str:
     """
     Приводит номер телефона к одному формату.
+
+    Args:
+        phone (str): Номер телефона, который вводит пользователь/админ.
+
+    Raises:
+        IncorrectPhone: Кастомный класс с ошибкой.
+
+    Returns:
+        str: Номер телефона в формате 7ХХХХХХХХХХ.
     """
     phone = phone.strip()
     digits = "".join(ch for ch in phone if ch.isdigit())

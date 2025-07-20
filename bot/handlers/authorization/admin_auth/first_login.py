@@ -3,24 +3,27 @@ from aiogram import Router
 from aiogram.types import Message
 from aiogram.fsm.context import FSMContext
 
-
 from app.db.base import async_session_factory
 from app.api.handlers.get_user import UserInDB
-from app.api.handlers.normalize import normalize_phone
 from bot.utils.exceptions import AdminNotExistsException
-from bot.keyboards.backbuttons import BackButtons
-
-from bot.states.admin_auth import AdminAuth
 from bot.utils.invoice import StateUtils
+from bot.keyboards.backbuttons import BackButtons
+from bot.states.admin_auth import AdminAuth
+
 
 router = Router()
 
 
 @router.message(AdminAuth.phone)
-async def first_admin_login(message: Message, state: FSMContext):
+async def first_admin_login(*, message: Message, state: FSMContext):
     """
-    Проверяет, нужно ли устанавливать пароль для админа.
+    Обрабатывает ввод номера телефона при первичной авторизации администратора.
+    
+    Args:
+        message (Message): Объект входящего Telegram-сообщения от админа.
+        state (FSMContext): Контейнер для хранения и управления текущим состоянием админа в рамках авторизации.
     """
+    
     data = await StateUtils.prepare_next_state(message, state)
     phone = data.get("phone")
     id = data.get("id")
@@ -41,6 +44,7 @@ async def first_admin_login(message: Message, state: FSMContext):
                                     reply_markup= await BackButtons.back_to_phone())
             await state.update_data(phone=phone, admin_id=admin.id, last_bot_message=sent.message_id)
             await state.set_state(AdminAuth.set_password)
+            
         else:
             sent = await message.answer("Введите пароль для потдверждения доступа", 
                                             reply_markup=await BackButtons.back_to_phone())

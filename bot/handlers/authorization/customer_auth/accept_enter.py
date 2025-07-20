@@ -13,14 +13,27 @@ from app.db.models.users import Users
 from bot.utils.bot_utils import BotUtils
 from bot.utils.exceptions import UserNotExistsException
 from bot.utils.exceptions import IncorrectPasswordException
+from bot.utils.invoice import StateUtils
 from bot.states.customer_auth import CustomerAuth
 from bot.handlers.authorization.main_menu import proceed_to_main_menu
-from bot.utils.invoice import StateUtils
+
 
 router = Router()
 
+
 @router.message(CustomerAuth.enter_password)
 async def accept_enter(message: Message, state: FSMContext):
+    """
+    Проверяет правильность введенного пароля и пароля сохраненного в БД.
+
+    Args:
+        message (Message): Объект входящего Telegram-сообщения от пользователя.
+        state (FSMContext): Контейнер для хранения и управления текущим состоянием пользователя в рамках авторизации.
+
+    Raises:
+        UserNotExistsException: Кастомный класс с ошибкой.
+        IncorrectPasswordException: Кастомный класс с ошибкой.
+    """
 
     data = await StateUtils.prepare_next_state(message, state)
     phone = data.get("phone")
@@ -45,6 +58,7 @@ async def accept_enter(message: Message, state: FSMContext):
                         telegram_id=message.from_user.id
                     )
                 )
+                
                 await session.commit()
                 
                 await proceed_to_main_menu(user[0], message)
@@ -63,6 +77,7 @@ async def accept_enter(message: Message, state: FSMContext):
     
     try:
         if error_message:
-            await BotUtils.delete_prev_messages(message, error_message)      
+            await BotUtils.delete_prev_messages(message, error_message)   
+               
     except TelegramBadRequest:
         pass

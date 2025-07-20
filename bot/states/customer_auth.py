@@ -2,9 +2,20 @@ from aiogram.fsm.state import StatesGroup, State
 
 
 class CustomerAuth(StatesGroup):
-    """_
-    Состояние для авторизации простого пользователя в Telegram-боте.
     """
+    Состояния для процесса авторизации пользователя.
+
+    Наследуется от:
+        StatesGroup: базовый класс для описания состояний в FSM.
+        
+    Атрибуты:
+        phone (State): Ввод номера телефона пользователя.
+        set_password (State): Установка нового пароля.
+        confirm_password (State): Подтверждение установленного пароля.
+        enter_password (State): Ввод существующего пароля для входа.
+        main_menu (State): Основное меню после успешной авторизации.
+    """
+    
     phone = State()
     set_password = State()
     confirm_password = State()

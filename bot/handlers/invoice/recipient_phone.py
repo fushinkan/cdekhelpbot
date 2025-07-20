@@ -17,17 +17,19 @@ router = Router()
 @router.message(InvoiceForm.recipient_phone)
 async def get_recipient_phone(message: Message, state: FSMContext):
     """
-    Обработчик для получения номера телефона получателя.
+    Обрабатывает ввод номера телефона получателя в рамках формы InvoiceForm.
+
+    Args:
+        message (Message): Входящее сообщение с номером телефона получателя от пользователя.
+        state (FSMContext): Контейнер для хранения и управления состоянием пользователя в процессе заполнения формы.
     """
         
     data = await StateUtils.prepare_next_state(message, state)
-
-
     recipient_phone_raw = message.text.strip()
-
 
     try:
         recipient_phone = await normalize_phone(recipient_phone_raw)
+        
     except IncorrectPhone as e:
         sent = await message.answer(str(e), parse_mode="HTML")
         await state.update_data(error_message=sent.message_id)
@@ -40,18 +42,18 @@ async def get_recipient_phone(message: Message, state: FSMContext):
 
     data = await state.get_data()
     error_message = data.get("error_message")
+    
     try:
         if error_message:
-            await BotUtils.delete_prev_messages(message, error_message)      
+            await BotUtils.delete_prev_messages(message, error_message)  
+                
     except TelegramBadRequest:
         pass
 
     await state.set_state(InvoiceForm.recipient_city)
     await StateUtils.push_state_to_history(state, InvoiceForm.recipient_city)
         
-        
     sent = await message.answer("🌆 Пожалуйста, укажите город получателя для доставки", reply_markup=await BackButtons.back_to_recipient_phone())
-
         
     await state.update_data(last_bot_message=sent.message_id)
         

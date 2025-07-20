@@ -6,7 +6,7 @@ from aiogram.types import Message
 from bot.states.invoice import InvoiceForm
 from bot.keyboards.backbuttons import BackButtons
 from bot.utils.invoice import StateUtils
-from bot.utils.bot_utils import BotUtils
+
 
 router = Router()
 
@@ -14,15 +14,17 @@ router = Router()
 @router.message(InvoiceForm.departure_address)
 async def get_departure_address(message: Message, state: FSMContext):
     """
-    Обработчик для адреса отправления.
+    Обрабатывает ввод адреса отправления в рамках формы InvoiceForm.
+
+    Args:
+        message (Message): Входящее сообщение с адресом отправления от пользователя.
+        state (FSMContext): Контейнер для хранения и управления состоянием пользователя в процессе заполнения формы.
     """
 
     data = await StateUtils.prepare_next_state(message, state)
     
-    
     departure_address = message.text.strip()
     await state.update_data(departure_address=departure_address)
-    
     
     if await StateUtils.edit_invoice(data, message, state):
         return
@@ -30,8 +32,6 @@ async def get_departure_address(message: Message, state: FSMContext):
     await state.set_state(InvoiceForm.recipient_phone)
     await StateUtils.push_state_to_history(state, InvoiceForm.recipient_phone)
     
-    
     sent = await message.answer("📱 Введите номер телефона получателя", reply_markup=await BackButtons.back_to_departure_address())
-    
     
     await state.update_data(last_bot_message=sent.message_id)

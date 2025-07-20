@@ -82,31 +82,3 @@ async def back_to_phone_screen(callback: CallbackQuery, state: FSMContext):
     
     await state.update_data(last_bot_message=sent.message_id)
     await state.set_state(Auth.waiting_for_phone)
-    
-
-@router.callback_query(F.data.in_(["continue", "cancel"]))
-async def without_password(callback: CallbackQuery, state: FSMContext):
-    """
-    По кнопке 'Продолжить' переводит пользователя в его профиль и рекомендует поставить пароль.
-    """
-    
-    data = await state.get_data()
-    phone_raw = data.get("phone")
-    phone = await normalize_phone(phone_raw)
-
-
-    await asyncio.sleep(0.2)    
-    await callback.answer("Для безопасности установите пароль!")
-    
-    
-    await callback.message.edit_text((
-        "👋 Приветствую!\n\n"
-        "Здесь ты можешь быстро оформить накладную, подобрать тарифы и подключить дополнительные услуги. 🚀\n"
-        "Не нужно ломать голову — просто выбери, что нужно, и я всё сделаю быстро и без лишних хлопот! 💼✨\n"
-        "Если возникнут вопросы — пиши, всегда рад помочь! 😊👍"
-    ), reply_markup=await CustomerKeyboards.customer_kb())
-    
-    
-    await asyncio.sleep(1)
-    await state.clear()
-    await state.update_data(phone=phone)

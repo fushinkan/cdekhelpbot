@@ -5,8 +5,20 @@ from bot.keyboards.backbuttons import BackButtons
 
 class InvoiceForm(StatesGroup):
     """
-    Состояние для создания накладной в Telegram-боте.
+    Состояния для поэтапного создания накладной в Telegram-боте.
+
+    Атрибуты:
+        contract_number (State): Ввод номера договора.
+        departure_city (State): Ввод города отправления.
+        departure_address (State): Ввод адреса отправления.
+        recipient_phone (State): Ввод телефона получателя.
+        recipient_city (State): Ввод города получателя.
+        recipient_address (State): Ввод адреса получателя.
+        insurance_amount (State): Ввод суммы страхования.
+        confirmation (State): Подтверждение или изменение сводки.
+        editing_field (State): Выбор поля для редактирования.
     """
+    
     contract_number = State()
     departure_city = State()
     departure_address = State()
@@ -27,6 +39,7 @@ INVOICE_STATE = {
     InvoiceForm.recipient_address,
 }
 
+
 INVOICE_PROMPTS = {
         InvoiceForm.departure_city.state: ("🏙 Пожалуйста, введите город отправления", BackButtons.back_to_menu),
         InvoiceForm.departure_address.state: ("📍 Введите адрес отправления/забора груза 🏠", BackButtons.back_to_departure_city),
@@ -36,6 +49,7 @@ INVOICE_PROMPTS = {
         InvoiceForm.insurance_amount.state: ("🛡️ На какую сумму нужна страховка?", BackButtons.back_to_recipient_address),
         InvoiceForm.confirmation.state: ("🛠️ Добавить доп. услуги к заказу?", CustomerKeyboards.extra_services),
 }
+
 
 STATE_MAP = {
     "departure_city": InvoiceForm.departure_city,

@@ -16,6 +16,14 @@ router = Router()
 
 @router.message(CustomerAuth.confirm_password)
 async def confirm_password(message: Message, state: FSMContext):
+    """
+    Подтверждает установку нового пароля для пользователя и записывает его в БД.
+
+    Args:
+        message (Message): Объект входящего Telegram-сообщения от пользователя.
+        state (FSMContext): Контейнер для хранения и управления текущим состоянием пользователя в рамках авторизации.
+    """
+    
     data = await StateUtils.prepare_next_state(message, state)
     phone = data.get("phone")
     
@@ -26,7 +34,6 @@ async def confirm_password(message: Message, state: FSMContext):
     
     hashed_psw = hashed_password(message.text.strip())
     
-
     async with async_session_factory() as session:
         await session.execute(
             update(Users)
@@ -38,6 +45,7 @@ async def confirm_password(message: Message, state: FSMContext):
                 is_logged=True
         )
             )
+        
         await session.commit()
             
         user = await session.get(Users, data["user_id"])

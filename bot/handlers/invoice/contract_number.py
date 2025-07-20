@@ -20,25 +20,27 @@ router = Router()
 @router.callback_query(F.data == "create_invoice")
 async def get_contract_number(callback: CallbackQuery, state: FSMContext):
     """
-    Автоматически подставляет номер договора в ответ боту из БД.
+    Обрабатывает нажатие кнопки 'create_invoice'.
+
+    Автоматически получает и подставляет номер договора из базы данных для дальнейшей работы с ботом.
+
+    Args:
+        callback (CallbackQuery): Объект callback-запроса от Telegram при нажатии кнопки.
+        state (FSMContext): Контейнер для хранения и управления текущим состоянием пользователя.
     """
     
     await callback.answer("Отлично! Давайте создадим накладную.")
     await asyncio.sleep(0.2)
     
-    
     data = await state.get_data()
     phone_raw = data.get("phone")
     phone = await normalize_phone(phone_raw)
-    
     
     async with async_session_factory() as session:
         try:
             customers = await UserInDB.get_client_by_phone(phone, session)
             customer = customers[0]
-            
             contract_number = customer.contract_number
-
 
             await state.update_data(contract_number=contract_number)
 

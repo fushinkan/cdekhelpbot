@@ -13,6 +13,14 @@ router = Router()
 
 @router.message(CustomerAuth.set_password)
 async def set_client_password(message: Message, state: FSMContext):
+    """
+    Устанавливает пароль для пользователя, если его изначально не было.
+
+    Args:
+        message (Message): Объект входящего Telegram-сообщения от пользователя.
+        state (FSMContext): Контейнер для хранения и управления текущим состоянием пользователя в рамках авторизации.
+    """
+    
     data = await StateUtils.prepare_next_state(message, state)
     new_password = message.text.strip()
     
