@@ -1,14 +1,10 @@
-
-
-
-
 class Validator:
     """
     Валидация для бота.
     """
     
     @classmethod
-    def validate_password(cls, plain_password: str) -> bool:
+    def validate_password(cls, *, plain_password: str) -> bool:
         """
         Валидация пароля.
         

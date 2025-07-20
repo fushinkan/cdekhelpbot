@@ -21,10 +21,10 @@ async def set_client_password(message: Message, state: FSMContext):
         state (FSMContext): Контейнер для хранения и управления текущим состоянием пользователя в рамках авторизации.
     """
     
-    data = await StateUtils.prepare_next_state(message, state)
+    data = await StateUtils.prepare_next_state(obj=message, state=state)
     new_password = message.text.strip()
     
-    if not Validator.validate_password(new_password):
+    if not Validator.validate_password(plain_password=new_password):
         await message.answer("Пароль должен быть от 8 символов и более", reply_markup=await BackButtons.back_to_phone())
         return
     

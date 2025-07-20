@@ -8,7 +8,6 @@ from bot.utils.exceptions import AdminNotExistsException, UserNotExistsException
 from typing import Dict, Any, Awaitable, Callable
 
 
-
 class LoggingMiddleware(BaseMiddleware):
     """
     Middleware для проверки авторизации пользователя Telegram.

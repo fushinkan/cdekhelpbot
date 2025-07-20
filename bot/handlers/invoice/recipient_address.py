@@ -21,16 +21,16 @@ async def get_recipient_address(message: Message, state: FSMContext):
         state (FSMContext): Контейнер для хранения и управления состоянием пользователя в процессе заполнения формы.
     """
     
-    data = await StateUtils.prepare_next_state(message, state)
+    data = await StateUtils.prepare_next_state(obj=message, state=state)
     recipient_address = message.text.strip()
     
     await state.update_data(recipient_address=recipient_address)
     
-    if await StateUtils.edit_invoice(data, message, state):
+    if await StateUtils.edit_invoice(data=data, message=message, state=state):
         return
     
     await state.set_state(InvoiceForm.insurance_amount)
-    await StateUtils.push_state_to_history(state, InvoiceForm.insurance_amount)
+    await StateUtils.push_state_to_history(state=state, new_state=InvoiceForm.insurance_amount)
     
     sent = await message.answer("🛡️ На какую сумму нужна страховка?", reply_markup=await BackButtons.back_to_recipient_address())
     

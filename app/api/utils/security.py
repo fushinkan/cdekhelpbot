@@ -1,6 +1,6 @@
 import bcrypt
 
-def hashed_password(password: str) -> str:
+def hashed_password(*, password: str) -> str:
     """
     Функция хэширует пароль.
     
@@ -10,7 +10,7 @@ def hashed_password(password: str) -> str:
     return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
 
 
-def verify_password(plain_password: str, hashed_password: str) -> bool:
+def verify_password(*, plain_password: str, hashed_password: str) -> bool:
     """
     Функция сравнивает введенный пароль с его хэшированной версией.
     

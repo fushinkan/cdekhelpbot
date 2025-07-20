@@ -9,7 +9,7 @@ class BotUtils:
     """
     
     @classmethod
-    async def delete_prev_messages(cls, obj: Union[Message, CallbackQuery], message_id: int):
+    async def delete_prev_messages(cls, *, obj: Union[Message, CallbackQuery], message_id: int):
         """
         Асинхронно удаляет предыдущее сообщение бота по заданному message_id.
 

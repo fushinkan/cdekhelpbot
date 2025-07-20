@@ -4,12 +4,12 @@ from aiogram import Router
 from aiogram.types import Message
 
 from app.api.handlers.normalize import normalize_phone
-
 from bot.utils.exceptions import IncorrectPhone
 from bot.states.invoice import InvoiceForm
 from bot.keyboards.backbuttons import BackButtons
 from bot.utils.invoice import StateUtils
 from bot.utils.bot_utils import BotUtils
+
 
 router = Router()
 
@@ -24,11 +24,11 @@ async def get_recipient_phone(message: Message, state: FSMContext):
         state (FSMContext): Контейнер для хранения и управления состоянием пользователя в процессе заполнения формы.
     """
         
-    data = await StateUtils.prepare_next_state(message, state)
+    data = await StateUtils.prepare_next_state(obj=message, state=state)
     recipient_phone_raw = message.text.strip()
 
     try:
-        recipient_phone = await normalize_phone(recipient_phone_raw)
+        recipient_phone = await normalize_phone(phone=recipient_phone_raw)
         
     except IncorrectPhone as e:
         sent = await message.answer(str(e), parse_mode="HTML")
@@ -37,7 +37,7 @@ async def get_recipient_phone(message: Message, state: FSMContext):
     
     await state.update_data(recipient_phone=recipient_phone)
 
-    if await StateUtils.edit_invoice(data, message, state):
+    if await StateUtils.edit_invoice(data=data, message=message, state=state):
         return
 
     data = await state.get_data()
@@ -45,13 +45,13 @@ async def get_recipient_phone(message: Message, state: FSMContext):
     
     try:
         if error_message:
-            await BotUtils.delete_prev_messages(message, error_message)  
+            await BotUtils.delete_prev_messages(obj=message, message_id=error_message)  
                 
     except TelegramBadRequest:
         pass
 
     await state.set_state(InvoiceForm.recipient_city)
-    await StateUtils.push_state_to_history(state, InvoiceForm.recipient_city)
+    await StateUtils.push_state_to_history(state=state, new_state=InvoiceForm.recipient_city)
         
     sent = await message.answer("🌆 Пожалуйста, укажите город получателя для доставки", reply_markup=await BackButtons.back_to_recipient_phone())
         

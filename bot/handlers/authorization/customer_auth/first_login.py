@@ -17,7 +17,7 @@ router = Router()
 
 
 @router.message(CustomerAuth.phone)
-async def first_client_login(*, message: Message, state: FSMContext):
+async def first_client_login(message: Message, state: FSMContext):
     """
     Обрабатывает ввод номера телефона при первичной авторизации пользователя.
     
@@ -26,7 +26,7 @@ async def first_client_login(*, message: Message, state: FSMContext):
         state (FSMContext): Контейнер для хранения и управления текущим состоянием пользователя в рамках авторизации.
     """
     
-    data = await StateUtils.prepare_next_state(message, state)
+    data = await StateUtils.prepare_next_state(obj=message, state=state)
     phone = data.get("phone")
     id = data.get("id")
     

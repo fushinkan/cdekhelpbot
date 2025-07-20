@@ -34,18 +34,18 @@ async def get_contract_number(callback: CallbackQuery, state: FSMContext):
     
     data = await state.get_data()
     phone_raw = data.get("phone")
-    phone = await normalize_phone(phone_raw)
+    phone = await normalize_phone(phone=phone_raw)
     
     async with async_session_factory() as session:
         try:
-            customers = await UserInDB.get_client_by_phone(phone, session)
+            customers = await UserInDB.get_client_by_phone(phone_number=phone, session=session)
             customer = customers[0]
             contract_number = customer.contract_number
 
             await state.update_data(contract_number=contract_number)
 
             await state.set_state(InvoiceForm.departure_city)
-            await StateUtils.push_state_to_history(state, InvoiceForm.departure_city)
+            await StateUtils.push_state_to_history(state=state, new_state=InvoiceForm.departure_city)
             
             sent = await callback.message.edit_text("🏙 Пожалуйста, введите город отправления", reply_markup=await BackButtons.back_to_menu())
             await state.update_data(last_bot_message=sent.message_id, phone=phone)

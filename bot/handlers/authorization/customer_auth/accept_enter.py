@@ -5,7 +5,6 @@ from aiogram.fsm.context import FSMContext
 from aiogram.exceptions import TelegramBadRequest
 from sqlalchemy import update
 
-
 from app.api.handlers.get_user import UserInDB
 from app.api.utils.security import verify_password
 from app.db.base import async_session_factory
@@ -35,7 +34,7 @@ async def accept_enter(message: Message, state: FSMContext):
         IncorrectPasswordException: Кастомный класс с ошибкой.
     """
 
-    data = await StateUtils.prepare_next_state(message, state)
+    data = await StateUtils.prepare_next_state(obj=message, state=state)
     phone = data.get("phone")
 
     try:
@@ -54,14 +53,14 @@ async def accept_enter(message: Message, state: FSMContext):
                     .where(Users.id == data["user_id"])
                     .values(
                         is_logged=True,
-                        telegram_name=message.from_user.full_name,
+                        telegram_name=message.from_user.username,
                         telegram_id=message.from_user.id
                     )
                 )
                 
                 await session.commit()
                 
-                await proceed_to_main_menu(user[0], message)
+                await proceed_to_main_menu(obj=user[0], message=message)
                 
             await state.clear()
             await state.set_state(CustomerAuth.main_menu)
@@ -77,7 +76,7 @@ async def accept_enter(message: Message, state: FSMContext):
     
     try:
         if error_message:
-            await BotUtils.delete_prev_messages(message, error_message)   
+            await BotUtils.delete_prev_messages(obj=message, message_id=error_message)   
                
     except TelegramBadRequest:
         pass

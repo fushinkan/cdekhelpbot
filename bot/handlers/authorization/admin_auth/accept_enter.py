@@ -33,7 +33,7 @@ async def accept_enter(message: Message, state: FSMContext):
         IncorrectPasswordException: Кастомный класс с ошибкой.
     """
 
-    data = await StateUtils.prepare_next_state(message, state)
+    data = await StateUtils.prepare_next_state(obj=message, state=state)
 
     try:
         async with async_session_factory() as session:
@@ -58,7 +58,7 @@ async def accept_enter(message: Message, state: FSMContext):
                 
                 await session.commit()
                 
-                await proceed_to_main_menu(admin, message)
+                await proceed_to_main_menu(obj=admin, message=message)
                 
             await state.clear()
     
@@ -72,7 +72,7 @@ async def accept_enter(message: Message, state: FSMContext):
     
     try:
         if error_message:
-            await BotUtils.delete_prev_messages(message, error_message)
+            await BotUtils.delete_prev_messages(obj=message, message_id=error_message)
                   
     except TelegramBadRequest:
         pass

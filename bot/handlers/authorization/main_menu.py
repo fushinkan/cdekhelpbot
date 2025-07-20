@@ -6,7 +6,7 @@ from bot.keyboards.admin import AdminKeyboards
 from bot.keyboards.customer import CustomerKeyboards
 
 
-async def proceed_to_main_menu(obj: Users | Admins, message: Message):
+async def proceed_to_main_menu(*, obj: Users | Admins, message: Message):
     """
     Главное меню для пользователя/админа в зависимости от role в БД.
 

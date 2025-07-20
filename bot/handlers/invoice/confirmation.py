@@ -19,8 +19,8 @@ async def confirmation(message: Message, state: FSMContext):
         state (FSMContext): Контейнер для хранения и управления состоянием пользователя в процессе оформления заказа.
     """
            
-    data = await StateUtils.prepare_next_state(message, state)    
+    data = await StateUtils.prepare_next_state(obj=message, state=state)    
     
-    sent = await StateUtils.get_summary(message, data)
+    sent = await StateUtils.get_summary(message=message, data=data)
     
     await state.update_data(last_bot_message=sent.message_id)

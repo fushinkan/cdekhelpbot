@@ -21,16 +21,16 @@ async def get_departure_address(message: Message, state: FSMContext):
         state (FSMContext): Контейнер для хранения и управления состоянием пользователя в процессе заполнения формы.
     """
 
-    data = await StateUtils.prepare_next_state(message, state)
+    data = await StateUtils.prepare_next_state(obj=message, state=state)
     
     departure_address = message.text.strip()
     await state.update_data(departure_address=departure_address)
     
-    if await StateUtils.edit_invoice(data, message, state):
+    if await StateUtils.edit_invoice(data=data, message=message, state=state):
         return
     
     await state.set_state(InvoiceForm.recipient_phone)
-    await StateUtils.push_state_to_history(state, InvoiceForm.recipient_phone)
+    await StateUtils.push_state_to_history(state=state, new_state=InvoiceForm.recipient_phone)
     
     sent = await message.answer("📱 Введите номер телефона получателя", reply_markup=await BackButtons.back_to_departure_address())
     

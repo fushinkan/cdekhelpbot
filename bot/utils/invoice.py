@@ -18,7 +18,7 @@ class StateUtils():
     """
     
     @classmethod
-    async def get_summary(cls, message: Message, data: dict):
+    async def get_summary(cls, *, message: Message, data: dict):
         """
         Отправляет пользователю сводку введённых данных.
 
@@ -46,7 +46,7 @@ class StateUtils():
         return sent
     
     @classmethod
-    async def send_summary(cls, message: Message | CallbackQuery, data: dict, chat_id: int):
+    async def send_summary(cls, *, message: Message | CallbackQuery, data: dict, chat_id: int):
         """
         Отправляет сводку с данными накладной в указанный чат.
 
@@ -78,7 +78,7 @@ class StateUtils():
     
     
     @classmethod
-    async def push_state_to_history(cls, state: FSMContext, new_state: InvoiceForm):
+    async def push_state_to_history(cls, *, state: FSMContext, new_state: InvoiceForm):
         """
         Добавляет новое состояние в историю для возможного отката.
 
@@ -93,7 +93,7 @@ class StateUtils():
         await state.update_data(state_history=history)
     
     @classmethod
-    async def pop_state_from_history(cls, state: FSMContext):
+    async def pop_state_from_history(cls, *, state: FSMContext):
         """
         Откатывает состояние к предыдущему из истории.
 
@@ -126,7 +126,7 @@ class StateUtils():
     
     
     @classmethod
-    async def prepare_next_state(cls, obj: Union[Message, CallbackQuery], state: FSMContext) -> dict:
+    async def prepare_next_state(cls, *, obj: Union[Message, CallbackQuery], state: FSMContext) -> dict:
         """
         Подготавливает и очищает сообщения перед переходом к следующему состоянию.
 
@@ -165,13 +165,13 @@ class StateUtils():
             message = obj  
             
         if message and last_bot_message_id:
-            await BotUtils.delete_prev_messages(message, last_bot_message_id)
+            await BotUtils.delete_prev_messages(obj=message, message_id=last_bot_message_id)
    
         return data
     
     
     @classmethod
-    async def edit_invoice(cls, data: dict, message: Message, state: FSMContext):
+    async def edit_invoice(cls, *, data: dict, message: Message, state: FSMContext):
         """
         Обрабатывает отмену редактирования поля накладной и обновляет сводку.
 
@@ -191,7 +191,7 @@ class StateUtils():
             updated_summary = await StateUtils.get_summary(message, updated_data)
             
             await state.update_data(last_bot_message_id=updated_summary.message_id)
-            await BotUtils.delete_prev_messages(message, updated_data.get("last_bot_message_id"))
+            await BotUtils.delete_prev_messages(obj=message, message_id=updated_data.get("last_bot_message_id"))
             return True
         
         return False

@@ -9,7 +9,6 @@ from bot.handlers.invoice.insurance_amount import router as ia_router
 from bot.handlers.invoice.recipient_address import router as ra_router
 from bot.handlers.invoice.recipient_city import router as rc_router
 from bot.handlers.invoice.recipient_phone import router as cp_router
-from bot.handlers.invoice.callbacks import router as cb_router
 
 
 
@@ -24,6 +23,5 @@ router.include_routers(
     ra_router,
     rc_router,
     cp_router,
-    cb_router,
     ei_router
 )

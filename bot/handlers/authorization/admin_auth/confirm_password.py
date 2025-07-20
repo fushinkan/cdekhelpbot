@@ -24,14 +24,14 @@ async def confirm_password(message: Message, state: FSMContext):
         state (FSMContext): Контейнер для хранения и управления текущим состоянием админа в рамках авторизации.
     """
     
-    data = await StateUtils.prepare_next_state(message, state)
+    data = await StateUtils.prepare_next_state(obj=message, state=state)
     
     if message.text.strip() != data["new_password"]:
         await message.answer("Пароли не совпадают, попробуйте заново")
         await state.set_state(AdminAuth.set_password)
         return
     
-    hashed_psw = hashed_password(message.text.strip())
+    hashed_psw = hashed_password(password=message.text.strip())
     
     async with async_session_factory() as session:
         await session.execute(
@@ -39,7 +39,7 @@ async def confirm_password(message: Message, state: FSMContext):
             .where(Admins.id == int(data["admin_id"]))
             .values(
                 hashed_psw=str(hashed_psw),
-                telegram_name=message.from_user.full_name,
+                telegram_name=message.from_user.username,
                 telegram_id=message.from_user.id,
                 is_logged=True
             )
@@ -49,6 +49,6 @@ async def confirm_password(message: Message, state: FSMContext):
             
         admin = await session.get(Admins, data["admin_id"])
             
-        await proceed_to_main_menu(admin, message)
+        await proceed_to_main_menu(obj=admin, message=message)
         
         await state.clear()

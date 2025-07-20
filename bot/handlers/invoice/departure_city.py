@@ -20,15 +20,15 @@ async def get_departure_city(message: Message, state: FSMContext):
         state (FSMContext): Контейнер для хранения и управления состоянием пользователя в процессе заполнения формы.
     """
     
-    data = await StateUtils.prepare_next_state(message, state)
+    data = await StateUtils.prepare_next_state(obj=message, state=state)
     departure_city = message.text.strip()   
     await state.update_data(departure_city=departure_city)
 
-    if await StateUtils.edit_invoice(data, message, state):
+    if await StateUtils.edit_invoice(data=data, message=message, state=state):
         return
     
     await state.set_state(InvoiceForm.departure_address)
-    await StateUtils.push_state_to_history(state, InvoiceForm.departure_address)
+    await StateUtils.push_state_to_history(state=state, new_state=InvoiceForm.departure_address)
     
     sent = await message.answer("📍 Отлично! Теперь введите адрес отправления/забора груза 🏠", reply_markup=await BackButtons.back_to_departure_city())
     
