@@ -11,7 +11,8 @@ from app.db.models.admins import Admins
 from bot.utils.bot_utils import BotUtils
 from bot.utils.exceptions import AdminNotExistsException
 from bot.utils.exceptions import IncorrectPasswordException
-from bot.utils.invoice import StateUtils
+from bot.utils.state import StateUtils
+from bot.keyboards.backbuttons import BackButtons
 from bot.states.admin_auth import AdminAuth
 from bot.handlers.authorization.main_menu import proceed_to_main_menu
 
@@ -36,6 +37,8 @@ async def accept_enter(message: Message, state: FSMContext):
     data = await StateUtils.prepare_next_state(obj=message, state=state)
 
     try:
+        data = await BotUtils.delete_error_messages(obj=message, state=state)
+        
         async with async_session_factory() as session:
             admin = await UserInDB.get_admin_by_phone(phone_number=data["phone"], session=session)
             
@@ -63,16 +66,8 @@ async def accept_enter(message: Message, state: FSMContext):
             await state.clear()
     
     except (AdminNotExistsException, IncorrectPasswordException) as e:
-        sent = await message.answer(str(e), parse_mode="HTML")
+        data = await BotUtils.delete_error_messages(obj=message, state=state)
+        sent = await message.answer(str(e), parse_mode="HTML", reply_markup=await BackButtons.back_to_phone())
+        
         await state.update_data(error_message=sent.message_id)
         return
-    
-    data = await state.get_data()
-    error_message = data.get("error_message")
-    
-    try:
-        if error_message:
-            await BotUtils.delete_prev_messages(obj=message, message_id=error_message)
-                  
-    except TelegramBadRequest:
-        pass

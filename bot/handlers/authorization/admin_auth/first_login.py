@@ -6,7 +6,7 @@ from aiogram.fsm.context import FSMContext
 from app.db.base import async_session_factory
 from app.api.handlers.get_user import UserInDB
 from bot.utils.exceptions import AdminNotExistsException
-from bot.utils.invoice import StateUtils
+from bot.utils.state import StateUtils
 from bot.keyboards.backbuttons import BackButtons
 from bot.states.admin_auth import AdminAuth
 

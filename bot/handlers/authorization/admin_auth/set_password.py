@@ -5,7 +5,7 @@ from aiogram.fsm.context import FSMContext
 from app.api.utils.validator import Validator
 from bot.states.admin_auth import AdminAuth
 from bot.keyboards.backbuttons import BackButtons
-from bot.utils.invoice import StateUtils
+from bot.utils.state import StateUtils
 
 
 router = Router()

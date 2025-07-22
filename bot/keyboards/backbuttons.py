@@ -132,3 +132,25 @@ class BackButtons:
         """
             
         return await cls.get_back_button(callback_data="back_to_summary")
+    
+    @classmethod
+    async def back_to_contractor_phone(cls):
+        """
+        Формирует клавиатуру для возврата к этапу ввода номера телефона для заключения договора.
+
+        Returns:
+            InlineKeyboardMarkup: Клавиатура с кнопкой для возврата к этапу ввода номера телефона для заключения договора.
+        """
+        
+        return await cls.get_back_button(callback_data="back_to_contractor_phone")
+    
+    @classmethod
+    async def back_to_contractor_summary(cls):
+        """
+        Формирует клавиатуру для возврата сводке с данными пользователя.
+
+        Returns:
+            InlineKeyboardMarkup: Клавиатура с кнопкой для возврата к сводке с данными пользователя.
+        """
+        
+        return await cls.get_back_button(callback_data="back_to_contractor_summary")

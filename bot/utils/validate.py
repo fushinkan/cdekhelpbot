@@ -1,15 +1,21 @@
 import re
 
-from bot.utils.exceptions import IncorrectPhone, IncorrectInsurance, IncorrectAgreement
+from bot.utils.exceptions import (
+    IncorrectPhone, 
+    IncorrectInsurance, 
+    IncorrectAgreement,
+    IncorrectTinNumber
+)
 
-class InvoiceValidator:
+class Validator:
     """
     Класс для валидации введённых данных.
 
     Методы класса проверяют:
         - номер договора (agreement),
         - номер телефона,
-        - сумму страхования.
+        - сумму страхования,
+        - ИНН контрагента
 
     Для валидации используются регулярные выражения.
 
@@ -21,6 +27,7 @@ class InvoiceValidator:
     AGREEMENT_PATTERN = re.compile(r"^(IM|SZ|KU|ИМ|СЗ|КУ)-([A-Za-z]{3}|[А-Яа-я]{3})\d-\d{1,3}$")
     PHONE_NUMBER = re.compile(r"^7\d{10}$")
     INSURANCE_AMOUNT = re.compile(r"^\d+$")
+    TIN_NUMBER = re.compile(r"^\d+$")
     
     @classmethod
     async def correct_agreement_validator(cls, *, text: str) -> bool:
@@ -39,6 +46,12 @@ class InvoiceValidator:
         """Проверяет совпадение суммы страхования с паттерном."""
         
         return bool(cls.INSURANCE_AMOUNT.fullmatch(text))
+    
+    @classmethod
+    async def correct_tin_number_validator(cls, *, text: str) -> bool:
+        """Проверяет совпадение введенного ИНН с паттерном"""
+        
+        return bool(cls.TIN_NUMBER.fullmatch(text)) and len(text) in (10, 15)
     
     @classmethod
     async def correct_agreement(cls, *, text: str) -> bool:
@@ -80,5 +93,18 @@ class InvoiceValidator:
         
         if not await cls.correct_insurance_validator(text=text):
             raise IncorrectInsurance(IncorrectInsurance.__doc__)
+        
+        return True
+    
+    @classmethod
+    async def correct_tin_number(cls, *, text: str) -> bool:
+        """
+        Проверяет формат ввода ИНН.
+        
+        Формат: 1234567890 или 12345678912345. Без букв и пробелов.
+        
+        """
+        if not await cls.correct_tin_number_validator(text=text):
+            raise IncorrectTinNumber(IncorrectTinNumber.__doc__)
         
         return True

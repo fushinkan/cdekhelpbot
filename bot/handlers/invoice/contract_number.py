@@ -10,7 +10,7 @@ from app.api.handlers.normalize import normalize_phone
 from bot.utils.exceptions import UserNotExistsException, IncorrectPhone
 from bot.states.invoice import InvoiceForm
 from bot.keyboards.backbuttons import BackButtons
-from bot.utils.invoice import StateUtils
+from bot.utils.state import StateUtils
 from app.db.base import async_session_factory
 
 

@@ -39,3 +39,11 @@ class CustomerKeyboards():
         return InlineKeyboardMarkup(inline_keyboard=[
             [InlineKeyboardButton(text="✅ Да", callback_data="yes"), InlineKeyboardButton(text="❌ Нет", callback_data="no")]
         ])
+        
+        
+    @classmethod
+    async def edit_or_confirm_agreement(cls):
+        return InlineKeyboardMarkup(inline_keyboard=[
+            [InlineKeyboardButton(text="✏️ ИНН", callback_data="editt_contractor_tin_number"), InlineKeyboardButton(text="✏️ Номер телефона", callback_data="editt_contractor_phone")],
+            [InlineKeyboardButton(text="✅ Заключить договор", callback_data="allow_agreement"), InlineKeyboardButton(text="❌ Отмена", callback_data="back_to_welcoming_screen")]
+        ])

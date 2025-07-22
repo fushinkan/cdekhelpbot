@@ -37,6 +37,7 @@ class LoggingMiddleware(BaseMiddleware):
             admin = None
             user = None
             
+            
             try:
                 admin = await UserInDB.get_admin_by_telegram_id(telegram_id=telegram_id, session=session)
                 

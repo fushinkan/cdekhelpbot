@@ -12,7 +12,7 @@ from app.db.models.users import Users
 from bot.utils.bot_utils import BotUtils
 from bot.utils.exceptions import UserNotExistsException
 from bot.utils.exceptions import IncorrectPasswordException
-from bot.utils.invoice import StateUtils
+from bot.utils.state import StateUtils
 from bot.states.customer_auth import CustomerAuth
 from bot.handlers.authorization.main_menu import proceed_to_main_menu
 

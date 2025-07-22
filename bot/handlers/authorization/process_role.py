@@ -5,8 +5,9 @@ from aiogram.fsm.context import FSMContext
 from app.api.handlers.normalize import normalize_phone
 from app.db.base import async_session_factory
 from app.api.handlers.get_user import UserInDB
-from bot.utils.exceptions import UserNotExistsException, AdminNotExistsException
-from bot.utils.invoice import StateUtils
+from bot.utils.exceptions import UserNotExistsException, AdminNotExistsException, IncorrectPhone
+from bot.utils.state import StateUtils
+from bot.utils.bot_utils import BotUtils
 from bot.states.auth import Auth
 from bot.states.admin_auth import AdminAuth
 from bot.states.customer_auth import CustomerAuth
@@ -28,9 +29,21 @@ async def process_role(message: Message, state: FSMContext):
         state (FSMContext): Контейнер для хранения и управления текущим состоянием пользователя/админа в рамках авторизации.
     """
     
-    phone = await normalize_phone(phone=message.text.strip())
-    await StateUtils.prepare_next_state(obj=message, state=state)
+    data = await StateUtils.prepare_next_state(obj=message, state=state)
+    
+    try:
+        phone = await normalize_phone(phone=message.text.strip())
 
+    except IncorrectPhone as e:
+        data = await BotUtils.delete_error_messages(obj=message, state=state)
+        sent = await message.answer(str(e), parse_mode="HTML")
+        
+        await state.update_data(error_message=sent.message_id)
+        
+        return
+    
+    data = await BotUtils.delete_error_messages(obj=message, state=state)
+    
     async with async_session_factory() as session:
         admin = None
         user = None

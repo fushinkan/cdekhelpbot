@@ -6,9 +6,11 @@ from sqlalchemy import update
 from app.api.utils.security import hashed_password
 from app.db.base import async_session_factory
 from app.db.models.users import Users
+from bot.keyboards.backbuttons import BackButtons
 from bot.states.customer_auth import CustomerAuth
 from bot.handlers.authorization.main_menu import proceed_to_main_menu
-from bot.utils.invoice import StateUtils
+from bot.utils.state import StateUtils
+from bot.utils.bot_utils import BotUtils
 
 
 router = Router()
@@ -28,11 +30,16 @@ async def confirm_password(message: Message, state: FSMContext):
     phone = data.get("phone")
     
     if message.text.strip() != data["new_password"]:
-        await message.answer("Пароли не совпадают, попробуйте заново")
+        data = await BotUtils.delete_error_messages(obj=message, state=state)
+        sent = await message.answer("Пароли не совпадают, попробуйте заново", reply_markup=await BackButtons.back_to_phone())
+        
+        await state.update_data(error_message=sent.message_id)
         await state.set_state(CustomerAuth.set_password)
+        
         return
     
     hashed_psw = hashed_password(password=message.text.strip())
+    data = await BotUtils.delete_error_messages(obj=message, state=state)
     
     async with async_session_factory() as session:
         await session.execute(

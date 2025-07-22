@@ -1,7 +1,7 @@
 from aiogram import Router
 
 from bot.handlers.authorization.admin_auth import router as admin_router
-from bot.handlers.authorization.process_phone import router as pphone_router
+from bot.handlers.callbacks.process_phone_callback import router as pphone_router
 from bot.handlers.authorization.customer_auth import router as customer_router
 from bot.handlers.authorization.process_role import router as role_router
 

@@ -18,6 +18,53 @@ class StateUtils():
     """
     
     @classmethod
+    async def get_contractor_summary(cls, *, message: Message, data: dict):
+        """
+        Отправляет пользователю сводку введённых данных.
+
+        Args:
+            message (Message): Объект входящего сообщения Telegram.
+            data (dict): Словарь с данными накладной.
+
+        Returns:
+            Message: Отправленное сообщение со сводкой.
+        """
+        
+        contractor_summary = (
+            f"💼 <b>Перед отправкой проверьте данные внимательно!</b>\n\n"
+            f"🧾 ИНН: {data.get('tin_number')}\n"
+            f"📱 Номер телефона: {data.get('phone')}"
+        )
+        
+        sent = await message.answer(contractor_summary, reply_markup= await CustomerKeyboards.edit_or_confirm_agreement(), parse_mode="HTML")
+        
+        return sent
+    
+    @classmethod
+    async def send_contractor_summary(cls, *, message: Message | CallbackQuery, data: dict, chat_id: int):
+        """
+        Отправляет сводку с данными накладной в указанный чат.
+
+        Args:
+            message (Message | CallbackQuery): Объект для доступа к боту.
+            data (dict): Данные накладной.
+            chat_id (int): ID чата для отправки сообщения.
+
+        Returns:
+            Message: Отправленное сообщение в чат.
+        """
+        
+        contractor_summary = (
+            f"💼 <b>Связаться по поводу заключения договора с @{data.get('user_full_name')}!</b>\n\n"
+            f"🧾 ИНН: {data.get('tin_number')}\n"
+            f"📱 Номер телефона: {data.get('phone')}"
+        )
+        
+        sent = await message.bot.send_message(chat_id=chat_id, text=contractor_summary, parse_mode="HTML", reply_markup=await AdminKeyboards.send_answer())
+        
+        return sent
+    
+    @classmethod
     async def get_summary(cls, *, message: Message, data: dict):
         """
         Отправляет пользователю сводку введённых данных.
@@ -27,7 +74,7 @@ class StateUtils():
             data (dict): Словарь с данными накладной.
 
         Returns:
-            Message: Отправленное сообщение с сводкой.
+            Message: Отправленное сообщение со сводкой.
         """
         
         summary = (
@@ -56,7 +103,7 @@ class StateUtils():
             chat_id (int): ID чата для отправки сообщения.
 
         Returns:
-            Message | None: Отправленное сообщение или None, если chat_id не указан.
+            Message: Отправленное сообщение в чат.
         """
         
         summary = (
@@ -70,9 +117,7 @@ class StateUtils():
             f"💰 Сумма страхования: {data.get('insurance_amount')} ₽"
         )
 
-        if chat_id:
-            
-            sent = await message.bot.send_message(chat_id=chat_id, text=summary, parse_mode="HTML", reply_markup=await AdminKeyboards.send_answer())
+        sent = await message.bot.send_message(chat_id=chat_id, text=summary, parse_mode="HTML", reply_markup=await AdminKeyboards.send_answer())
         
         return sent
     
@@ -171,7 +216,7 @@ class StateUtils():
     
     
     @classmethod
-    async def edit_invoice(cls, *, data: dict, message: Message, state: FSMContext):
+    async def edit_invoice_or_data(cls, *, data: dict, message: Message, state: FSMContext):
         """
         Обрабатывает отмену редактирования поля накладной и обновляет сводку.
 
@@ -188,11 +233,15 @@ class StateUtils():
             await state.update_data(editing_field=None)
             
             updated_data = await state.get_data()
-            updated_summary = await StateUtils.get_summary(message, updated_data)
+            current_state = await state.get_state()
+            
+            if current_state == InvoiceForm.confirmation.state:
+                updated_summary = await StateUtils.get_summary(message=message, data=updated_data)
+            else:
+                updated_summary = await StateUtils.get_contractor_summary(message=message, data=updated_data)                
             
             await state.update_data(last_bot_message_id=updated_summary.message_id)
             await BotUtils.delete_prev_messages(obj=message, message_id=updated_data.get("last_bot_message_id"))
             return True
         
         return False
-            

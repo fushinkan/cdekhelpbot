@@ -8,7 +8,8 @@ from app.db.base import async_session_factory
 from app.db.models.admins import Admins
 from bot.states.admin_auth import AdminAuth
 from bot.handlers.authorization.main_menu import proceed_to_main_menu
-from bot.utils.invoice import StateUtils
+from bot.utils.state import StateUtils
+from bot.utils.bot_utils import BotUtils
 
 
 router = Router()
@@ -27,11 +28,15 @@ async def confirm_password(message: Message, state: FSMContext):
     data = await StateUtils.prepare_next_state(obj=message, state=state)
     
     if message.text.strip() != data["new_password"]:
-        await message.answer("Пароли не совпадают, попробуйте заново")
+        data = await BotUtils.delete_error_messages(obj=message, state=state)
+        sent = await message.answer("Пароли не совпадают, попробуйте заново")
+        
+        await state.update_data(error_message=sent.message_id)
         await state.set_state(AdminAuth.set_password)
         return
     
     hashed_psw = hashed_password(password=message.text.strip())
+    data = await BotUtils.delete_error_messages(obj=message, state=state)
     
     async with async_session_factory() as session:
         await session.execute(

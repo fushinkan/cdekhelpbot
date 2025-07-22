@@ -4,7 +4,7 @@ from aiogram.types import Message
 
 from bot.states.invoice import InvoiceForm
 from bot.keyboards.backbuttons import BackButtons
-from bot.utils.invoice import StateUtils
+from bot.utils.state import StateUtils
 
 
 router = Router()
@@ -25,7 +25,7 @@ async def get_recipient_city(message: Message, state: FSMContext):
     
     await state.update_data(recipient_city=recipient_city)
     
-    if await StateUtils.edit_invoice(data=data, message=message, state=state):
+    if await StateUtils.edit_invoice_or_data(data=data, message=message, state=state):
         return
     
     await state.set_state(InvoiceForm.recipient_address)

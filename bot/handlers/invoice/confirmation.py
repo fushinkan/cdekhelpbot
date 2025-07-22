@@ -3,7 +3,7 @@ from aiogram import Router
 from aiogram.types import Message
 
 from bot.states.invoice import InvoiceForm
-from bot.utils.invoice import StateUtils
+from bot.utils.state import StateUtils
 
 
 router = Router()

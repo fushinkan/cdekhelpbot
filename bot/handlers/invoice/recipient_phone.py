@@ -7,7 +7,7 @@ from app.api.handlers.normalize import normalize_phone
 from bot.utils.exceptions import IncorrectPhone
 from bot.states.invoice import InvoiceForm
 from bot.keyboards.backbuttons import BackButtons
-from bot.utils.invoice import StateUtils
+from bot.utils.state import StateUtils
 from bot.utils.bot_utils import BotUtils
 
 
@@ -37,7 +37,7 @@ async def get_recipient_phone(message: Message, state: FSMContext):
     
     await state.update_data(recipient_phone=recipient_phone)
 
-    if await StateUtils.edit_invoice(data=data, message=message, state=state):
+    if await StateUtils.edit_invoice_or_data(data=data, message=message, state=state):
         return
 
     data = await state.get_data()

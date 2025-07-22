@@ -12,9 +12,11 @@ from app.db.base import async_session_factory
 from bot.keyboards.backbuttons import BackButtons
 from bot.keyboards.basic import BasicKeyboards
 from bot.keyboards.customer import CustomerKeyboards
+from bot.states.invoice import InvoiceForm
 from bot.states.auth import Auth
 from bot.states.invoice import INVOICE_PROMPTS
-from bot.utils.invoice import StateUtils
+from bot.states.contractor import Contractor
+from bot.utils.state import StateUtils
 
 
 router = Router()
@@ -140,3 +142,52 @@ async def go_back(callback: CallbackQuery, state: FSMContext):
     sent = await callback.message.edit_text(text, reply_markup=keyboard)
     
     await state.update_data(last_bot_message=sent.message_id)
+    
+
+@router.callback_query(F.data == "back_to_summary")
+async def back_to_summary(callback: CallbackQuery, state: FSMContext):
+    """
+    Возвращает пользователя к полной сводке при нажатии кнопки 'Назад' и сбрасывает режим редактирования.
+
+    Args:
+        callback (CallbackQuery): Объект callback-запроса от пользователя.
+        state (FSMContext): Текущее состояние FSM и данные пользователя.
+    """
+    
+    data = await StateUtils.prepare_next_state(obj=callback, state=state)
+        
+    await state.set_state(InvoiceForm.confirmation)
+    await state.update_data(editing_field=None)
+
+    await StateUtils.get_summary(message=callback.message, data=data)
+
+
+@router.callback_query(F.data == "back_to_contractor_phone")
+async def back_to_contractor_phone_form(callback: CallbackQuery, state: FSMContext):
+    """
+    По кнопке 'Назад' возвращает пользователя к этапу ввода номера телефона для заключения договора.
+
+    Args:
+        callback (CallbackQuery): Объект callback-запроса от пользователя.
+        state (FSMContext): Текущее состояние FSM и данные пользователя.
+    """
+    sent = await callback.message.edit_text("Введите Ваш номер телефона", reply_markup=await BackButtons.back_to_welcoming_screen())
+    await state.set_state(Contractor.phone)
+    
+    
+@router.callback_query(F.data == "back_to_contractor_summary")
+async def back_to_summary(callback: CallbackQuery, state: FSMContext):
+    """
+    Возвращает пользователя к полной сводке при нажатии кнопки 'Назад' и сбрасывает режим редактирования.
+
+    Args:
+        callback (CallbackQuery): Объект callback-запроса от пользователя.
+        state (FSMContext): Текущее состояние FSM и данные пользователя.
+    """
+    
+    data = await StateUtils.prepare_next_state(obj=callback, state=state)
+        
+    await state.set_state(Contractor.tin_and_confirmation)
+    await state.update_data(editing_field=None)
+
+    await StateUtils.get_contractor_summary(message=callback.message, data=data)

@@ -44,6 +44,10 @@ async def cmd_start(message: types.Message, state: FSMContext, **data: dict):
                 "Здесь вы можете управлять пользователями и контролировать систему.\n"
                 "Выберите нужный пункт меню, чтобы начать работу."
             ), reply_markup=await AdminKeyboards.get_admin_kb())
+            
+            await asyncio.sleep(1)
+            await message.delete()
+            
             return
         
         elif role == "user":
@@ -55,6 +59,10 @@ async def cmd_start(message: types.Message, state: FSMContext, **data: dict):
                 "Не нужно ломать голову — просто выбери, что нужно, и я всё сделаю быстро и без лишних хлопот! 💼✨\n"
                 "Если возникнут вопросы — пиши, всегда рад помочь! 😊👍"
             ), reply_markup=await CustomerKeyboards.customer_kb())
+            
+            await asyncio.sleep(1)
+            await message.delete()
+            
             return
 
     welcoming_text = (

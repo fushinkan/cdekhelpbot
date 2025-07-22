@@ -3,6 +3,7 @@ from aiogram.fsm.state import State, StatesGroup
 from bot.keyboards.customer import CustomerKeyboards
 from bot.keyboards.backbuttons import BackButtons
 
+
 class InvoiceForm(StatesGroup):
     """
     Состояния для поэтапного создания накладной в Telegram-боте.
@@ -47,7 +48,7 @@ INVOICE_PROMPTS = {
         InvoiceForm.recipient_city.state: ("🌆 Пожалуйста, укажите город получателя для доставки", BackButtons.back_to_recipient_phone),
         InvoiceForm.recipient_address.state: ("📍 Укажите адрес получения/доставки", BackButtons.back_to_recipient_city),
         InvoiceForm.insurance_amount.state: ("🛡️ На какую сумму нужна страховка?", BackButtons.back_to_recipient_address),
-        InvoiceForm.confirmation.state: ("🛠️ Добавить доп. услуги к заказу?", CustomerKeyboards.extra_services),
+        InvoiceForm.confirmation.state: ("🛠️ Добавить доп. услуги к заказу?", CustomerKeyboards.extra_services), 
 }
 
 
@@ -58,5 +59,4 @@ STATE_MAP = {
     "recipient_city": InvoiceForm.recipient_city,
     "recipient_address": InvoiceForm.recipient_address,
     "insurance_amount": InvoiceForm.insurance_amount,
-
 }

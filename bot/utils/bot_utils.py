@@ -1,5 +1,7 @@
+import asyncio
 from typing import Union
 
+from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
 from aiogram.exceptions import TelegramBadRequest
 
@@ -40,3 +42,48 @@ class BotUtils:
             
         except TelegramBadRequest as e:
             pass
+    
+           
+    @classmethod
+    async def delete_error_messages(cls, *, obj: Union[Message, CallbackQuery], state: FSMContext) -> dict:
+        """
+        Удаляет сообщения об ошибках при некорректном вводе.
+
+        Args:
+            obj (Message | CallbackQuery): Объект входящего сообщения или callback.
+            state (FSMContext): Текущее состояние FSM.
+
+        Returns:
+            dict: Текущие данные состояния.
+        """
+        
+        await asyncio.sleep(0.3)
+        
+        data = await state.get_data()
+        error_message_id = data.get("error_message")
+        message = None
+        
+        if isinstance(obj, CallbackQuery):
+            await obj.answer()
+            
+            try:
+                await obj.message.delete()
+                
+            except TelegramBadRequest:
+                pass
+            
+            message = obj.message
+            
+        else:
+            try:
+                await obj.delete()    
+                  
+            except TelegramBadRequest:
+                pass
+            
+            message = obj  
+            
+        if message and error_message_id:
+            await BotUtils.delete_prev_messages(obj=message, message_id=error_message_id)
+   
+        return data

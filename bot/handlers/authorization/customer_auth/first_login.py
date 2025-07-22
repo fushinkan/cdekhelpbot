@@ -10,7 +10,7 @@ from bot.utils.exceptions import UserNotExistsException
 from bot.keyboards.backbuttons import BackButtons
 
 from bot.states.customer_auth import CustomerAuth
-from bot.utils.invoice import StateUtils
+from bot.utils.state import StateUtils
 
 
 router = Router()

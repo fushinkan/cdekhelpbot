@@ -1,6 +1,6 @@
 from aiogram import Router
 
-from bot.handlers.invoice.edit_invoice import router as ei_router
+
 from bot.handlers.invoice.confirmation import router as confirm_router
 from bot.handlers.invoice.contract_number import router as cn_router 
 from bot.handlers.invoice.departure_address import router as da_router
@@ -23,5 +23,4 @@ router.include_routers(
     ra_router,
     rc_router,
     cp_router,
-    ei_router
 )
