@@ -117,7 +117,7 @@ class StateUtils():
             f"💰 Сумма страхования: {data.get('insurance_amount')} ₽"
         )
 
-        sent = await message.bot.send_message(chat_id=chat_id, text=summary, parse_mode="HTML", reply_markup=await AdminKeyboards.send_answer())
+        sent = await message.bot.send_message(chat_id=chat_id, text=summary, parse_mode="HTML", reply_markup=await AdminKeyboards.send_answer(user_id=data.get("user_id"), username=data.get("username")))
         
         return sent
     

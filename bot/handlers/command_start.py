@@ -7,11 +7,13 @@ from aiogram import Router
 
 from bot.keyboards.customer import CustomerKeyboards
 from bot.keyboards.admin import AdminKeyboards
-from bot.utils.middlewares import LoggingMiddleware
+from bot.middlewares.logging_middleware import LoggingMiddleware
+from bot.middlewares.work_hours_middleware import WorkHoursMiddleware
 from bot.keyboards.basic import BasicKeyboards
 
 router = Router()
 router.message.middleware(LoggingMiddleware())
+router.message.middleware(WorkHoursMiddleware())
 
 
 @router.message(filters.CommandStart(), flags={"data": True})

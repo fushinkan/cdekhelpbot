@@ -1,8 +1,9 @@
 from aiogram import Router, F
-from aiogram.types import CallbackQuery
+from aiogram.types import CallbackQuery, Message
 from aiogram.fsm.context import FSMContext
 
 from bot.utils.state import StateUtils
+from bot.states.send_invoice import SendInvoice
 
 import asyncio
 
@@ -21,6 +22,8 @@ async def send_invoice_summary(callback: CallbackQuery, state: FSMContext):
     
     data = await StateUtils.prepare_next_state(obj=callback, state=state)
     data["user_full_name"] = callback.from_user.username
+    data["user_id"] = callback.from_user.id
+    data["username"] = callback.from_user.username
     
     await StateUtils.send_summary(
         message=callback,
@@ -29,7 +32,6 @@ async def send_invoice_summary(callback: CallbackQuery, state: FSMContext):
     )
     
     await callback.answer("✅ Данные отправлены менеджеру.")
-    
     
 @router.callback_query(F.data == "allow_agreement")
 async def send_contractor_summary(callback: CallbackQuery, state: FSMContext):
@@ -43,7 +45,7 @@ async def send_contractor_summary(callback: CallbackQuery, state: FSMContext):
     
     data = await StateUtils.prepare_next_state(obj=callback, state=state)
     data["user_full_name"] = callback.from_user.username
-    
+
     await StateUtils.send_contractor_summary(
         message=callback,
         data=data,
@@ -59,3 +61,17 @@ async def send_contractor_summary(callback: CallbackQuery, state: FSMContext):
     await asyncio.sleep(15)
     
     await sent.delete()
+    
+@router.callback_query(F.data.startswith("answer_to_client:"))
+async def handle_answer_invoice(callback: CallbackQuery, state: FSMContext):
+    user_id = int(callback.data.split(":")[1])
+    username = callback.data.split(":")[2]
+    
+    await callback.message.edit_text(
+        text="📎 Пришлите PDF-файл с накладной для клиента.",
+    )
+    
+    await state.set_state(SendInvoice.waiting_for_invoice)
+    await state.update_data(user_id=user_id, username=username)
+
+    await callback.answer()
