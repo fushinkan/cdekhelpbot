@@ -43,6 +43,7 @@ class UserInDB:
         
         return users
 
+
     @classmethod
     async def get_admin_by_phone(cls, *, phone_number: str, session: AsyncSession):
         """
@@ -70,6 +71,7 @@ class UserInDB:
         
         return admin
     
+    
     @classmethod
     async def get_client_by_telegram_id(cls, *, telegram_id: int, session: AsyncSession):
         """
@@ -90,8 +92,8 @@ class UserInDB:
         )
         
         return result.scalar_one_or_none()
-
-    
+  
+  
     @classmethod
     async def get_admin_by_telegram_id(cls, *, telegram_id: int, session: AsyncSession):
         """
@@ -112,8 +114,7 @@ class UserInDB:
         
         return result.scalar_one_or_none()
         
-    
-    
+        
     @classmethod
     async def get_client_by_id(cls, *, id: int, session: AsyncSession):
         """

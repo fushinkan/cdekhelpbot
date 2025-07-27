@@ -34,5 +34,5 @@ class AdminKeyboards():
         
         return InlineKeyboardMarkup(inline_keyboard=[
             [InlineKeyboardButton(text="📤 Ответить", callback_data=f"answer_to_client:{user_id}:{username}"),
-             InlineKeyboardButton(text="❌ Отменить", callback_data="reject_answer")]
+             InlineKeyboardButton(text="❌ Отменить", callback_data=f"reject_answer:{user_id}:{username}")]
         ])

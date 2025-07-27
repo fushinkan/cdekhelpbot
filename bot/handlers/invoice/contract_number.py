@@ -6,7 +6,7 @@ from aiogram.types import CallbackQuery
 
 
 from app.api.handlers.get_user import UserInDB
-from app.api.handlers.normalize import normalize_phone
+from app.api.utils.normalize import normalize_phone
 from bot.utils.exceptions import UserNotExistsException, IncorrectPhone
 from bot.states.invoice import InvoiceForm
 from bot.keyboards.backbuttons import BackButtons

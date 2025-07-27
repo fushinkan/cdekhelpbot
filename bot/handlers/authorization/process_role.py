@@ -2,7 +2,7 @@ from aiogram import Router
 from aiogram.types import Message
 from aiogram.fsm.context import FSMContext
 
-from app.api.handlers.normalize import normalize_phone
+from app.api.utils.normalize import normalize_phone
 from app.db.base import async_session_factory
 from app.api.handlers.get_user import UserInDB
 from bot.utils.exceptions import UserNotExistsException, AdminNotExistsException, IncorrectPhone

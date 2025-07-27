@@ -1,4 +1,3 @@
-import asyncio
 from aiogram import Router
 from aiogram.types import Message
 from aiogram.fsm.context import FSMContext
@@ -38,6 +37,8 @@ async def accept_enter(message: Message, state: FSMContext):
     phone = data.get("phone")
 
     try:
+        data = await BotUtils.delete_error_messages(obj=message, state=state)
+        
         async with async_session_factory() as session:
             user = await UserInDB.get_client_by_phone(phone_number=phone, session=session)
             
@@ -67,16 +68,7 @@ async def accept_enter(message: Message, state: FSMContext):
             await state.update_data(phone=phone)
     
     except (UserNotExistsException, IncorrectPasswordException) as e:
+        data = await BotUtils.delete_error_messages(obj=message, state=state)
         sent = await message.answer(str(e), parse_mode="HTML")
         await state.update_data(error_message=sent.message_id)
         return
-    
-    data = await state.get_data()
-    error_message = data.get("error_message")
-    
-    try:
-        if error_message:
-            await BotUtils.delete_prev_messages(obj=message, message_id=error_message)   
-               
-    except TelegramBadRequest:
-        pass

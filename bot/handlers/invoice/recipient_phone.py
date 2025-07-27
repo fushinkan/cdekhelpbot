@@ -3,7 +3,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram import Router
 from aiogram.types import Message
 
-from app.api.handlers.normalize import normalize_phone
+from app.api.utils.normalize import normalize_phone
 from bot.utils.exceptions import IncorrectPhone
 from bot.states.invoice import InvoiceForm
 from bot.keyboards.backbuttons import BackButtons
@@ -29,26 +29,19 @@ async def get_recipient_phone(message: Message, state: FSMContext):
 
     try:
         recipient_phone = await normalize_phone(phone=recipient_phone_raw)
+        data = await BotUtils.delete_error_messages(obj=message, state=state)
         
     except IncorrectPhone as e:
+        data = await BotUtils.delete_error_messages(obj=message, state=state)
         sent = await message.answer(str(e), parse_mode="HTML")
         await state.update_data(error_message=sent.message_id)
+
         return 
     
     await state.update_data(recipient_phone=recipient_phone)
 
     if await StateUtils.edit_invoice_or_data(data=data, message=message, state=state):
         return
-
-    data = await state.get_data()
-    error_message = data.get("error_message")
-    
-    try:
-        if error_message:
-            await BotUtils.delete_prev_messages(obj=message, message_id=error_message)  
-                
-    except TelegramBadRequest:
-        pass
 
     await state.set_state(InvoiceForm.recipient_city)
     await StateUtils.push_state_to_history(state=state, new_state=InvoiceForm.recipient_city)

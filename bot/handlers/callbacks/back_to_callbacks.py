@@ -5,7 +5,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram import F, Router
 from aiogram.types import CallbackQuery
 
-from app.api.handlers.normalize import normalize_phone
+from app.api.utils.normalize import normalize_phone
 from app.db.models.admins import Admins
 from app.db.models.users import Users
 from app.db.base import async_session_factory
@@ -106,7 +106,7 @@ async def go_back(callback: CallbackQuery, state: FSMContext):
         state (FSMContext): Текущее состояние FSM и данные пользователя.
     """
     
-    data = await state.get_data()
+    data = await StateUtils.prepare_next_state(obj=callback, state=state)
     
     await asyncio.sleep(0.3)
     

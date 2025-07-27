@@ -5,7 +5,10 @@ from aiogram.fsm.context import FSMContext
 from app.db.base import async_session_factory
 from app.api.handlers.save_invoice import save_invoice
 from app.api.handlers.get_user import UserInDB
+from bot.utils.state import StateUtils
 from bot.states.send_invoice import SendInvoice
+from bot.utils.exceptions import IncorrectFileName
+from bot.utils.bot_utils import BotUtils
 
 
 router = Router()
@@ -23,7 +26,7 @@ async def handle_invoice_upload(message: Message, state: FSMContext):
     Returns:
         Message: Предупреждает менеджера о том, что ответ должен быть в формате PDF
     """
-    data = await state.get_data()
+    data = await StateUtils.prepare_next_state(obj=message, state=state)
     user_id = data.get("user_id")
     username = data.get("username")
     
@@ -34,9 +37,14 @@ async def handle_invoice_upload(message: Message, state: FSMContext):
     try:
         parts = file_name.replace(".pdf", "").split("-")
         departure_city, recipient_city, invoice_number = parts
-    except Exception:
-        return await message.answer("Название файла, должно быть в формате Откуда-Куда-НомерНакладной")
-    
+        data = await BotUtils.delete_error_messages(obj=message, state=state)
+    except (IncorrectFileName, ValueError) as e:
+        data = await BotUtils.delete_error_messages(obj=message, state=state)
+        sent = await message.answer(str(IncorrectFileName(IncorrectFileName.__doc__)), parse_mode="HTML")
+        await state.update_data(error_message=sent.message_id)
+        
+        return
+        
     if document.mime_type != "application/pdf":
         return await message.answer("❗ Пожалуйста, отправьте файл в формате PDF.")
 

@@ -7,6 +7,7 @@ from bot.states.send_invoice import SendInvoice
 
 import asyncio
 
+
 router = Router()
 
 
@@ -24,6 +25,8 @@ async def send_invoice_summary(callback: CallbackQuery, state: FSMContext):
     data["user_full_name"] = callback.from_user.username
     data["user_id"] = callback.from_user.id
     data["username"] = callback.from_user.username
+
+    await state.update_data(**data)
     
     await StateUtils.send_summary(
         message=callback,
@@ -67,11 +70,39 @@ async def handle_answer_invoice(callback: CallbackQuery, state: FSMContext):
     user_id = int(callback.data.split(":")[1])
     username = callback.data.split(":")[2]
     
-    await callback.message.edit_text(
+    sent = await callback.message.edit_text(
         text="📎 Пришлите PDF-файл с накладной для клиента.",
     )
     
     await state.set_state(SendInvoice.waiting_for_invoice)
-    await state.update_data(user_id=user_id, username=username)
+    await state.update_data(user_id=user_id, username=username, last_bot_message=sent.message_id)
 
     await callback.answer()
+    
+    
+@router.callback_query(F.data.startswith("reject_answer:"))
+async def reject_invoice(callback: CallbackQuery, state: FSMContext):
+    """
+    Отменяет создание накладной
+
+    Args:
+        callback (CallbackQuery): Объект callback-запроса от пользователя.
+        state (FSMContext): Текущее состояние FSM и данные пользователя.
+    """
+    
+    data = await StateUtils.prepare_next_state(obj=callback, state=state)
+    user_id = callback.data.split(":")[1]
+
+    try:
+        sent = await callback.message.bot.send_message(
+            chat_id=user_id,
+            text=(
+                "❌ Создание накладной отменено.\n"
+                "Если нужна помощь, пожалуйста, свяжитесь с нами по номеру: +7 (904)-280-30-01."
+            )
+        )
+    except Exception as e:
+        print(f"ISSUE {str(e)}")
+        print(f"USER_ID {user_id}")
+        
+    await callback.answer("✅ Пользователь уведомлен об отмене.")

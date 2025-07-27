@@ -29,6 +29,7 @@ async def check_phone_endpoint(phone_number: str, session: AsyncSession = Depend
     Returns:
         UsersSchema: Pydantic-схема с данными пользователя. (id, номер телефона, номер договора, город)
     """
+    
     try:
         phone = normalize_phone(phone_number)
         user = await get_user_by_phone(phone, session)
@@ -39,6 +40,7 @@ async def check_phone_endpoint(phone_number: str, session: AsyncSession = Depend
             status_code=status.HTTP_404_NOT_FOUND,
             detail=str(e)
         )
+        
     except IncorrectPhone as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,

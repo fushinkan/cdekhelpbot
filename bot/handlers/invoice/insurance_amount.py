@@ -31,24 +31,17 @@ async def get_insurance_amount(message: Message, state: FSMContext):
     
     try:
         await Validator.correct_insurance(text=insurance_amount)
+        data = await BotUtils.delete_error_messages(obj=message, state=state)
         
     except IncorrectInsurance as e:
+        data = await BotUtils.delete_error_messages(obj=message, state=state)
         sent = await message.answer(str(e), parse_mode="HTML")
         await state.update_data(error_message=sent.message_id)
+
         return 
     
     if await StateUtils.edit_invoice_or_data(data=data, message=message, state=state):
         return
-        
-    data = await state.get_data()
-    error_message = data.get("error_message")
-    
-    try:
-        if error_message:
-            await BotUtils.delete_prev_messages(obj=message, message_id=error_message)
-            
-    except TelegramBadRequest:
-        pass    
 
     await state.set_state(InvoiceForm.confirmation)
     

@@ -2,7 +2,7 @@ from aiogram import Router
 from aiogram.types import Message
 from aiogram.fsm.context import FSMContext
 
-from app.api.handlers.normalize import normalize_phone
+from app.api.utils.normalize import normalize_phone
 from bot.states.contractor import Contractor
 from bot.utils.state import StateUtils
 from bot.utils.bot_utils import BotUtils
