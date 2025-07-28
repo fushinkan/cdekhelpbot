@@ -2,169 +2,95 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from bot.utils.exceptions import UserNotExistsException, AdminNotExistsException
+from bot.utils.exceptions import UserNotExistsException
 from app.db.models.users import Users
 from app.db.models.admins import Admins
 from app.db.models.phone_numbers import PhoneNumbers
 
-
 class UserInDB:
+    """_summary_
+
+    Returns:
+        _type_: _description_
     """
-    Класс с различными методами для проверки наличия пользователя/админа в базе данных.
-    """
-    
-    @classmethod
-    async def get_client_by_phone(cls, *, phone_number: str, session: AsyncSession):
-        """
-        Функция проверяет наличие пользователя по номеру телефона в БД.
-
-        Args:
-            phone_number (str): Номер телефона, который пользователь отправляет боту.
-            session (AsyncSession): Сессия подключения к БД (по умолчанию взята из настроек).
-
-        Raises:
-            UserNotExistsException: Кастомный класс с ошибкой.
-
-        Returns:
-            Users: ORM модель пользователя для дальнейшей работы с API.
-        """
-        
-        user_res = await session.execute(
-            select(Users)
-            .join(Users.phones)
-            .where(PhoneNumbers.number == phone_number)
-            .options(selectinload(Users.phones))
-        )
-
-        users = user_res.scalars().all()
-        
-        if not users:
-            raise UserNotExistsException(UserNotExistsException.__doc__)
-        
-        return users
-
 
     @classmethod
-    async def get_admin_by_phone(cls, *, phone_number: str, session: AsyncSession):
+    async def get_user_by_id(cls, *, id: int, session: AsyncSession):
         """
-        Функция проверяет наличие админа по номеру телефона в БД.
-
-        Args:
-            phone_number (str): Номер телефона, который админ отправляет боту
-            session (AsyncSession): Сессия подключения к БД (по умолчанию взята из настроек)
-
-        Raises:
-            AdminNotExistsException: Кастомный класс с ошибкой.
+        Универсальный поиск пользователя (админ или клиент) по ID.
 
         Returns:
-            Admins: ORM модель админа для дальнейшей работы с API.
+            ORM-Модель Admin или Users
         """
+
         
+        admin = await session.get(Admins, id)
+        
+        if admin:
+            return admin
+        
+        user = await session.get(Users, id)
+        
+        if user:
+            return user
+
+        raise UserNotExistsException(UserNotExistsException.__doc__)
+
+    @classmethod
+    async def get_user_by_phone(cls, *, phone_number: str, session: AsyncSession):
+        """
+        Универсальный поиск пользователя по номеру телефона.
+        """
+
         admin_res = await session.execute(
-            select(Admins).where(Admins.phone_number == phone_number)
+            select(Admins)
+            .where(Admins.phone_number == phone_number)
         )
         
         admin = admin_res.scalar_one_or_none()
         
-        if not admin:
-            raise AdminNotExistsException(AdminNotExistsException.__doc__)
-        
-        return admin
-    
-    
-    @classmethod
-    async def get_client_by_telegram_id(cls, *, telegram_id: int, session: AsyncSession):
-        """
-        Поиск пользователя по Telegram ID.
-
-        Args:
-            telegram_id (int): Telegram ID передающийся в метод.
-            session (AsyncSession): Сессия подключения к БД (по умолчанию взята из настроек).
-
-        Returns:
-            Users: ORM  модель пользователя для дальнейшей работы с API.
-        """
-        
-        result = await session.execute(
+        if admin:
+            return admin
+            
+        users_res = await session.execute(
             select(Users)
-            .where(Users.telegram_id == telegram_id)
+            .join(PhoneNumbers)
+            .where(PhoneNumbers.number == phone_number)
             .options(selectinload(Users.phones))
         )
         
-        return result.scalar_one_or_none()
-  
-  
+        users = users_res.scalars().all()
+        
+        if users:
+            return users[0]
+        
+        raise UserNotExistsException(UserNotExistsException.__doc__)
+
+
     @classmethod
-    async def get_admin_by_telegram_id(cls, *, telegram_id: int, session: AsyncSession):
+    async def get_user_by_telegram_id(cls, *, telegram_id: int, session: AsyncSession):
         """
-        Поиск админа по Telegram ID.
-
-        Args:
-            telegram_id (int): Telegram ID передающийся в метод.
-            session (AsyncSession): Сессия подключения к БД (по умолчанию взята из настроек).
-
-        Returns:
-            Admins: ORM  модель админа для дальнейшей работы с API.
+        Универсальный поиск пользователя по Telegram ID.
         """
         
-        result = await session.execute(
+        admin_res= await session.execute(
             select(Admins)
             .where(Admins.telegram_id == telegram_id)
         )
         
-        return result.scalar_one_or_none()
+        admin = admin_res.scalar_one_or_none()
         
-        
-    @classmethod
-    async def get_client_by_id(cls, *, id: int, session: AsyncSession):
-        """
-        Поиск пользователя по ID в базе данных.
-
-        Args:
-            id (int): ID пользователя в БД передающийся в метод.
-            session (AsyncSession): Сессия подключения к БД (по умолчанию взята из настроек).
+        if admin:
+            return admin
             
-        Raises:
-            UserNotExistsException: Кастомный класс с ошибкой.
-
-        Returns:
-            Users: ORM  модель пользователя для дальнейшей работы с API.
-        """
-        
-        user_res = await session.execute(
-                select(Users)
-                .join(Users.phones)
-                .where(PhoneNumbers.user_id == id)
-                .options(selectinload(Users.phones))
-            )
-
-        users = user_res.scalars().all()
-             
-        if not users:
-            raise UserNotExistsException(UserNotExistsException.__doc__)
-            
-        return users
-        
-        
-    @classmethod
-    async def get_admin_by_id(cls, *, id: int, session: AsyncSession):
-        """
-        Поиск админа по ID в базе данных.
-
-        Args:
-            id (int): ID админа в БД передающийся в метод.
-            session (AsyncSession): Сессия подключения к БД (по умолчанию взята из настроек).
-            
-        Raises:
-            AdminNotExistsException: Кастомный класс с ошибкой.
-
-        Returns:
-            Admins: ORM  модель админа для дальнейшей работы с API.
-        """
-        
-        result = await session.execute(
-            select(Admins)
-            .where(Admins.id == id)
+        users_res = await session.execute(
+            select(Users)
+            .where(Users.telegram_id == telegram_id)
         )
         
-        return result.scalar_one_or_none()
+        user = users_res.scalar_one_or_none()
+        
+        if user:
+            return user
+        
+        raise UserNotExistsException(UserNotExistsException.__doc__)

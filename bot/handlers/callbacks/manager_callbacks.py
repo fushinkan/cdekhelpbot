@@ -93,16 +93,13 @@ async def reject_invoice(callback: CallbackQuery, state: FSMContext):
     data = await StateUtils.prepare_next_state(obj=callback, state=state)
     user_id = callback.data.split(":")[1]
 
-    try:
-        sent = await callback.message.bot.send_message(
-            chat_id=user_id,
-            text=(
-                "❌ Создание накладной отменено.\n"
-                "Если нужна помощь, пожалуйста, свяжитесь с нами по номеру: +7 (904)-280-30-01."
-            )
+    sent = await callback.message.bot.send_message(
+        chat_id=user_id,
+        text=(
+            "❌ Создание накладной отменено.\n"
+            "Если нужна помощь, пожалуйста, свяжитесь с нами по номеру: +7 (904)-280-30-01."
         )
-    except Exception as e:
-        print(f"ISSUE {str(e)}")
-        print(f"USER_ID {user_id}")
+    )
+
         
     await callback.answer("✅ Пользователь уведомлен об отмене.")

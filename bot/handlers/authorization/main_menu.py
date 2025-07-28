@@ -6,7 +6,7 @@ from bot.keyboards.admin import AdminKeyboards
 from bot.keyboards.customer import CustomerKeyboards
 
 
-async def proceed_to_main_menu(*, obj: Users | Admins, message: Message):
+async def proceed_to_main_menu(*, role: str, user_data: dict, message: Message):
     """
     Главное меню для пользователя/админа в зависимости от role в БД.
 
@@ -18,9 +18,10 @@ async def proceed_to_main_menu(*, obj: Users | Admins, message: Message):
         Message: Ответное сообщение, отправленное пользователю с соответствующей клавиатурой для его роли. 
     """
     
-    if isinstance(obj, Admins):
+    if role == "admin":
+        contractor = user_data.get("contractor", "Администратор")
         sent = await message.answer((
-            f"👋 Здравствуйте, {obj.contractor}\n\n"
+            f"👋 Здравствуйте, {contractor}\n\n"
             "Добро пожаловать в панель управления.\n"
             "Здесь вы можете управлять пользователями и контролировать систему.\n"
             "Выберите нужный пункт меню, чтобы начать работу."

@@ -12,6 +12,9 @@ class Settings(BaseSettings):
     # Redis URL
     REDIS_URL: str 
     
+    #FastAPI URL
+    BASE_FASTAPI_URL: str
+    
     # PostgreSQL settings
     DB_USER: str
     DB_PASS: str

@@ -1,15 +1,17 @@
+import httpx
 from aiogram import Router
 from aiogram.types import Message
 from aiogram.fsm.context import FSMContext
 from sqlalchemy import update
 
-from app.api.utils.security import hashed_password
-from app.db.base import async_session_factory
-from app.db.models.admins import Admins
+from app.api.utils.validator import Validator
+from app.core.config import settings
+from bot.keyboards.backbuttons import BackButtons
 from bot.states.admin_auth import AdminAuth
 from bot.handlers.authorization.main_menu import proceed_to_main_menu
 from bot.utils.state import StateUtils
 from bot.utils.bot_utils import BotUtils
+
 
 
 router = Router()
@@ -18,42 +20,73 @@ router = Router()
 @router.message(AdminAuth.confirm_password)
 async def confirm_password(message: Message, state: FSMContext):
     """
-    Подтверждает установку нового пароля для админа и записывает его в БД.
+    Подтверждает установку нового пароля для пользователя и записывает его в БД.
 
     Args:
-        message (Message): Объект входящего Telegram-сообщения от админа.
-        state (FSMContext): Контейнер для хранения и управления текущим состоянием админа в рамках авторизации.
+        message (Message): Объект входящего Telegram-сообщения от пользователя.
+        state (FSMContext): Контейнер для хранения и управления текущим состоянием пользователя в рамках авторизации.
     """
     
     data = await StateUtils.prepare_next_state(obj=message, state=state)
+    user_id = data.get("user_id")
+    first_password = data.get('new_password')
+    confirm_password = message.text.strip()
     
-    if message.text.strip() != data["new_password"]:
+    if confirm_password != first_password:
         data = await BotUtils.delete_error_messages(obj=message, state=state)
-        sent = await message.answer("Пароли не совпадают, попробуйте заново")
+        sent = await message.answer("Пароли не совпадают, попробуйте заново", reply_markup=await BackButtons.back_to_phone())
         
         await state.update_data(error_message=sent.message_id)
         await state.set_state(AdminAuth.set_password)
+        
         return
-    
-    hashed_psw = hashed_password(password=message.text.strip())
-    data = await BotUtils.delete_error_messages(obj=message, state=state)
-    
-    async with async_session_factory() as session:
-        await session.execute(
-            update(Admins)
-            .where(Admins.id == int(data["admin_id"]))
-            .values(
-                hashed_psw=str(hashed_psw),
-                telegram_name=message.from_user.username,
-                telegram_id=message.from_user.id,
-                is_logged=True
-            )
+   
+    if not Validator.validate_password(plain_password=confirm_password):
+        data = await BotUtils.delete_error_messages(obj=message, state=state)
+        
+        sent = await message.answer(
+            "Пароль должен быть от 8 символов и более",
+            reply_markup=await BackButtons.back_to_phone()
         )
         
-        await session.commit()
-            
-        admin = await session.get(Admins, data["admin_id"])
-            
-        await proceed_to_main_menu(obj=admin, message=message)
+        await state.update_data(error_message=sent.message_id)
+        await state.set_state(AdminAuth.set_password)
         
+        return  
+    
+    async with httpx.AsyncClient() as client:
+        try:
+            response = await client.put(
+                f"{settings.BASE_FASTAPI_URL}/auth/confirm_password",
+                json={"user_id": user_id, "password": confirm_password}
+            )
+            
+            response.raise_for_status()
+
+            response_user = await client.get(f"{settings.BASE_FASTAPI_URL}/users/{user_id}")
+            response_user.raise_for_status()
+            user_data = response_user.json()
+            
+            role = user_data.get("role")
+            telegram_id = message.from_user.id
+            telegram_name = message.from_user.full_name
+
+            await client.put(
+                f"{settings.BASE_FASTAPI_URL}/auth/{role}/{user_id}/login_status",
+                json={
+                    "is_logged": True,
+                    "telegram_id": telegram_id,
+                    "telegram_name": telegram_name
+                }
+            )
+            
+        except httpx.HTTPError:
+            sent = await message.answer("❌ Ошибка при подтверждении пароля. Попробуйте позже.", reply_markup=await BackButtons.back_to_phone())
+            await state.update_data(error_message=sent.message_id)
+            return      
+        
+        data = await BotUtils.delete_error_messages(obj=message, state=state)
+                
+        await proceed_to_main_menu(role=user_data.get("role"), user_data=user_data, message=message)
         await state.clear()
+ 

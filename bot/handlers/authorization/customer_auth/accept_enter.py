@@ -1,19 +1,15 @@
+import httpx
 from aiogram import Router
 from aiogram.types import Message
 from aiogram.fsm.context import FSMContext
-from aiogram.exceptions import TelegramBadRequest
-from sqlalchemy import update
 
-from app.api.handlers.get_user import UserInDB
-from app.api.utils.security import verify_password
-from app.db.base import async_session_factory
-from app.db.models.users import Users
+from app.core.config import settings
 from bot.utils.bot_utils import BotUtils
-from bot.utils.exceptions import UserNotExistsException
-from bot.utils.exceptions import IncorrectPasswordException
 from bot.utils.state import StateUtils
 from bot.states.customer_auth import CustomerAuth
+from bot.states.admin_auth import AdminAuth
 from bot.handlers.authorization.main_menu import proceed_to_main_menu
+from bot.keyboards.backbuttons import BackButtons
 
 
 router = Router()
@@ -34,41 +30,55 @@ async def accept_enter(message: Message, state: FSMContext):
     """
 
     data = await StateUtils.prepare_next_state(obj=message, state=state)
+    user_id = data.get("user_id")
     phone = data.get("phone")
+    password = message.text.strip()
+    telegram_id = message.from_user.id
+    telegram_name = message.from_user.username
 
-    try:
-        data = await BotUtils.delete_error_messages(obj=message, state=state)
-        
-        async with async_session_factory() as session:
-            user = await UserInDB.get_client_by_phone(phone_number=phone, session=session)
+    data = await BotUtils.delete_error_messages(obj=message, state=state)
+
+    async with httpx.AsyncClient() as client:
+        try:
+            response = await client.put(
+                f"{settings.BASE_FASTAPI_URL}/auth/confirm_password",
+                json={
+                    "phone_number": phone,
+                    "plain_password": password,
+                    "telegram_id": telegram_id,
+                    "telegram_name": telegram_name
+                },
+            )
             
-            if not user:
-                raise UserNotExistsException(UserNotExistsException.__doc__)
+            response.raise_for_status()
+
+            response_user = await client.get(f"{settings.BASE_FASTAPI_URL}/users/{user_id}")
+            response_user.raise_for_status()
+            user_data = response_user.json()
             
-            elif not verify_password(plain_password=message.text.strip(), hashed_password=user[0].hashed_psw):
-                raise IncorrectPasswordException(IncorrectPasswordException.__doc__)
+            role = user_data.get("role")
+            telegram_id = message.from_user.id
+            telegram_name = message.from_user.full_name
+
+            await client.put(
+                f"{settings.BASE_FASTAPI_URL}/auth/{role}/{user_id}/login_status",
+                json={
+                    "is_logged": True,
+                    "telegram_id": telegram_id,
+                    "telegram_name": telegram_name
+                }
+            )
             
-            else:
-                await session.execute(
-                    update(Users)
-                    .where(Users.id == data["user_id"])
-                    .values(
-                        is_logged=True,
-                        telegram_name=message.from_user.username,
-                        telegram_id=message.from_user.id
-                    )
-                )
-                
-                await session.commit()
-                
-                await proceed_to_main_menu(obj=user[0], message=message)
-                
-            await state.clear()
-            await state.set_state(CustomerAuth.main_menu)
-            await state.update_data(phone=phone)
+        except httpx.HTTPError:
+            sent = await message.answer("❌ Ошибка при подтверждении пароля. Попробуйте позже.", reply_markup=await BackButtons.back_to_phone())
+            await state.update_data(error_message=sent.message_id)
+            return      
+            
     
-    except (UserNotExistsException, IncorrectPasswordException) as e:
         data = await BotUtils.delete_error_messages(obj=message, state=state)
-        sent = await message.answer(str(e), parse_mode="HTML")
-        await state.update_data(error_message=sent.message_id)
-        return
+            
+            
+        await proceed_to_main_menu(role=user_data.get("role"), user_data=user_data, message=message)
+        await state.clear()
+        await state.set_state(CustomerAuth.main_menu)
+        await state.update_data(phone=phone)

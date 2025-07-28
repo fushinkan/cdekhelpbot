@@ -1,6 +1,5 @@
 from bot.utils.exceptions import IncorrectPhone
 
-
 async def normalize_phone(*, phone: str) -> str:
     """
     Приводит номер телефона к одному формату.

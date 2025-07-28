@@ -1,13 +1,17 @@
 from pydantic import BaseModel
 
-class UsersSchema(BaseModel):
-    """
-    Схема для представления пользователя из БД.
-    """
+from app.schemas.auth import PhoneOutSchema
+
+class UserResponseSchema(BaseModel):
     id: int
-    contractor: str
-    phone_number: str
+    tg_id: int
+    tg_name: str
     contract_number: str
+    full_name: str
+    phones: list[PhoneOutSchema]
     
     class Config:
         from_attributes = True
+
+class UserIDInputSchema(BaseModel):
+    user_id: int
