@@ -29,7 +29,8 @@ async def accept_enter(message: Message, state: FSMContext):
     """
 
     data = await StateUtils.prepare_next_state(obj=message, state=state)
-    user_id = data.get("user_id")
+    phone_number = data.get("phone")
+    user_id = data.get("id")
     password = message.text.strip()
     telegram_id = message.from_user.id
     telegram_name = message.from_user.username
@@ -38,10 +39,13 @@ async def accept_enter(message: Message, state: FSMContext):
 
     async with httpx.AsyncClient() as client:
         try:
-            response = await client.put(
-                f"{settings.BASE_FASTAPI_URL}/auth/confirm_password",
+            
+            response = await client.post(
+                f"{settings.BASE_FASTAPI_URL}/auth/accept_enter",
                 json={
-                    "plain_password": password,
+                    "phone_number": phone_number,
+                    "user_id": user_id,
+                    "password": password,
                     "telegram_id": telegram_id,
                     "telegram_name": telegram_name
                 },
@@ -49,7 +53,7 @@ async def accept_enter(message: Message, state: FSMContext):
             
             response.raise_for_status()
 
-            response_user = await client.get(f"{settings.BASE_FASTAPI_URL}/users/{user_id}")
+            response_user = await client.get(f"{settings.BASE_FASTAPI_URL}/user/{user_id}")
             response_user.raise_for_status()
             user_data = response_user.json()
             

@@ -49,11 +49,10 @@ class AuthService:
     ):
         
         user = await UserInDB.get_user_by_id(id=user_id, session=session)
-        
         if not user:
             raise UserNotExistsException(UserNotExistsException.__doc__)
         
-        user.hashed_psw = Security.hashed_password(plain_password)
+        user.hashed_psw = Security.hashed_password(password=plain_password)
         
         await session.commit()
 
@@ -74,7 +73,7 @@ class AuthService:
         if not user:
             raise UserNotExistsException(UserNotExistsException.__doc__)
         
-        user.hashed_psw = Security.hashed_password(confirm_password)
+        user.hashed_psw = Security.hashed_password(password=confirm_password)
         
         await session.commit()
         
@@ -82,18 +81,19 @@ class AuthService:
     async def accept_enter(
         cls, 
         *,
+        user_id: int,
         phone_number: str,
-        plain_passsord: str,
+        password: str,
         telegram_id: int | None = None,
         telegram_name: str | None = None,
         session: AsyncSession
     ):
-        user = await UserInDB.get_user_by_phone(phone_number=phone_number, session=session)
+        user = await UserInDB.get_user_by_id(id=user_id, session=session)
         
         if not user:
             raise UserNotExistsException(UserNotExistsException.__doc__)
         
-        if not Security.verify_password(plain_password=plain_passsord, hashed_password=user.hashed_psw):
+        if not Security.verify_password(plain_password=password, hashed_password=user.hashed_psw):
             raise IncorrectPasswordException(IncorrectPasswordException.__doc__)
         
         model = Users if user.role == "user" else Admins

@@ -9,7 +9,7 @@ async def save_invoice(*, user_id: int, departure_city: str, recipient_city: str
     Args:
         departure_city (str): Город отправителя.
         recipient_city (str): Город получателя.
-        inovice_number (str): Номер накладной
+        invoice_number (str): Номер накладной
         session (AsyncSession): Сессия подключения к БД (по умолчанию взята из настроек).
     """
     

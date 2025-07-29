@@ -9,11 +9,7 @@ from aiogram.fsm.storage.redis import RedisStorage
 
 
 from app.core.config import settings
-from bot.handlers.invoice import router as invoice_router
-from bot.handlers.command_start import router as welcoming_router
-from bot.handlers.authorization import router as authorize_router
-from bot.handlers.agreement import router as agreement_router
-from bot.handlers.callbacks import router as callbacks_router
+from bot.handlers import router as handlers_router
 
 
 async def startup(dispatcher: Dispatcher):
@@ -38,13 +34,7 @@ async def start_bot():
     dp.shutdown.register(shutdown)
     
     # Подключение обработчиков
-    dp.include_routers(
-        welcoming_router,
-        authorize_router,
-        invoice_router,
-        callbacks_router,
-        agreement_router
-    )
+    dp.include_router(handlers_router)
     
     # Запуск бота
     await dp.start_polling(bot)

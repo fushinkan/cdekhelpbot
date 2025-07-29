@@ -1,7 +1,9 @@
 import bcrypt
 
 class Security:
-    def hashed_password(*, password: str) -> str:
+    
+    @classmethod
+    def hashed_password(cls, *, password: str) -> str:
         """
         Функция хэширует пароль.
         
@@ -12,7 +14,8 @@ class Security:
         return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
 
 
-    def verify_password(*, plain_password: str, hashed_password: str) -> bool:
+    @classmethod
+    def verify_password(cls, *, plain_password: str, hashed_password: str) -> bool:
         """
         Функция сравнивает введенный пароль с его хэшированной версией.
         

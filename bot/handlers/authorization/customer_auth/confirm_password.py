@@ -29,7 +29,8 @@ async def confirm_password(message: Message, state: FSMContext):
     
     data = await StateUtils.prepare_next_state(obj=message, state=state)
     phone = data.get("phone")
-    user_id = data.get("user_id")
+    telegram_id = message.from_user.id
+    user_id = data.get("id")
     first_password = data.get('new_password')
     confirm_password = message.text.strip()
     
@@ -59,17 +60,21 @@ async def confirm_password(message: Message, state: FSMContext):
         try:
             response = await client.put(
                 f"{settings.BASE_FASTAPI_URL}/auth/confirm_password",
-                json={"user_id": user_id, "password": confirm_password}
+                json={
+                    "telegram_id": telegram_id,
+                    "plain_password": first_password,
+                    "confirm_password": confirm_password
+                }
             )
             
             response.raise_for_status()
 
-            response_user = await client.get(f"{settings.BASE_FASTAPI_URL}/users/{user_id}")
+            response_user = await client.get(f"{settings.BASE_FASTAPI_URL}/auth/users/{user_id}")
             response_user.raise_for_status()
             user_data = response_user.json()
             
             role = user_data.get("role")
-            telegram_id = message.from_user.id
+            telegram_id = telegram_id
             telegram_name = message.from_user.full_name
 
             await client.put(

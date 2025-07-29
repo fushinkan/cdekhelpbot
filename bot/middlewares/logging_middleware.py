@@ -36,11 +36,12 @@ class LoggingMiddleware(BaseMiddleware):
         async with httpx.AsyncClient() as client:
             try:
                 response = await client.get(
-                    f"{settings.BASE_FASTAPI_URL}/auth/telegram/{tg_id}"
+                    f"{settings.BASE_FASTAPI_URL}/user/telegram/{tg_id}"
                 )
                 response.raise_for_status()
 
                 user_data = response.json()
+                print(f"USER_DATA IN MIDDLEWARE: {user_data=}")
 
                 data["is_logged"] = user_data.get("is_logged", False)
                 data["role"] = user_data.get("role")

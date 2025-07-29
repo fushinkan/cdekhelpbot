@@ -7,7 +7,7 @@ from app.api.handlers.get_user import UserInDB
 from bot.utils.exceptions import UserNotExistsException
 
 
-router = APIRouter(prefix="/auth", tags=["Auth"])
+router = APIRouter(prefix="/user", tags=["Auth"])
 
 
 @router.get("/phone/{phone_number}", status_code=status.HTTP_200_OK)
@@ -53,7 +53,7 @@ async def get_user_by_telegram_id_endpoint(tg_id: int, session: AsyncSession = D
             detail=str(e)
         )
         
-@router.get("/users/{user_id}", status_code=status.HTTP_200_OK)
+@router.get("/{user_id}", status_code=status.HTTP_200_OK)
 async def get_user_by_id_endpoint(user_id: int, session: AsyncSession = Depends(get_session)):
     """
     Эндпоинт для получения пользователя по ID из БД.

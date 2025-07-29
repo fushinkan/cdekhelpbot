@@ -22,7 +22,8 @@ async def set_client_password(message: Message, state: FSMContext):
     
     data = await StateUtils.prepare_next_state(obj=message, state=state)
     phone = data.get("phone")
-    user_id = data.get("user_id")
+    telegram_id = message.from_user.id
+    user_id = data.get("id")
     new_password = message.text.strip()
 
     if not Validator.validate_password(plain_password=new_password):
@@ -37,7 +38,7 @@ async def set_client_password(message: Message, state: FSMContext):
         try:
             response = await client.put(
                 f"{settings.BASE_FASTAPI_URL}/auth/set_password",
-                json={"user_id": user_id, "password": new_password}
+                json={"telegram_id": telegram_id, "plain_password": new_password}
             )
             response.raise_for_status()
             

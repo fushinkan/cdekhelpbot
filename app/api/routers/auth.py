@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.utils.normalize import normalize_phone
 from app.api.handlers.auth import AuthService
-from app.schemas.auth import LoginStatusSchema, PasswordInputSchema, ConfirmPasswordSchema, LoginRequestSchema
+from app.schemas.auth import LoginStatusSchema, PasswordInputSchema, ConfirmPasswordSchema, LoginRequestSchema, AcceptPasswordSchema
 from app.db.base import get_session
 from bot.utils.exceptions import UserNotExistsException, IncorrectPasswordException
 
@@ -49,6 +49,7 @@ async def confirm_password_endpoint(data: ConfirmPasswordSchema, session: AsyncS
     
     try:
         await AuthService.confirm_password(
+            telegram_id=data.telegram_id,
             plain_password=data.plain_password,
             confirm_password=data.confirm_password,
             session=session
@@ -70,13 +71,14 @@ async def confirm_password_endpoint(data: ConfirmPasswordSchema, session: AsyncS
 
 
 @router.post("/accept_enter", status_code=status.HTTP_200_OK)
-async def accept_enter_endpoint(data: LoginRequestSchema, session: AsyncSession = Depends(get_session)):
+async def accept_enter_endpoint(data: AcceptPasswordSchema, session: AsyncSession = Depends(get_session)):
     phone_number = await normalize_phone(phone=data.phone_number)
     
     try:
         await AuthService.accept_enter(
             phone_number=phone_number,
-            plain_passsord=data.plain_password,
+            password=data.password,
+            user_id=data.user_id,
             telegram_id=data.telegram_id,
             telegram_name=data.telegram_name,
             session=session

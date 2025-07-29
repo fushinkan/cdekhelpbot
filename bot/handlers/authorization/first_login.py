@@ -30,7 +30,7 @@ async def first_client_login(message: Message, state: FSMContext):
 
     async with httpx.AsyncClient() as client:
         try:
-            response = await client.get(f"{settings.BASE_FASTAPI_URL}/auth/phone/{phone_number}")
+            response = await client.get(f"{settings.BASE_FASTAPI_URL}/user/phone/{phone_number}")
             response.raise_for_status()
             user = response.json()
         except httpx.HTTPStatusError as e:

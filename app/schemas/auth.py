@@ -16,12 +16,17 @@ class PhoneInputSchema(BaseModel):
     phone_number: str
 
    
-class PasswordInputSchema(PhoneInputSchema):
+class PasswordInputSchema(BaseModel):
     user_id: int
     plain_password: str = Field(min_length=8)
  
- 
-class ConfirmPasswordSchema(PhoneInputSchema):
+class AcceptPasswordSchema(BaseModel):
+    user_id: int
+    phone_number: str
+    password: str
+    telegram_id: int | None = None
+    telegram_name: str | None = None
+class ConfirmPasswordSchema(BaseModel):
     user_id: int
     plain_password: str = Field(min_length=8)
     confirm_password: str = Field(min_length=8)
