@@ -1,10 +1,9 @@
+import httpx
 from aiogram import Router, F
 from aiogram.types import Message
 from aiogram.fsm.context import FSMContext
 
-from app.db.base import async_session_factory
-from app.api.handlers.save_invoice import save_invoice
-from app.api.handlers.get_user import UserInDB
+from app.core.config import settings
 from bot.utils.state import StateUtils
 from bot.states.send_invoice import SendInvoice
 from bot.utils.exceptions import IncorrectFileName
@@ -26,8 +25,9 @@ async def handle_invoice_upload(message: Message, state: FSMContext):
     Returns:
         Message: Предупреждает менеджера о том, что ответ должен быть в формате PDF
     """
+    
     data = await StateUtils.prepare_next_state(obj=message, state=state)
-    user_id = data.get("user_id")
+    tg_id = data.get("user_id")
     username = data.get("username")
     
     document = message.document
@@ -48,22 +48,30 @@ async def handle_invoice_upload(message: Message, state: FSMContext):
     if document.mime_type != "application/pdf":
         return await message.answer("❗ Пожалуйста, отправьте файл в формате PDF.")
 
-    async with async_session_factory() as session:
-        user = await UserInDB.get_client_by_telegram_id(telegram_id=user_id, session=session)
-        
-        await save_invoice(
-            user_id=user.id,
-            departure_city=departure_city,
-            recipient_city=recipient_city,
-            invoice_number=invoice_number,
-            telegram_file_id=document.file_id,
-            session=session
-        )
+    async with httpx.AsyncClient() as client:
+        try:
+            response_user = await client.get(f"{settings.BASE_FASTAPI_URL}/user/telegram/{tg_id}")
+            response_user.raise_for_status()
+            user_data = response_user.json()
 
-        await session.commit()
+            response_save_invoice = await client.post(
+                f"{settings.BASE_FASTAPI_URL}/invoices/save_invoice/{user_data['id']}",
+                json={
+                    "departure_city": departure_city,
+                    "recipient_city": recipient_city,
+                    "invoice_number": invoice_number,
+                    "telegram_file_id": document.file_id
+                }
+            )
+            
+            response_save_invoice.raise_for_status()
+            
+        except httpx.HTTPError as e:
+            await message.answer(str(e))
+            return
         
     await message.bot.send_document(
-        chat_id=user_id,
+        chat_id=tg_id,
         document=document.file_id,
         caption="📄 Ваша накладная готова!"
     )
