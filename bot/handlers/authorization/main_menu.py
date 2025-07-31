@@ -1,7 +1,5 @@
 from aiogram.types import Message
 
-from app.db.models.admins import Admins
-from app.db.models.users import Users
 from bot.keyboards.admin import AdminKeyboards
 from bot.keyboards.customer import CustomerKeyboards
 

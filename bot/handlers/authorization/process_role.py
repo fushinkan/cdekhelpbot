@@ -5,7 +5,7 @@ from aiogram.fsm.context import FSMContext
 
 from app.core.config import settings
 from app.api.utils.normalize import normalize_phone
-from bot.utils.exceptions import IncorrectPhone
+from bot.utils.exceptions import IncorrectPhoneException
 from bot.utils.state import StateUtils
 from bot.utils.bot_utils import BotUtils
 from bot.states.auth import Auth
@@ -34,7 +34,7 @@ async def process_role(message: Message, state: FSMContext):
     try:
         phone = await normalize_phone(phone=phone_number)
 
-    except IncorrectPhone as e:
+    except IncorrectPhoneException as e:
         data = await BotUtils.delete_error_messages(obj=message, state=state)
         sent = await message.answer(str(e), parse_mode="HTML")
         
@@ -45,6 +45,7 @@ async def process_role(message: Message, state: FSMContext):
     data = await BotUtils.delete_error_messages(obj=message, state=state)
     
     
+    # Запрос в БД через эндпоинт в API
     async with httpx.AsyncClient() as client:
         try:
             response = await client.get(f"{settings.BASE_FASTAPI_URL}/user/phone/{phone_number}")

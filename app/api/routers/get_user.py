@@ -13,14 +13,21 @@ router = APIRouter(prefix="/user", tags=["Auth"])
 @router.get("/phone/{phone_number}", status_code=status.HTTP_200_OK)
 async def get_user_by_phone_endpoint(phone_number: str, session: AsyncSession = Depends(get_session)):
     """
-    Эндпоинт для получения пользователя по номеру телефона.
+    Эндпоинт для получения пользователя (admin или user) по введенному номеру телефона.
 
     Args:
-        data (PhoneInputSchema): Pydantic-схема для ввода номера телефона.
-        session (AsyncSession, optional): Асинхронная сессия. По умолчанию берется из настроек.
+        phone_number (str): Номер телефона, введенный пользователем.
+        session (AsyncSession): Асинхронная сессия. По умолчанию берется из настроек через DI.
+
+    Raises:
+        HTTPException: 404 - Not Found. Пользователь не найден.
+
+    Returns:
+        Users | Admins: ORM-модель в зависимости от введенного номера телефона.
     """
+    
+    # Приведение номера телефона к единому формату
     phone_number = await normalize_phone(phone=phone_number)
-    print(f"AFTER NORMALIZE: {phone_number}")
     
     try:
         user = await UserInDB.get_user_by_phone(phone_number=phone_number, session=session)
@@ -36,11 +43,17 @@ async def get_user_by_phone_endpoint(phone_number: str, session: AsyncSession = 
 @router.get("/telegram/{tg_id}", status_code=status.HTTP_200_OK)
 async def get_user_by_telegram_id_endpoint(tg_id: int, session: AsyncSession = Depends(get_session)):
     """
-    Эндпоинт для получения пользователя по Telegram ID.
+    Эндпоинт для получения пользователя (admin или user) по переданному Telegram ID.
 
     Args:
-        data (PhoneInputSchema): Pydantic-схема для Telegram ID.
-        session (AsyncSession, optional): Асинхронная сессия. По умолчанию берется из настроек.
+        tg_id (int): Telegram ID, переданный из объекта Message.
+        session (AsyncSession): Асинхронная сессия. По умолчанию берется из настроек через DI.
+
+    Raises:
+        HTTPException: 404 - Not Found. Пользователь не найден.
+
+    Returns:
+        Users | Admins: ORM-модель в зависимости от переданного Telegram ID.
     """
     
     try:
@@ -53,14 +66,21 @@ async def get_user_by_telegram_id_endpoint(tg_id: int, session: AsyncSession = D
             detail=str(e)
         )
         
+        
 @router.get("/{user_id}", status_code=status.HTTP_200_OK)
 async def get_user_by_id_endpoint(user_id: int, session: AsyncSession = Depends(get_session)):
     """
-    Эндпоинт для получения пользователя по ID из БД.
+    Эндпоинт для получения пользователя (admin или user) по ID из БД.
 
     Args:
-        data (PhoneInputSchema): Pydantic-схема для ID из БД.
-        session (AsyncSession, optional): Асинхронная сессия. По умолчанию берется из настроек.
+        user_id (int): ID пользователя из БД.
+        session (AsyncSession): Асинхронная сессия. По умолчанию берется из настроек через DI.
+
+    Raises:
+        HTTPException: 404 - Not Found. Пользователь не найден.
+
+    Returns:
+        Users | Admins: ORM-модель в зависимости от переданного ID.
     """
 
     try:

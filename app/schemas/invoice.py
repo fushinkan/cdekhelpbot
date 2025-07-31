@@ -6,5 +6,3 @@ class SaveInvoiceSchema(BaseModel):
     recipient_city: str
     invoice_number: str
     telegram_file_id: str
-    
-    

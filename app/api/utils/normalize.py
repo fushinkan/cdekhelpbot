@@ -1,32 +1,38 @@
-from bot.utils.exceptions import IncorrectPhone
+from bot.utils.exceptions import IncorrectPhoneException
 
-async def normalize_phone(*, phone: str) -> str:
-    """
-    Приводит номер телефона к одному формату.
 
-    Args:
-        phone (str): Номер телефона, который вводит пользователь/админ.
-
-    Raises:
-        IncorrectPhone: Кастомный класс с ошибкой.
-
-    Returns:
-        str: Номер телефона в формате 7ХХХХХХХХХХ.
-    """
+class Normalize:
+    """Класс с различными методами нормализации ввода."""
     
-    phone = phone.strip()
-    digits = "".join(ch for ch in phone if ch.isdigit())
-    
-    if digits.startswith("8") and len(digits) == 11:
-        digits= "7" + digits[1:]
+    @classmethod
+    async def normalize_phone(cls, *, phone: str) -> str:
+        """
+        Приводит номер телефона к одному формату.
+
+        Args:
+            phone (str): Номер телефона, который вводит пользователь/админ.
+
+        Raises:
+            IncorrectPhoneException: Кастомный класс с ошибкой.
+
+        Returns:
+            str: Номер телефона в формате 7ХХХХХХХХХХ.
+        """
         
-    elif len(digits) == 10 and digits.startswith("9"):
-        digits = "7" + digits
+        phone = phone.strip()
         
-    elif digits.startswith("7") and len(digits) == 11:
-        pass
-    
-    else:
-        raise IncorrectPhone(IncorrectPhone.__doc__)
-    
-    return digits
+        digits = "".join(ch for ch in phone if ch.isdigit())
+        
+        if digits.startswith("8") and len(digits) == 11:
+            digits= "7" + digits[1:]
+            
+        elif len(digits) == 10 and digits.startswith("9"):
+            digits = "7" + digits
+            
+        elif digits.startswith("7") and len(digits) == 11:
+            pass
+        
+        else:
+            raise IncorrectPhoneException(IncorrectPhoneException.__doc__)
+        
+        return digits

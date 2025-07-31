@@ -2,6 +2,7 @@ from pydantic import BaseModel
 
 from app.schemas.auth import PhoneOutSchema
 
+
 class UserResponseSchema(BaseModel):
     id: int
     tg_id: int
@@ -10,8 +11,10 @@ class UserResponseSchema(BaseModel):
     full_name: str
     phones: list[PhoneOutSchema]
     
+    
     class Config:
         from_attributes = True
+
 
 class UserIDInputSchema(BaseModel):
     user_id: int

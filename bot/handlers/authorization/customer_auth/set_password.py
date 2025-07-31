@@ -34,6 +34,7 @@ async def set_client_password(message: Message, state: FSMContext):
 
     await BotUtils.delete_error_messages(obj=message, state=state)
 
+    # Запрос в БД через эндпоинт в API
     async with httpx.AsyncClient() as client:
         try:
             response = await client.put(

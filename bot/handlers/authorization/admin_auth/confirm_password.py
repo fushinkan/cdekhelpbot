@@ -2,7 +2,6 @@ import httpx
 from aiogram import Router
 from aiogram.types import Message
 from aiogram.fsm.context import FSMContext
-from sqlalchemy import update
 
 from app.api.utils.validator import Validator
 from app.core.config import settings
@@ -11,7 +10,6 @@ from bot.states.admin_auth import AdminAuth
 from bot.handlers.authorization.main_menu import proceed_to_main_menu
 from bot.utils.state import StateUtils
 from bot.utils.bot_utils import BotUtils
-
 
 
 router = Router()
@@ -55,6 +53,7 @@ async def confirm_password(message: Message, state: FSMContext):
         
         return  
     
+    # Запрос в БД через эндпоинт в API
     async with httpx.AsyncClient() as client:
         try:
             response = await client.put(

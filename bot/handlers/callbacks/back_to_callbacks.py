@@ -34,7 +34,8 @@ async def back_to_welcoming_screen(callback: CallbackQuery, state: FSMContext):
     
     telegram_id = callback.from_user.id
     telegram_name = callback.from_user.username
-    
+
+    # Запрос в БД через эндпоинт в API
     async with async_session_factory() as session:
         
         admin = await session.execute(
@@ -171,6 +172,7 @@ async def back_to_contractor_phone_form(callback: CallbackQuery, state: FSMConte
         callback (CallbackQuery): Объект callback-запроса от пользователя.
         state (FSMContext): Текущее состояние FSM и данные пользователя.
     """
+    
     sent = await callback.message.edit_text("Введите Ваш номер телефона", reply_markup=await BackButtons.back_to_welcoming_screen())
     await state.set_state(Contractor.phone)
     

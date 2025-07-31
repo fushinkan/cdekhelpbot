@@ -3,17 +3,20 @@ from app.db.models.invoices import Invoice
 
 
 class InvoiceService:
-        
+    """Класс с методами для управления накладными."""
+    
     @classmethod
     async def save_invoice(cls, *, user_id: int, departure_city: str, recipient_city: str, invoice_number: str, telegram_file_id: str, session: AsyncSession):
         """
-        Сохраняет накладную пользователя в БД
+        Метод сохраняет созданную накладную для конкретного пользователя (user) по его ID.
 
         Args:
-            departure_city (str): Город отправителя.
-            recipient_city (str): Город получателя.
-            invoice_number (str): Номер накладной
-            session (AsyncSession): Сессия подключения к БД (по умолчанию взята из настроек).
+            user_id (int): ID пользователя из БД.
+            departure_city (str): Город отправления, в названии файла.
+            recipient_city (str): Город получения, в названии файла.
+            invoice_number (str): Номер накладной, в названии файла.
+            telegram_file_id (str): ID файла в Telegram.
+            session (AsyncSession): Асинхронная сессия. По умолчанию берется из настроек через DI.
         """
         
         new_invoice = Invoice(

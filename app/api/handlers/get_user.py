@@ -1,26 +1,35 @@
 from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from bot.utils.exceptions import UserNotExistsException
 from app.db.models.users import Users
 from app.db.models.admins import Admins
 from app.db.models.phone_numbers import PhoneNumbers
+from bot.utils.exceptions import UserNotExistsException
+
 
 class UserInDB:
-    """_summary_
+    """
+    Класс для получения пользователя из БД разными способами.
 
     Returns:
-        _type_: _description_
+        Users | Admins: ORM-модель в зависимости от роли по переданному айди.
     """
 
     @classmethod
     async def get_user_by_id(cls, *, id: int, session: AsyncSession):
         """
-        Универсальный поиск пользователя (админ или клиент) по ID.
+        Метод возвращающий ORM-модель найденного пользователя (Admins или Users) по переданному ID.
+
+        Args:
+            id (int): ID пользователя из БД.
+            session (AsyncSession): Асинхронная сессия. По умолчанию берется из настроек через DI.
+
+        Raises:
+            UserNotExistsException: Кастомный класс с ошибкой.
 
         Returns:
-            ORM-Модель Admin или Users
+            Users | Admins: ORM-модель в зависимости от роли по переданному айди.
         """
 
         
@@ -36,10 +45,21 @@ class UserInDB:
 
         raise UserNotExistsException(UserNotExistsException.__doc__)
 
+
     @classmethod
     async def get_user_by_phone(cls, *, phone_number: str, session: AsyncSession):
         """
-        Универсальный поиск пользователя по номеру телефона.
+        Метод возвращающий ORM-модель найденного пользователя (Admins или Users) по введенному номеру телефона.
+
+        Args:
+            phone_number (str): Номер телефона, введенный пользователем.
+            session (AsyncSession): Асинхронная сессия. По умолчанию берется из настроек через DI.
+
+        Raises:
+            UserNotExistsException: Кастомный класс с ошибкой.
+
+        Returns:
+            Users | Admins: ORM-модель в зависимости от роли по введенному номеру телефона.
         """
 
         admin_res = await session.execute(
@@ -51,7 +71,8 @@ class UserInDB:
         
         if admin:
             return admin
-            
+        
+        # Подгрузка номеров телефона для пользователя
         users_res = await session.execute(
             select(Users)
             .join(PhoneNumbers)
@@ -70,7 +91,17 @@ class UserInDB:
     @classmethod
     async def get_user_by_telegram_id(cls, *, telegram_id: int, session: AsyncSession):
         """
-        Универсальный поиск пользователя по Telegram ID.
+        Метод возвращающий ORM-модель найденного пользователя (Admins или Users) по переданному Telegram ID.
+
+        Args:
+            telegram_id (int): Telegram ID переданный из объекта Message.
+            session (AsyncSession): Асинхронная сессия. По умолчанию берется из настроек через DI.
+
+        Raises:
+            UserNotExistsException: Кастомный класс с ошибкой.
+
+        Returns:
+            Users | Admins: ORM-модель в зависимости от роли по переданному Telegram ID.
         """
         
         admin_res= await session.execute(

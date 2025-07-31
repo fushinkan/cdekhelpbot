@@ -28,6 +28,7 @@ async def first_client_login(message: Message, state: FSMContext):
     data = await StateUtils.prepare_next_state(obj=message, state=state)
     phone_number = data.get("phone")
 
+    # Запрос в БД через эндпоинт в API
     async with httpx.AsyncClient() as client:
         try:
             response = await client.get(f"{settings.BASE_FASTAPI_URL}/user/phone/{phone_number}")

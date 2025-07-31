@@ -6,8 +6,8 @@ from app.api.utils.normalize import normalize_phone
 from bot.states.contractor import Contractor
 from bot.utils.state import StateUtils
 from bot.utils.bot_utils import BotUtils
+from bot.utils.exceptions import IncorrectPhoneException
 from bot.keyboards.backbuttons import BackButtons
-from bot.utils.exceptions import IncorrectPhone
 
 
 router = Router()
@@ -34,7 +34,7 @@ async def process_tin_contractor(message: Message, state: FSMContext):
         if await StateUtils.edit_invoice_or_data(data=data, message=message, state=state):
             return
         
-    except IncorrectPhone as e:
+    except IncorrectPhoneException as e:
         data = await BotUtils.delete_error_messages(obj=message, state=state)
         sent = await message.answer(str(e), parse_mode="HTML")
         

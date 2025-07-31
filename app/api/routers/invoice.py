@@ -11,6 +11,17 @@ router = APIRouter(prefix="/invoices", tags=["Invoice"])
 
 @router.post("/save_invoice/{user_id}", status_code=status.HTTP_201_CREATED)
 async def save_invoice_endpoint(user_id: int, data: SaveInvoiceSchema, session: AsyncSession = Depends(get_session)):
+    """
+    Эндпоинт для сохранения накладной в БД для конкретного пользователя (user).
+
+    Args:
+        user_id (int): ID пользователя из БД.
+        data (SaveInvoiceSchema): Pydantic-схема для валидации данных.
+        session (AsyncSession): Асинхронная сессия. По умолчанию берется из настроек через DI.
+
+    Returns:
+        dict: Сообщение о сохранении накладной для пользователя с конкретным user_id.
+    """
     
     await InvoiceService.save_invoice(
         user_id=user_id,

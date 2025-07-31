@@ -1,12 +1,10 @@
 import uvicorn
 from fastapi import FastAPI
 
-from app.api.routers.get_user import router as get_user_router
-from app.api.routers.auth import router as auth_router
+from app.api.routers import router as main_router
 
 app = FastAPI(title="Telegram Bot API")
-app.include_router(auth_router)
-app.include_router(get_user_router)
+app.include_router(main_router)
 
 
 if __name__ == "__main__":

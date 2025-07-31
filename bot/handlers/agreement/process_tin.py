@@ -5,7 +5,7 @@ from aiogram.fsm.context import FSMContext
 from bot.states.contractor import Contractor
 from bot.utils.state import StateUtils
 from bot.utils.validate import Validator
-from bot.utils.exceptions import IncorrectTinNumber
+from bot.utils.exceptions import IncorrectTinNumberException
 from bot.utils.bot_utils import BotUtils
 from bot.utils.state import StateUtils
 
@@ -36,7 +36,7 @@ async def process_tin(message: Message, state: FSMContext):
 
         await state.update_data(last_bot_message=sent.message_id)
         
-    except IncorrectTinNumber as e:
+    except IncorrectTinNumberException as e:
         data = await BotUtils.delete_error_messages(obj=message, state=state)
        
         sent = await message.answer(str(e), parse_mode="HTML")

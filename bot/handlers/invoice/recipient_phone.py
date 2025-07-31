@@ -4,7 +4,7 @@ from aiogram import Router
 from aiogram.types import Message
 
 from app.api.utils.normalize import normalize_phone
-from bot.utils.exceptions import IncorrectPhone
+from bot.utils.exceptions import IncorrectPhoneException
 from bot.states.invoice import InvoiceForm
 from bot.keyboards.backbuttons import BackButtons
 from bot.utils.state import StateUtils
@@ -31,7 +31,7 @@ async def get_recipient_phone(message: Message, state: FSMContext):
         recipient_phone = await normalize_phone(phone=recipient_phone_raw)
         data = await BotUtils.delete_error_messages(obj=message, state=state)
         
-    except IncorrectPhone as e:
+    except IncorrectPhoneException as e:
         data = await BotUtils.delete_error_messages(obj=message, state=state)
         sent = await message.answer(str(e), parse_mode="HTML")
         await state.update_data(error_message=sent.message_id)

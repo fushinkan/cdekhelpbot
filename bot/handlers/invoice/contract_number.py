@@ -7,13 +7,13 @@ from aiogram.types import CallbackQuery
 from app.core.config import settings
 from app.api.handlers.get_user import UserInDB
 from app.api.utils.normalize import normalize_phone
-from bot.utils.exceptions import UserNotExistsException, IncorrectPhone
+from bot.utils.exceptions import UserNotExistsException, IncorrectPhoneException
 from bot.states.invoice import InvoiceForm
 from bot.keyboards.backbuttons import BackButtons
 from bot.utils.state import StateUtils
-from app.db.base import async_session_factory
 
 import asyncio
+
 
 router = Router()
 
@@ -58,7 +58,7 @@ async def get_contract_number(callback: CallbackQuery, state: FSMContext):
             )
             await state.update_data(last_bot_message=sent.message_id)
 
-        except (UserNotExistsException, IncorrectPhone) as e:
+        except (UserNotExistsException, IncorrectPhoneException) as e:
             sent = await callback.message.answer(str(e))
             await asyncio.sleep(2)
             await sent.delete()

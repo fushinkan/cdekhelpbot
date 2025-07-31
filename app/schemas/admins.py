@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
-class AdminsResonseSchema(BaseModel):
+class AdminsResponseSchema(BaseModel):
     id: int
     tg_id: int | None = None
     tg_name: str | None = None

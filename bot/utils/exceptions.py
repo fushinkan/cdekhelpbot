@@ -1,23 +1,28 @@
 # Custom Exceptions
-class AdminNotExistsException(Exception):
-    """
-    Админа не существует. Попробуйте заново.
-    """
+class AlreadyLoggedException(Exception):
+    """👤 Пользователь уже авторизован в системе."""
+
+    pass
+class InvalidRoleException(Exception):
+    """❌ Недопустимая роль! Доступны только 'user' или 'admin'."""
+    
     pass
 
 class UserNotExistsException(Exception):
     """
     Пользователя не существует. Попробуйте заново.
     """
+    
     pass
 
 class IncorrectPasswordException(Exception):
     """
     Неверный пароль. Попробуйте заново.
     """
+    
     pass
 
-class IncorrectAgreement(Exception):
+class IncorrectAgreementException(Exception):
     """
     ❗ Ой, кажется, номер договора введён неправильно!
     Он должен выглядеть так:
@@ -30,7 +35,7 @@ class IncorrectAgreement(Exception):
     
     pass
 
-class IncorrectPhone(Exception):
+class IncorrectPhoneException(Exception):
     """
     📱 Упс! Номер телефона введён неверно. 
     Пожалуйста, введи номер в формате: <b>8XXXXXXXXXX</b>, 
@@ -41,7 +46,7 @@ class IncorrectPhone(Exception):
     
     pass
 
-class IncorrectInsurance(Exception):
+class IncorrectInsuranceException(Exception):
     """
     💰 Неверный ввод суммы страховки!
     Пожалуйста, введи только число, начиная с 0 и больше.
@@ -52,7 +57,7 @@ class IncorrectInsurance(Exception):
     
     pass
 
-class IncorrectTinNumber(Exception):
+class IncorrectTinNumberException(Exception):
     """
     🧾 Неверный ИНН!
     Пожалуйста, введи только цифры — от 10 до 15 символов.
@@ -60,9 +65,10 @@ class IncorrectTinNumber(Exception):
     <b>Например: 1234567890 или 123456789012345</b>
     Проверь ещё раз и попробуй снова, у тебя точно получится! 🚀
     """
+    
     pass
 
-class IncorrectFileName(Exception):
+class IncorrectFileNameException(Exception):
     """
     📎 Неверное имя файла!
     Название файла должно строго соответствовать формату:
@@ -78,4 +84,5 @@ class IncorrectFileName(Exception):
 
     Переименуй файл и попробуй снова — всё получится! 💪
     """
+    
     pass

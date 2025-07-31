@@ -37,6 +37,7 @@ async def accept_enter(message: Message, state: FSMContext):
 
     data = await BotUtils.delete_error_messages(obj=message, state=state)
 
+    # Запрос в БД через эндпоинт в API
     async with httpx.AsyncClient() as client:
         try:
             

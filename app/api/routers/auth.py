@@ -1,23 +1,37 @@
-from fastapi import Depends, APIRouter, status, Response, HTTPException
+from fastapi import Depends, APIRouter, status, HTTPException, Response
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.utils.normalize import normalize_phone
 from app.api.handlers.auth import AuthService
-from app.schemas.auth import LoginStatusSchema, PasswordInputSchema, ConfirmPasswordSchema, LoginRequestSchema, AcceptPasswordSchema
 from app.db.base import get_session
+from app.schemas.auth import LoginStatusSchema, PasswordInputSchema, ConfirmPasswordSchema, LoginRequestSchema, AcceptPasswordSchema
+
 from bot.utils.exceptions import UserNotExistsException, IncorrectPasswordException
 
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
 
-@router.put("/{role}/{user_id}/login_status", status_code=status.HTTP_200_OK)
+@router.put("/{role}/{user_id}/login_status", status_code=status.HTTP_204_NO_CONTENT)
 async def update_login_status_endpoint(
     user_id: int,
     role: str,
     data: LoginStatusSchema,
     session: AsyncSession = Depends(get_session)
 ):
+    """
+    Эндпоинт для обновления статуса у пользователя по ID (admin или user).
+
+    Args:
+        user_id (int): ID пользователя из БД.
+        role (str): Роль пользователя (admin или user).
+        data (LoginStatusSchema): Pydantic-схема для валидации данных.
+        session (AsyncSession): Асинхронная сессия. По умолчанию берется из настроек через DI.
+
+    Returns:
+        Response: 204 - No Content. Ничего не создано, обновлена колонка is_logged у пользователя.
+    """
+    
     await AuthService.update_login_status(
         session=session,
         user_id=user_id,
@@ -32,6 +46,19 @@ async def update_login_status_endpoint(
 
 @router.put("/set_password", status_code=status.HTTP_200_OK)
 async def set_password_endpoint(data: PasswordInputSchema, session: AsyncSession = Depends(get_session)):
+    """
+    Эндпоинт для первичной установки пароля для пользователя (admin или user).
+
+    Args:
+        data (PasswordInputSchema): Pydantic-схема для валидации данных.
+        session (AsyncSession): Асинхронная сессия. По умолчанию берется из настроек через DI.
+
+    Raises:
+        HTTPException:  404 - Not Found. Пользователь не найден.
+
+    Returns:
+        dict: Сообщение об установленном пароле.
+    """
     
     try:
         await AuthService.set_password(user_id=data.user_id, plain_password=data.plain_password, session=session)
@@ -41,11 +68,26 @@ async def set_password_endpoint(data: PasswordInputSchema, session: AsyncSession
             status_code=status.HTTP_404_NOT_FOUND,
             detail=str(e)
         )
+        
     return {"message": "Password successfully added"}
 
 
 @router.put("/confirm_password", status_code=status.HTTP_200_OK)
 async def confirm_password_endpoint(data: ConfirmPasswordSchema, session: AsyncSession = Depends(get_session)):
+    """
+    Эндпоинт для подтверждения введенного пароля для пользователя (admin или user). 
+
+    Args:
+        data (ConfirmPasswordSchema): _Pydantic-схема для валидации данных.
+        session (AsyncSession): Асинхронная сессия. По умолчанию берется из настроек через DI.
+
+    Raises:
+        HTTPException: 404 - Not Found. Пользователь не найден.
+        HTTPException: 400 - Bad Request. Неверный пароль.
+
+    Returns:
+        dict: Сообщение об успешной верификации и установке пароля.
+    """
     
     try:
         await AuthService.confirm_password(
@@ -67,11 +109,27 @@ async def confirm_password_endpoint(data: ConfirmPasswordSchema, session: AsyncS
             detail=str(e)
         )
     
-    return {"message": "Password Successfully Confirmed and Set"}
+    return {"message": "Password Successfully Confirmed and Setted"}
 
 
 @router.post("/accept_enter", status_code=status.HTTP_200_OK)
 async def accept_enter_endpoint(data: AcceptPasswordSchema, session: AsyncSession = Depends(get_session)):
+    """
+    Эндпоинт для подтверждения входа ддля пользователя (admin или user), если пароль уже был.
+
+    Args:
+        data (AcceptPasswordSchema): Pydantic-схема для валидации данных.
+        session (AsyncSession): Асинхронная сессия. По умолчанию берется из настроек через DI.
+
+    Raises:
+        HTTPException: 404 - Not Found. Пользователь не найден.
+        HTTPException: 400 - Bad Request. Неверный пароль.
+
+    Returns:
+        dict: Сообщение об успешной логинизации.
+    """
+    
+    # Приведение номера телефона к единому формату
     phone_number = await normalize_phone(phone=data.phone_number)
     
     try:

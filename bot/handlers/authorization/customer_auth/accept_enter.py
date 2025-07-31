@@ -7,7 +7,6 @@ from app.core.config import settings
 from bot.utils.bot_utils import BotUtils
 from bot.utils.state import StateUtils
 from bot.states.customer_auth import CustomerAuth
-from bot.states.admin_auth import AdminAuth
 from bot.handlers.authorization.main_menu import proceed_to_main_menu
 from bot.keyboards.backbuttons import BackButtons
 
@@ -38,6 +37,7 @@ async def accept_enter(message: Message, state: FSMContext):
 
     data = await BotUtils.delete_error_messages(obj=message, state=state)
 
+    # Запрос в БД через эндпоинт в API
     async with httpx.AsyncClient() as client:
         try:
             response = await client.post(

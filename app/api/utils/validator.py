@@ -1,18 +1,35 @@
+import re
+
 class Validator:
     """
-    Валидация для бота.
+    Валидация данных в Telegram-боте.
     """
-    
+
     @classmethod
     def validate_password(cls, *, plain_password: str) -> bool:
         """
-        Валидация пароля.
-        
+        Валидация сложности пароля.
+
+        Пароль должен содержать:
+        - минимум 8 символов
+        - хотя бы одну заглавную букву
+        - хотя бы одну строчную букву
+        - хотя бы одну цифру
+
         Args:
-            plain_password (str): Пароль длиной от 8 символов.
+            plain_password (str): Введённый пароль.
 
         Returns:
-            bool: True, если валидация пройдена успешно.
+            bool: True, если пароль соответствует всем требованиям.
         """
+
+        if len(plain_password) < 8:
+            return False
+        if not re.search(r"[A-Z]", plain_password):
+            return False
+        if not re.search(r"[a-z]", plain_password):
+            return False
+        if not re.search(r"[0-9]", plain_password):
+            return False
         
-        return len(plain_password) >= 8
+        return True

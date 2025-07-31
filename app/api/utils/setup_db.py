@@ -1,3 +1,5 @@
+# Временная функция для импорта данных из Excel в БД
+
 import asyncio
 from fastapi import Depends
 from docx import Document

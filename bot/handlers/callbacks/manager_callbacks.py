@@ -1,7 +1,8 @@
 from aiogram import Router, F
-from aiogram.types import CallbackQuery, Message
+from aiogram.types import CallbackQuery
 from aiogram.fsm.context import FSMContext
 
+from app.core.config import settings
 from bot.utils.state import StateUtils
 from bot.states.send_invoice import SendInvoice
 
@@ -31,10 +32,11 @@ async def send_invoice_summary(callback: CallbackQuery, state: FSMContext):
     await StateUtils.send_summary(
         message=callback,
         data=data,
-        chat_id=-1002716160058
+        chat_id=settings.INVOICE_CHAT_ID
     )
     
     await callback.answer("✅ Данные отправлены менеджеру.")
+    
     
 @router.callback_query(F.data == "allow_agreement")
 async def send_contractor_summary(callback: CallbackQuery, state: FSMContext):
@@ -52,7 +54,7 @@ async def send_contractor_summary(callback: CallbackQuery, state: FSMContext):
     await StateUtils.send_contractor_summary(
         message=callback,
         data=data,
-        chat_id=-1002716160058
+        chat_id=settings.INVOICE_CHAT_ID
     )
     
     sent = await callback.message.answer(
@@ -65,8 +67,17 @@ async def send_contractor_summary(callback: CallbackQuery, state: FSMContext):
     
     await sent.delete()
     
+    
 @router.callback_query(F.data.startswith("answer_to_client:"))
 async def handle_answer_invoice(callback: CallbackQuery, state: FSMContext):
+    """
+    Обрабатывает ожидание ответа в виде PDF-файла.
+
+    Args:
+        callback (CallbackQuery): Объект callback-запроса от пользователя.
+        state (FSMContext): Текущее состояние FSM и данные пользователя.
+    """
+    
     user_id = int(callback.data.split(":")[1])
     username = callback.data.split(":")[2]
     
@@ -83,7 +94,7 @@ async def handle_answer_invoice(callback: CallbackQuery, state: FSMContext):
 @router.callback_query(F.data.startswith("reject_answer:"))
 async def reject_invoice(callback: CallbackQuery, state: FSMContext):
     """
-    Отменяет создание накладной
+    Отменяет создание накладной.
 
     Args:
         callback (CallbackQuery): Объект callback-запроса от пользователя.
@@ -101,5 +112,4 @@ async def reject_invoice(callback: CallbackQuery, state: FSMContext):
         )
     )
 
-        
     await callback.answer("✅ Пользователь уведомлен об отмене.")

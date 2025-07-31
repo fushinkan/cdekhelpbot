@@ -1,11 +1,12 @@
 import bcrypt
 
 class Security:
+    """Класс с методами защиты в Telegtam-боте."""
     
     @classmethod
     def hashed_password(cls, *, password: str) -> str:
         """
-        Функция хэширует пароль.
+        Метод хэширует пароль, введенный пользователем (admin или user).
         
         Returns:
             str: Хэш в виде строки (utf-8).
@@ -17,7 +18,7 @@ class Security:
     @classmethod
     def verify_password(cls, *, plain_password: str, hashed_password: str) -> bool:
         """
-        Функция сравнивает введенный пароль с его хэшированной версией.
+        Метод сравнивает введенный пароль с его хэшированной версией.
         
         Returns:
             bool: True, если пароли совпадают.

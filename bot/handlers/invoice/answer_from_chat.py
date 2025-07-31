@@ -5,10 +5,9 @@ from aiogram.fsm.context import FSMContext
 
 from app.core.config import settings
 from bot.utils.state import StateUtils
-from bot.states.send_invoice import SendInvoice
-from bot.utils.exceptions import IncorrectFileName
+from bot.utils.exceptions import IncorrectFileNameException
 from bot.utils.bot_utils import BotUtils
-
+from bot.states.send_invoice import SendInvoice
 
 router = Router()
 
@@ -38,9 +37,9 @@ async def handle_invoice_upload(message: Message, state: FSMContext):
         parts = file_name.replace(".pdf", "").split("-")
         departure_city, recipient_city, invoice_number = parts
         data = await BotUtils.delete_error_messages(obj=message, state=state)
-    except (IncorrectFileName, ValueError) as e:
+    except (IncorrectFileNameException, ValueError) as e:
         data = await BotUtils.delete_error_messages(obj=message, state=state)
-        sent = await message.answer(str(IncorrectFileName(IncorrectFileName.__doc__)), parse_mode="HTML")
+        sent = await message.answer(str(IncorrectFileNameException(IncorrectFileNameException.__doc__)), parse_mode="HTML")
         await state.update_data(error_message=sent.message_id)
         
         return

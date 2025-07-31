@@ -5,7 +5,7 @@ from aiogram.types import Message
 
 
 from bot.utils.validate import Validator
-from bot.utils.exceptions import IncorrectInsurance
+from bot.utils.exceptions import IncorrectInsuranceException
 from bot.utils.state import StateUtils
 from bot.states.invoice import InvoiceForm
 from bot.keyboards.customer import CustomerKeyboards
@@ -33,7 +33,7 @@ async def get_insurance_amount(message: Message, state: FSMContext):
         await Validator.correct_insurance(text=insurance_amount)
         data = await BotUtils.delete_error_messages(obj=message, state=state)
         
-    except IncorrectInsurance as e:
+    except IncorrectInsuranceException as e:
         data = await BotUtils.delete_error_messages(obj=message, state=state)
         sent = await message.answer(str(e), parse_mode="HTML")
         await state.update_data(error_message=sent.message_id)
