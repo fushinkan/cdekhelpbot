@@ -2,7 +2,6 @@ import httpx
 from aiogram import Router
 from aiogram.types import Message
 from aiogram.fsm.context import FSMContext
-from sqlalchemy import update
 
 from app.api.utils.validator import Validator
 from app.core.config import settings
@@ -11,6 +10,7 @@ from bot.states.customer_auth import CustomerAuth
 from bot.handlers.authorization.main_menu import proceed_to_main_menu
 from bot.utils.state import StateUtils
 from bot.utils.bot_utils import BotUtils
+from bot.utils.exceptions import RequestErrorException, InvalidPasswordException
 
 
 router = Router()
@@ -44,12 +44,10 @@ async def confirm_password(message: Message, state: FSMContext):
    
     if not Validator.validate_password(plain_password=confirm_password):
         data = await BotUtils.delete_error_messages(obj=message, state=state)
-        
         sent = await message.answer(
-            "Пароль должен быть от 8 символов и более",
+            str(InvalidPasswordException(InvalidPasswordException.__doc__)),
             reply_markup=await BackButtons.back_to_phone()
         )
-        
         await state.update_data(error_message=sent.message_id)
         await state.set_state(CustomerAuth.set_password)
         
@@ -86,10 +84,25 @@ async def confirm_password(message: Message, state: FSMContext):
                 }
             )
             
-        except httpx.HTTPError:
-            sent = await message.answer("❌ Ошибка при подтверждении пароля. Попробуйте позже.", reply_markup=await BackButtons.back_to_phone())
+        except httpx.HTTPStatusError:
+            data = await BotUtils.delete_error_messages(obj=message, state=state)
+            sent = await message.answer(
+                "❌ Ошибка при подтверждении пароля. Попробуйте заново",
+                reply_markup=await BackButtons.back_to_welcoming_screen()
+            )
+            
             await state.update_data(error_message=sent.message_id)
-            return      
+            return
+        
+        except httpx.RequestError:
+            data = await BotUtils.delete_error_messages(obj=message, state=state)
+            sent = await message.answer(
+                str(RequestErrorException(RequestErrorException.__doc__)),
+                reply_markup=await BackButtons.back_to_welcoming_screen()
+            )
+            
+            await state.update_data(error_message=sent.message_id)
+            return   
             
     
         data = await BotUtils.delete_error_messages(obj=message, state=state)

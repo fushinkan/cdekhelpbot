@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.utils.normalize import normalize_phone
+from app.api.utils.normalize import Normalize
 from app.db.base import get_session
 from app.api.handlers.get_user import UserInDB
 from bot.utils.exceptions import UserNotExistsException
@@ -27,7 +27,7 @@ async def get_user_by_phone_endpoint(phone_number: str, session: AsyncSession = 
     """
     
     # Приведение номера телефона к единому формату
-    phone_number = await normalize_phone(phone=phone_number)
+    phone_number = await Normalize.normalize_phone(phone=phone_number)
     
     try:
         user = await UserInDB.get_user_by_phone(phone_number=phone_number, session=session)

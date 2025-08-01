@@ -1,7 +1,7 @@
 from fastapi import Depends, APIRouter, status, HTTPException, Response
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.utils.normalize import normalize_phone
+from app.api.utils.normalize import Normalize
 from app.api.handlers.auth import AuthService
 from app.db.base import get_session
 from app.schemas.auth import LoginStatusSchema, PasswordInputSchema, ConfirmPasswordSchema, LoginRequestSchema, AcceptPasswordSchema
@@ -130,11 +130,10 @@ async def accept_enter_endpoint(data: AcceptPasswordSchema, session: AsyncSessio
     """
     
     # Приведение номера телефона к единому формату
-    phone_number = await normalize_phone(phone=data.phone_number)
+    phone_number = await Normalize.normalize_phone(phone=data.phone_number)
     
     try:
         await AuthService.accept_enter(
-            phone_number=phone_number,
             password=data.password,
             user_id=data.user_id,
             telegram_id=data.telegram_id,

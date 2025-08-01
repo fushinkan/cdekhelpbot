@@ -5,8 +5,7 @@ from aiogram.types import CallbackQuery
 
 
 from app.core.config import settings
-from app.api.handlers.get_user import UserInDB
-from app.api.utils.normalize import normalize_phone
+from app.api.utils.normalize import Normalize
 from bot.utils.exceptions import UserNotExistsException, IncorrectPhoneException
 from bot.states.invoice import InvoiceForm
 from bot.keyboards.backbuttons import BackButtons
@@ -35,7 +34,7 @@ async def get_contract_number(callback: CallbackQuery, state: FSMContext):
     
     data = await state.get_data()
     phone_raw = data.get("phone")
-    phone_number = await normalize_phone(phone=phone_raw)
+    phone_number = await Normalize.normalize_phone(phone=phone_raw)
     
     
     async with httpx.AsyncClient() as client:
@@ -56,7 +55,8 @@ async def get_contract_number(callback: CallbackQuery, state: FSMContext):
                 "🏙 Пожалуйста, введите город отправления",
                 reply_markup=await BackButtons.back_to_menu()
             )
-            await state.update_data(last_bot_message=sent.message_id)
+            
+            await state.update_data(phone=phone_number, last_bot_message=sent.message_id)
 
         except (UserNotExistsException, IncorrectPhoneException) as e:
             sent = await callback.message.answer(str(e))

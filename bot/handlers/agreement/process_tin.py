@@ -8,6 +8,7 @@ from bot.utils.validate import Validator
 from bot.utils.exceptions import IncorrectTinNumberException
 from bot.utils.bot_utils import BotUtils
 from bot.utils.state import StateUtils
+from bot.states.invoice import InvoiceForm
 
 
 router = Router()
@@ -33,6 +34,7 @@ async def process_tin(message: Message, state: FSMContext):
         
         data = await BotUtils.delete_error_messages(obj=message, state=state)
         sent = await StateUtils.get_contractor_summary(message=message, data=data)
+
 
         await state.update_data(last_bot_message=sent.message_id)
         

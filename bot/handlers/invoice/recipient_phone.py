@@ -1,9 +1,8 @@
-from aiogram.exceptions import TelegramBadRequest
 from aiogram.fsm.context import FSMContext
 from aiogram import Router
 from aiogram.types import Message
 
-from app.api.utils.normalize import normalize_phone
+from app.api.utils.normalize import Normalize
 from bot.utils.exceptions import IncorrectPhoneException
 from bot.states.invoice import InvoiceForm
 from bot.keyboards.backbuttons import BackButtons
@@ -28,7 +27,7 @@ async def get_recipient_phone(message: Message, state: FSMContext):
     recipient_phone_raw = message.text.strip()
 
     try:
-        recipient_phone = await normalize_phone(phone=recipient_phone_raw)
+        recipient_phone = await Normalize.normalize_phone(phone=recipient_phone_raw)
         data = await BotUtils.delete_error_messages(obj=message, state=state)
         
     except IncorrectPhoneException as e:

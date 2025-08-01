@@ -1,10 +1,10 @@
 import re
 
 from bot.utils.exceptions import (
-    IncorrectPhone, 
-    IncorrectInsurance, 
-    IncorrectAgreement,
-    IncorrectTinNumber
+    IncorrectPhoneException, 
+    IncorrectInsuranceException, 
+    IncorrectAgreementException,
+    IncorrectTinNumberException
 )
 
 class Validator:
@@ -21,7 +21,7 @@ class Validator:
 
     Исключения:
         При некорректных данных выбрасываются кастомные исключения:
-        IncorrectAgreement, IncorrectPhone, IncorrectInsurance.
+        IncorrectAgreementException, IncorrectPhoneException, IncorrectInsuranceException.
     """
     
     AGREEMENT_PATTERN = re.compile(r"^(IM|SZ|KU|ИМ|СЗ|КУ)-([A-Za-z]{3}|[А-Яа-я]{3})\d-\d{1,3}$")
@@ -62,7 +62,7 @@ class Validator:
         """
         
         if not await cls.correct_agreement_validator(text=text):
-            raise IncorrectAgreement(IncorrectAgreement.__doc__)
+            raise IncorrectAgreementException(IncorrectAgreementException.__doc__)
         
         return True
 
@@ -78,7 +78,7 @@ class Validator:
         """
         
         if not await cls.correct_phone_validator(text=text):
-            raise IncorrectPhone(IncorrectPhone.__doc__)
+            raise IncorrectPhoneException(IncorrectPhoneException.__doc__)
         
         return True
     
@@ -92,7 +92,7 @@ class Validator:
         """
         
         if not await cls.correct_insurance_validator(text=text):
-            raise IncorrectInsurance(IncorrectInsurance.__doc__)
+            raise IncorrectInsuranceException(IncorrectInsuranceException.__doc__)
         
         return True
     
@@ -105,6 +105,6 @@ class Validator:
         
         """
         if not await cls.correct_tin_number_validator(text=text):
-            raise IncorrectTinNumber(IncorrectTinNumber.__doc__)
+            raise IncorrectTinNumberException(IncorrectTinNumberException.__doc__)
         
         return True

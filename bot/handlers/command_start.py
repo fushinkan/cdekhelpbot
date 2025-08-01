@@ -1,15 +1,17 @@
-import asyncio
-
 from aiogram.fsm.context import FSMContext
 from aiogram.enums import ChatAction
 from aiogram import filters, types
 from aiogram import Router
+
 
 from bot.keyboards.customer import CustomerKeyboards
 from bot.keyboards.admin import AdminKeyboards
 from bot.middlewares.logging_middleware import LoggingMiddleware
 from bot.middlewares.work_hours_middleware import WorkHoursMiddleware
 from bot.keyboards.basic import BasicKeyboards
+
+import asyncio
+
 
 router = Router()
 router.message.middleware(LoggingMiddleware())
@@ -30,18 +32,19 @@ async def cmd_start(message: types.Message, state: FSMContext, **data: dict):
         state (FSMContext): Контейнер для хранения и управления текущим состоянием пользователя.
         **data (dict): Дополнительные данные, передаваемые из middleware.
     """
-    
+
     await state.clear()
     
     is_logged = data.get("is_logged", False)
     role = data.get("role", None)
     user_obj = data.get("obj")
+    phones = user_obj.get("phones") if user_obj else None
     
     if is_logged and user_obj:
         if role == "admin":
             
             sent = await message.answer((
-                f"👋 Здравствуйте, {user_obj.contractor}\n\n"
+                f"👋 Здравствуйте, {user_obj["contractor"]}\n\n"
                 "Добро пожаловать в панель управления.\n"
                 "Здесь вы можете управлять пользователями и контролировать систему.\n"
                 "Выберите нужный пункт меню, чтобы начать работу."
@@ -53,8 +56,11 @@ async def cmd_start(message: types.Message, state: FSMContext, **data: dict):
             return
         
         elif role == "user":
-            await state.update_data(phone=user_obj.phones[0].number)
-            
+            if phones and len(phones) > 0:
+                await state.update_data(phone=user_obj["phones"][0]["number"])
+            else:
+                await state.update_data(phone=None)
+                
             sent = await message.answer((
                 "👋 Приветствую!\n\n"
                 "Здесь ты можешь быстро оформить накладную, подобрать тарифы и подключить дополнительные услуги. 🚀\n"

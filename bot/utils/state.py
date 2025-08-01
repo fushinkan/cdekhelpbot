@@ -60,7 +60,7 @@ class StateUtils():
             f"📱 Номер телефона: {data.get('phone')}"
         )
         
-        sent = await message.bot.send_message(chat_id=chat_id, text=contractor_summary, parse_mode="HTML", reply_markup=await AdminKeyboards.send_answer())
+        sent = await message.bot.send_message(chat_id=chat_id, text=contractor_summary, parse_mode="HTML", reply_markup=await AdminKeyboards.send_answer(user_id=data.get("user_id"), username=data.get("username")))
         
         return sent
     
@@ -183,7 +183,7 @@ class StateUtils():
             dict: Текущие данные состояния.
         """
         
-        await asyncio.sleep(0.3)
+        await asyncio.sleep(0.2)
         
         data = await state.get_data()
         last_bot_message_id = data.get("last_bot_message")
@@ -235,9 +235,9 @@ class StateUtils():
             updated_data = await state.get_data()
             current_state = await state.get_state()
             
-            if current_state == InvoiceForm.confirmation.state:
+            if current_state and current_state.startswith("InvoiceForm:"):
                 updated_summary = await StateUtils.get_summary(message=message, data=updated_data)
-            else:
+            elif current_state and current_state.startswith("Contractor:"):
                 updated_summary = await StateUtils.get_contractor_summary(message=message, data=updated_data)                
             
             await state.update_data(last_bot_message_id=updated_summary.message_id)

@@ -9,6 +9,7 @@ from bot.utils.state import StateUtils
 from bot.states.admin_auth import AdminAuth
 from bot.handlers.authorization.main_menu import proceed_to_main_menu
 from bot.keyboards.backbuttons import BackButtons
+from bot.utils.exceptions import RequestErrorException, IncorrectPasswordException
 
 
 router = Router()
@@ -71,10 +72,25 @@ async def accept_enter(message: Message, state: FSMContext):
                 }
             )
             
-        except httpx.HTTPError:
-            sent = await message.answer("❌ Ошибка при подтверждении пароля. Попробуйте позже.", reply_markup=await BackButtons.back_to_phone())
+        except httpx.HTTPStatusError:
+            data = await BotUtils.delete_error_messages(obj=message, state=state)
+            sent = await message.answer(
+                str(IncorrectPasswordException(IncorrectPasswordException(IncorrectPasswordException.__doc__))),
+                reply_markup=await BackButtons.back_to_welcoming_screen()
+            )
+            
             await state.update_data(error_message=sent.message_id)
-            return      
+            return
+        
+        except httpx.RequestError:
+            data = await BotUtils.delete_error_messages(obj=message, state=state)
+            sent = await message.answer(
+                str(RequestErrorException(RequestErrorException.__doc__)),
+                reply_markup=await BackButtons.back_to_welcoming_screen()
+            )
+            
+            await state.update_data(error_message=sent.message_id)
+            return    
             
     
         data = await BotUtils.delete_error_messages(obj=message, state=state)

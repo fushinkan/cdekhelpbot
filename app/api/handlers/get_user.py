@@ -38,10 +38,16 @@ class UserInDB:
         if admin:
             return admin
         
-        user = await session.get(Users, id)
+        user_result = await session.execute(
+            select(Users)
+            .where(Users.id == id)
+            .options(selectinload(Users.phones))
+        )
         
-        if user:
-            return user
+        users = user_result.scalars().all()
+        
+        if users:
+            return users[0]
 
         raise UserNotExistsException(UserNotExistsException.__doc__)
 
@@ -117,11 +123,12 @@ class UserInDB:
         users_res = await session.execute(
             select(Users)
             .where(Users.telegram_id == telegram_id)
+            .options(selectinload(Users.phones))
         )
         
-        user = users_res.scalar_one_or_none()
+        users = users_res.scalars().all()
         
-        if user:
-            return user
+        if users:
+            return users[0]
         
         raise UserNotExistsException(UserNotExistsException.__doc__)

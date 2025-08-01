@@ -4,11 +4,12 @@ from aiogram.types import Message
 from aiogram.fsm.context import FSMContext
 
 from app.core.config import settings
-from bot.utils.exceptions import UserNotExistsException
+from bot.utils.exceptions import UserNotExistsException, RequestErrorException
 from bot.keyboards.backbuttons import BackButtons
 from bot.states.admin_auth import AdminAuth
 from bot.states.customer_auth import CustomerAuth
 from bot.utils.state import StateUtils
+from bot.utils.bot_utils import BotUtils
 
 
 router = Router()
@@ -34,8 +35,23 @@ async def first_client_login(message: Message, state: FSMContext):
             response = await client.get(f"{settings.BASE_FASTAPI_URL}/user/phone/{phone_number}")
             response.raise_for_status()
             user = response.json()
-        except httpx.HTTPStatusError as e:
-            await message.answer(f"Пользователь с номером {phone_number} не найден")
+            
+        except httpx.HTTPStatusError:
+            data = await BotUtils.delete_error_messages(obj=message, state=state)
+            sent = await message.answer(
+                str(UserNotExistsException(UserNotExistsException.__doc__)),
+                reply_markup=await BackButtons.back_to_welcoming_screen()
+            )
+            await state.update_data(error_message=sent.message_id)
+            return
+        
+        except httpx.RequestError:
+            data = await BotUtils.delete_error_messages(obj=message, state=state)
+            sent = await message.answer(
+                str(RequestErrorException(RequestErrorException.__doc__)),
+                reply_markup=await BackButtons.back_to_welcoming_screen()
+            )
+            await state.update_data(error_message=sent.message_id)
             return
     
     user_id = user.get("id")

@@ -9,6 +9,7 @@ class InvoiceForm(StatesGroup):
     Состояния для поэтапного создания накладной в Telegram-боте.
 
     Атрибуты:
+        cmd_start (State): Состояние для сброса введенных данных.
         contract_number (State): Ввод номера договора.
         departure_city (State): Ввод города отправления.
         departure_address (State): Ввод адреса отправления.
@@ -19,7 +20,7 @@ class InvoiceForm(StatesGroup):
         confirmation (State): Подтверждение или изменение сводки.
         editing_field (State): Выбор поля для редактирования.
     """
-    
+    cmd_start = State()
     contract_number = State()
     departure_city = State()
     departure_address = State()

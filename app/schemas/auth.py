@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 
 class LoginRequestSchema(BaseModel):
@@ -39,3 +39,10 @@ class ConfirmPasswordSchema(BaseModel):
 
 class TelegramIDInputSchema(BaseModel):
     tg_id: int
+    
+
+class PhoneResponseSchema(BaseModel):
+    id: int
+    number: str
+    
+    model_config = ConfigDict(from_attributes=True)

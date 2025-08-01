@@ -4,7 +4,7 @@ from aiogram.types import Message
 from aiogram.fsm.context import FSMContext
 
 from app.core.config import settings
-from app.api.utils.normalize import normalize_phone
+from app.api.utils.normalize import Normalize
 from bot.utils.exceptions import IncorrectPhoneException
 from bot.utils.state import StateUtils
 from bot.utils.bot_utils import BotUtils
@@ -13,6 +13,7 @@ from bot.states.admin_auth import AdminAuth
 from bot.states.customer_auth import CustomerAuth
 from bot.handlers.authorization.first_login import first_client_login
 from bot.keyboards.backbuttons import BackButtons
+from bot.utils.exceptions import UserNotExistsException, RequestErrorException
 
 
 router = Router()
@@ -32,7 +33,7 @@ async def process_role(message: Message, state: FSMContext):
     phone_number = message.text.strip()
     
     try:
-        phone = await normalize_phone(phone=phone_number)
+        phone = await Normalize.normalize_phone(phone=phone_number)
 
     except IncorrectPhoneException as e:
         data = await BotUtils.delete_error_messages(obj=message, state=state)
@@ -53,14 +54,25 @@ async def process_role(message: Message, state: FSMContext):
             data = response.json()
             role = data["role"]
             user_id = data["id"]
-        
-        except httpx.HTTPError as e:
-            data = await BotUtils.delete_error_messages(obj=message, state=state)
-            sent = await message.answer("Пользователь не найден, попробуйте заново", reply_markup=await BackButtons.back_to_welcoming_screen())
             
+        except httpx.HTTPStatusError:
+            data = await BotUtils.delete_error_messages(obj=message, state=state)
+            sent = await message.answer(
+                str(UserNotExistsException(UserNotExistsException.__doc__)),
+                reply_markup=await BackButtons.back_to_welcoming_screen()
+            )
             await state.update_data(error_message=sent.message_id)
             return
-    
+        
+        except httpx.RequestError:
+            data = await BotUtils.delete_error_messages(obj=message, state=state)
+            sent = await message.answer(
+                str(RequestErrorException(RequestErrorException.__doc__)),
+                reply_markup=await BackButtons.back_to_welcoming_screen()
+            )
+            await state.update_data(error_message=sent.message_id)
+            return
+        
     if role == "admin":
             await state.set_state(AdminAuth.phone)
             await state.update_data(phone=phone, id=user_id)

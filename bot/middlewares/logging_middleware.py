@@ -3,9 +3,6 @@ from aiogram import BaseMiddleware
 from aiogram.types import TelegramObject
 
 from app.core.config import settings
-from app.db.base import async_session_factory
-from app.api.handlers.get_user import UserInDB
-from bot.utils.exceptions import AdminNotExistsException, UserNotExistsException
 
 from typing import Dict, Any, Awaitable, Callable
 
@@ -41,13 +38,13 @@ class LoggingMiddleware(BaseMiddleware):
                 response.raise_for_status()
 
                 user_data = response.json()
-                print(f"USER_DATA IN MIDDLEWARE: {user_data=}")
 
                 data["is_logged"] = user_data.get("is_logged", False)
                 data["role"] = user_data.get("role")
                 data["obj"] = user_data
 
             except httpx.HTTPStatusError as e:
-                pass
-
+                if e.response.status_code == 404:
+                    pass
+                
         return await handler(event, data)

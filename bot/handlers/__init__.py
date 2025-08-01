@@ -10,9 +10,9 @@ router = Router()
 
 
 router.include_routers(
+    cmd_start_router,
     agreement_router,
     auth_router,
     callbacks_router,
-    cmd_start_router,
     invoice_router
 )

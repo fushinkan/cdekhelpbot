@@ -2,7 +2,7 @@ from aiogram import Router
 from aiogram.types import Message
 from aiogram.fsm.context import FSMContext
 
-from app.api.utils.normalize import normalize_phone
+from app.api.utils.normalize import Normalize
 from bot.states.contractor import Contractor
 from bot.utils.state import StateUtils
 from bot.utils.bot_utils import BotUtils
@@ -25,8 +25,9 @@ async def process_tin_contractor(message: Message, state: FSMContext):
     
     data = await StateUtils.prepare_next_state(obj=message, state=state)
     
+    
     try:
-        phone = await normalize_phone(phone=message.text.strip())
+        phone = await Normalize.normalize_phone(phone=message.text.strip())
         data = await BotUtils.delete_error_messages(obj=message, state=state)
         
         await state.update_data(phone=phone)

@@ -1,20 +1,29 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
-from app.schemas.auth import PhoneOutSchema
+from app.schemas.auth import PhoneResponseSchema
 
 
 class UserResponseSchema(BaseModel):
     id: int
-    tg_id: int
-    tg_name: str
+    telegram_id: int | None = None
+    telegram_name: str | None = None
+    city: str
     contract_number: str
-    full_name: str
-    phones: list[PhoneOutSchema]
+    contractor: str
+    phones: list[PhoneResponseSchema]
     
     
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
+
+class PaginateUserResponse(BaseModel):
+    total: int
+    page: int
+    per_page: int
+    total_pages: int
+    users: list[UserResponseSchema]
 
 
+    model_config = ConfigDict(from_attributes=True)
+        
 class UserIDInputSchema(BaseModel):
     user_id: int

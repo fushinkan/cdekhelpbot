@@ -16,7 +16,7 @@ class Contractor(StatesGroup):
     
     phone = State()
     tin = State()
-    #confirmation = State()
+
     
 CONTRACTOR_PROMPTS = {
         Contractor.phone.state: ("📱 Введите номер телефона", BackButtons.back_to_welcoming_screen),
