@@ -6,6 +6,7 @@ from app.core.config import settings
 from bot.utils.state import StateUtils
 from bot.states.send_invoice import SendInvoice
 from bot.keyboards.admin import AdminKeyboards
+from bot.keyboards.backbuttons import BackButtons
 
 import asyncio
 import httpx
@@ -120,6 +121,13 @@ async def reject_invoice(callback: CallbackQuery, state: FSMContext):
 
 @router.callback_query(F.data == "customers")
 async def get_customers_pagination_bot_handler(callback: CallbackQuery, state: FSMContext):
+    """
+    Показывает всех клиентов у администратора с использованием пагинации.
+    
+    Args:
+        callback (CallbackQuery): Объект callback-запроса от пользователя.
+        state (FSMContext): Текущее состояние FSM и данные пользователя.
+    """
     
     page = 1
     per_page = 10
@@ -148,6 +156,103 @@ async def get_customers_pagination_bot_handler(callback: CallbackQuery, state: F
     )
     
     await callback.message.edit_text(
-       " 👥 Все клиенты, обслуживаемые отделом продаж в городе Данков, по адресу: 1-й Спортивный переулок, 3",
-       reply_markup=keyboard
+        text=(
+            "👥 Все клиенты, обслуживаемые отделом продаж в городе Данков\n"
+            "🏢 Адрес: 1-й Спортивный переулок, 3\n\n"
+            f"📄 Страница {page}/{total_pages}"
+        ),
+        reply_markup=keyboard
     )
+
+    
+
+@router.callback_query(F.data.startswith("forward_page_") | F.data.startswith("backward_page_"))
+async def forward_or_backward_bot_handler(callback: CallbackQuery, state: FSMContext):
+    """
+    Обрабатывает кнопки 'Вперед' и 'Назад' при просмотре клиентов.
+
+    Args:
+        callback (CallbackQuery): Объект callback-запроса от пользователя.
+        state (FSMContext): Текущее состояние FSM и данные пользователя.
+    """
+    
+    data = callback.data
+    
+    if data.startswith("forward_page_"):
+        page = int(data.replace("forward_page_", ""))
+    else:
+        page = int(data.replace("backward_page_", ""))
+        
+    per_page = 10
+    
+    async with httpx.AsyncClient() as client:
+        try:
+            response = await client.get(
+                f"{settings.BASE_FASTAPI_URL}/customers/all_customers",
+                params={"page": page, "per_page": per_page}
+            )
+            
+            response.raise_for_status()
+        
+        except httpx.HTTPError as e:
+            await callback.answer(f"❌ Ошибка: {str(e)}", show_alert=True)
+            return
+        
+    data = response.json()
+    clients = data["users"]
+    total_pages = data['total_pages']
+        
+    keyboard = await AdminKeyboards.get_customers(
+        clients=clients,
+        total_pages=total_pages,
+        page=page
+    )
+        
+    await callback.message.edit_text(
+        text=(
+            "👥 Все клиенты, обслуживаемые отделом продаж в городе Данков\n"
+            "🏢 Адрес: 1-й Спортивный переулок, 3\n\n"
+            f"📄 Страница {page}/{total_pages}"
+        ),
+        reply_markup=keyboard
+    )
+
+    await callback.answer()
+    
+
+@router.callback_query(F.data.startswith("client_"))
+async def show_client_summary_bot_handler(callback: CallbackQuery, state: FSMContext):
+    """
+    Показывает информацию о конкретном клиенте.
+
+    Args:
+        callback (CallbackQuery): Объект callback-запроса от пользователя.
+        state (FSMContext): Текущее состояние FSM и данные пользователя.
+    """
+    
+    user_id = int(callback.data.split("_")[1])
+    
+    async with httpx.AsyncClient() as client:
+        try:
+            response = await client.get(
+                f"{settings.BASE_FASTAPI_URL}/user/{user_id}"
+            )
+            
+            response.raise_for_status()
+        
+        except httpx.HTTPError as e:
+            await callback.message.answer("❌ Не удалось получить информацию о клиенте.")
+            return
+        
+    user_data = response.json()
+    
+    phones_text = "\n".join(f"📞 {phone['number']}" for phone in user_data.get("phones", [])) or "📞 Нет номеров"
+    
+    message_text = (
+        f"👤 <b>{user_data['contractor']}</b>\n"
+        f"📍 Город: {user_data['city']}\n"
+        f"📄 Договор: {user_data['contract_number']}\n"
+        f"{phones_text}"
+    )
+    
+    await callback.message.edit_text(message_text, reply_markup=await BackButtons.back_to_customers(), parse_mode="HTML")

@@ -154,3 +154,14 @@ class BackButtons:
         """
         
         return await cls.get_back_button(callback_data="back_to_contractor_summary")
+    
+    @classmethod
+    async def back_to_customers(cls):
+        """
+        Возвращает менеджера ко всему списку пользователей.
+
+        Returns:
+            InlineKeyboardMarkup: Клавиатура с кнопкой для возврата ко всем клиентам.
+        """
+        
+        return await cls.get_back_button(callback_data="customers")

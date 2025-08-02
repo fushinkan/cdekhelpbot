@@ -70,13 +70,13 @@ class AdminKeyboards():
         if page > 1:
             pagination_buttons.append(
                 InlineKeyboardButton(
-                    text="⬅️ Назад", callback_data=f"page_{page - 1}"
+                    text="⬅️ Назад", callback_data=f"forward_page_{page - 1}"
                 )
             )
         if page < total_pages:
             pagination_buttons.append(
                 InlineKeyboardButton(
-                    text="➡️ Вперёд", callback_data=f"page_{page + 1}"
+                    text="➡️ Вперёд", callback_data=f"backward_page_{page + 1}"
                 )
             )
 

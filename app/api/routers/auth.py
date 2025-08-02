@@ -4,8 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.api.utils.normalize import Normalize
 from app.api.handlers.auth import AuthService
 from app.db.base import get_session
-from app.schemas.auth import LoginStatusSchema, PasswordInputSchema, ConfirmPasswordSchema, LoginRequestSchema, AcceptPasswordSchema
-
+from app.schemas.auth import LoginStatusSchema, PasswordInputSchema, ConfirmPasswordSchema, AcceptPasswordSchema
 from bot.utils.exceptions import UserNotExistsException, IncorrectPasswordException
 
 
