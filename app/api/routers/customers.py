@@ -60,7 +60,7 @@ async def add_customer_endpoint(customer: CustomerInputSchema, session: AsyncSes
     """
     
     try:
-        phone_numbers = [phone.number.strip() for phone in customer.number]
+        phone_numbers = [phone.phone_number.strip() for phone in customer.number]
         
         await Customers.add_customer(
             contractor=customer.contractor,

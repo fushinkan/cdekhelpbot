@@ -164,13 +164,13 @@ async def get_customers_pagination_bot_handler(callback: CallbackQuery, state: F
         text=(
             "👥 Все клиенты, обслуживаемые отделом продаж в городе Данков\n"
             "🏢 Адрес: 1-й Спортивный переулок, 3\n\n"
-            f"📄 Страница {page}/{total_pages}"
+            f"📇 Кол-во контрагентов: {data.get('total')}\n"
+            f"📄 Страница: {page}/{total_pages}"
         ),
         reply_markup=keyboard
     )
 
     
-
 @router.callback_query(F.data.startswith("forward_page_") | F.data.startswith("backward_page_"))
 async def forward_or_backward_bot_handler(callback: CallbackQuery, state: FSMContext):
     """
@@ -217,7 +217,8 @@ async def forward_or_backward_bot_handler(callback: CallbackQuery, state: FSMCon
         text=(
             "👥 Все клиенты, обслуживаемые отделом продаж в городе Данков\n"
             "🏢 Адрес: 1-й Спортивный переулок, 3\n\n"
-            f"📄 Страница {page}/{total_pages}"
+            f"📇 Кол-во контрагентов: {data.get('total')}\n"
+            f"📄 Страница: {page}/{total_pages}"
         ),
         reply_markup=keyboard
     )

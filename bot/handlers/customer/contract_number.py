@@ -22,17 +22,18 @@ async def contract_number_handler(message: Message, state: FSMContext):
         message (Message): Входящее сообщение с названием города от пользователя.
         state (FSMContext): Контейнер для хранения и управления состоянием контрагента в процессе заполнения формы.
     """
+
+    data = await StateUtils.prepare_next_state(obj=message, state=state)
+
     contract_number = message.text.upper()
     
     await state.update_data(contract_number=contract_number)
     
-    data = await StateUtils.prepare_next_state(obj=message, state=state)
-    
-    data = await StateUtils.prepare_next_state(obj=message, state=state)
-    
     if await StateUtils.edit_invoice_or_data(data=data, message=message, state=state):
         return
     
+    data = await StateUtils.prepare_next_state(obj=message, state=state)
+
     if not await Validator.correct_agreement_validator(text=contract_number):
         sent = await message.answer(str(IncorrectAgreementException(IncorrectAgreementException.__doc__)), parse_mode="HTML")
         data = await StateUtils.prepare_next_state(obj=message, state=state)

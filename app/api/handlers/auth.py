@@ -50,6 +50,7 @@ class AuthService:
 
         if telegram_name is not None:
             update_data["telegram_name"] = telegram_name
+            
         if telegram_id is not None:
             update_data["telegram_id"] = telegram_id
                 
@@ -79,7 +80,7 @@ class AuthService:
             session (AsyncSession): Асинхронная сессия. По умолчанию берется из настроек через DI.
 
         Raises:
-            UserNotExistsException: Кастомный класс с ошибкой.
+            hashed_password: Захэшированный пароль.
         """
         
         # Получение пользователя по ID из БД (admin или user)
@@ -89,9 +90,9 @@ class AuthService:
             raise UserNotExistsException(UserNotExistsException.__doc__)
         
         # Хэширование первого введенного пароля
-        user.hashed_psw = Security.hashed_password(password=plain_password)
+        hashed = Security.hashed_password(password=plain_password)
         
-        await session.commit()
+        return hashed
 
 
     @classmethod
@@ -100,7 +101,6 @@ class AuthService:
         *,
         user_id: int,
         plain_password: str,
-        confirm_password: str,
         session: AsyncSession
     ):
         """
@@ -118,8 +118,8 @@ class AuthService:
         """
         
         # Проверка первичного пароля, со вторым введенным
-        if plain_password != confirm_password:
-            raise IncorrectPasswordException(IncorrectPasswordException.__doc__)
+        #if plain_password != confirm_password:
+        #    raise IncorrectPasswordException(IncorrectPasswordException.__doc__)
         
         # Получение пользователя по ID из БД (admin или user)
         user = await UserInDB.get_user_by_id(id=user_id, session=session)
@@ -132,7 +132,7 @@ class AuthService:
             raise AlreadyLoggedException(AlreadyLoggedException.__doc__)
         
         # Установка пароля для пользователя
-        user.hashed_psw = Security.hashed_password(password=confirm_password)
+        user.hashed_psw = Security.hashed_password(password=plain_password)
         
         await session.commit()
         

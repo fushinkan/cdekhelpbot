@@ -19,14 +19,17 @@ async def customer_city_handler(message: Message, state: FSMContext):
         message (Message): Входящее сообщение с названием города от пользователя.
         state (FSMContext): Контейнер для хранения и управления состоянием контрагента в процессе заполнения формы.
     """
+    
+    data = await StateUtils.prepare_next_state(obj=message, state=state)
+    
     city = message.text.title()
     
     await state.update_data(city=city)
     
-    data = await StateUtils.prepare_next_state(obj=message, state=state)
-    
     if await StateUtils.edit_invoice_or_data(data=data, message=message, state=state):
-        return
+        return    
+    
+    data = await StateUtils.prepare_next_state(obj=message, state=state)
     
     await StateUtils.push_state_to_history(state=state, new_state=Customer.contract_number)
     await state.set_state(Customer.contract_number)

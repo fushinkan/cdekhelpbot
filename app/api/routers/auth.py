@@ -60,7 +60,7 @@ async def set_password_endpoint(data: PasswordInputSchema, session: AsyncSession
     """
     
     try:
-        await AuthService.set_password(user_id=data.user_id, plain_password=data.plain_password, session=session)
+        hashed = await AuthService.set_password(user_id=data.user_id, plain_password=data.plain_password, session=session)
     
     except UserNotExistsException as e:
         raise HTTPException(
@@ -68,7 +68,7 @@ async def set_password_endpoint(data: PasswordInputSchema, session: AsyncSession
             detail=str(e)
         )
         
-    return {"message": "Password successfully added"}
+    return {"hashed_password": hashed}
 
 
 @router.put("/confirm_password", status_code=status.HTTP_200_OK)
@@ -92,7 +92,6 @@ async def confirm_password_endpoint(data: ConfirmPasswordSchema, session: AsyncS
         await AuthService.confirm_password(
             user_id=data.user_id,
             plain_password=data.plain_password,
-            confirm_password=data.confirm_password,
             session=session
         )
     

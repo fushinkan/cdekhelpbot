@@ -23,7 +23,7 @@ async def customer_number_handler(message: Message, state: FSMContext):
     """
     
     data = await StateUtils.prepare_next_state(obj=message, state=state)
-    
+
     phones = [num.strip() for num in message.text.split(",") if num.strip()]
     normalized_phones = []
     
@@ -40,9 +40,10 @@ async def customer_number_handler(message: Message, state: FSMContext):
         return
     
     await state.update_data(phone=", ".join(normalized_phones))
-    data = await StateUtils.prepare_next_state(obj=message, state=state)
-    
+
     if await StateUtils.edit_invoice_or_data(data=data, message=message, state=state):
         return
+
+    data = await StateUtils.prepare_next_state(obj=message, state=state)
 
     await StateUtils.show_customer_summary(data=data, message=message)

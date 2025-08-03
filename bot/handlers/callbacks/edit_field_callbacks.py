@@ -8,6 +8,7 @@ from bot.states.contractor import CONTRACTOR_PROMPTS, STATE_CONTRACTOR_MAP
 from bot.states.invoice import  INVOICE_PROMPTS, STATE_MAP
 from bot.states.customer import CUSTOMER_PROMPTS, CUSTOMER_STATE_MAP
 from bot.keyboards.backbuttons import BackButtons
+from bot.utils.state import StateUtils
 
 
 router = Router()
@@ -38,15 +39,17 @@ async def universal_edit_handler(callback: CallbackQuery, state: FSMContext):
         state_map = STATE_MAP
         prompts = INVOICE_PROMPTS
         keyboard = await BackButtons.back_to_summary()
+        
     elif edit_type == "contractor":
         state_map = STATE_CONTRACTOR_MAP
         prompts = CONTRACTOR_PROMPTS
         keyboard = await BackButtons.back_to_contractor_summary()
+        
     elif edit_type == "customer":
-
         state_map = CUSTOMER_STATE_MAP
         prompts = CUSTOMER_PROMPTS
         keyboard = await BackButtons.back_to_customer_summary()
+        
     else:
         await callback.answer("❌ Неизвестный тип редактирования.")
         return
@@ -58,7 +61,7 @@ async def universal_edit_handler(callback: CallbackQuery, state: FSMContext):
 
     prompt, _ = prompts.get(new_state, ("❓ Введите значение:", None))
 
-
-    await callback.message.edit_text(prompt, reply_markup=keyboard)
+    await StateUtils.prepare_next_state(obj=callback, state=state)
     await state.set_state(new_state)
-    await state.update_data(editing_field=field)
+    sent = await callback.message.answer(prompt, reply_markup=keyboard)
+    await state.update_data(editing_field=field, last_bot_message=sent.message_id)

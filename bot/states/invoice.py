@@ -43,13 +43,13 @@ INVOICE_STATE = {
 
 
 INVOICE_PROMPTS = {
-        InvoiceForm.departure_city.state: ("🏙 Пожалуйста, введите город отправления", BackButtons.back_to_menu),
-        InvoiceForm.departure_address.state: ("📍 Введите адрес отправления/забора груза 🏠", BackButtons.back_to_departure_city),
-        InvoiceForm.recipient_phone.state: ("📱 Введите номер телефона получателя", BackButtons.back_to_departure_address),
-        InvoiceForm.recipient_city.state: ("🌆 Пожалуйста, укажите город получателя для доставки", BackButtons.back_to_recipient_phone),
-        InvoiceForm.recipient_address.state: ("📍 Укажите адрес получения/доставки", BackButtons.back_to_recipient_city),
-        InvoiceForm.insurance_amount.state: ("🛡️ На какую сумму нужна страховка?", BackButtons.back_to_recipient_address),
-        InvoiceForm.confirmation.state: ("🛠️ Добавить доп. услуги к заказу?", CustomerKeyboards.extra_services), 
+    InvoiceForm.departure_city.state: ("🏙 Пожалуйста, введите город отправления", BackButtons.back_to_menu),
+    InvoiceForm.departure_address.state: ("📍 Введите адрес отправления/забора груза 🏠", BackButtons.back_to_departure_city),
+    InvoiceForm.recipient_phone.state: ("📱 Введите номер телефона получателя", BackButtons.back_to_departure_address),
+    InvoiceForm.recipient_city.state: ("🌆 Пожалуйста, укажите город получателя для доставки", BackButtons.back_to_recipient_phone),
+    InvoiceForm.recipient_address.state: ("📍 Укажите адрес получения/доставки", BackButtons.back_to_recipient_city),
+    InvoiceForm.insurance_amount.state: ("🛡️ На какую сумму нужна страховка?", BackButtons.back_to_recipient_address),
+    InvoiceForm.confirmation.state: ("🛠️ Добавить доп. услуги к заказу?", CustomerKeyboards.extra_services), 
 }
 
 

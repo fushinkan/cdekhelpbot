@@ -3,13 +3,13 @@ from aiogram import Router
 from aiogram.types import Message
 from aiogram.fsm.context import FSMContext
 
+from app.api.utils.security import Security
 from app.api.utils.validator import Validator
 from app.core.config import settings
 from bot.keyboards.backbuttons import BackButtons
 from bot.states.admin_auth import AdminAuth
 from bot.handlers.authorization.main_menu import proceed_to_main_menu
 from bot.utils.state import StateUtils
-from bot.utils.bot_utils import BotUtils
 from bot.utils.exceptions import RequestErrorException, InvalidPasswordException
 
 
@@ -30,9 +30,9 @@ async def confirm_password(message: Message, state: FSMContext):
     user_id = data.get("id")
     telegram_id = message.from_user.id
     first_password = data.get('new_password')
-    confirm_password = message.text.strip()
+    match_psw = Security.verify_password(plain_password=message.text.strip(), hashed_password=first_password)
     
-    if confirm_password != first_password:
+    if not match_psw:
         data = await StateUtils.prepare_next_state(obj=message, state=state)
         sent = await message.answer("Пароли не совпадают, попробуйте заново", reply_markup=await BackButtons.back_to_phone())
         
@@ -40,20 +40,7 @@ async def confirm_password(message: Message, state: FSMContext):
         await state.set_state(AdminAuth.set_password)
         
         return
-   
-    if not Validator.validate_password(plain_password=confirm_password):
-        data = await StateUtils.prepare_next_state(obj=message, state=state)
-        
-        sent = await message.answer(
-            str(InvalidPasswordException(InvalidPasswordException.__doc__)),
-            reply_markup=await BackButtons.back_to_phone()
-        )
-        
-        await state.update_data(error_message=sent.message_id)
-        await state.set_state(AdminAuth.set_password)
-        
-        return  
-    
+
     # Запрос в БД через эндпоинт в API
     async with httpx.AsyncClient() as client:
         try:
@@ -61,8 +48,7 @@ async def confirm_password(message: Message, state: FSMContext):
                 f"{settings.BASE_FASTAPI_URL}/auth/confirm_password",
                 json={
                     "user_id": user_id,
-                    "plain_password": first_password,
-                    "confirm_password": confirm_password
+                    "plain_password": first_password
                 }
             )
             
