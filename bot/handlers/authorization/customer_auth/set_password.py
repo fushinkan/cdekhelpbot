@@ -24,7 +24,6 @@ async def set_client_password(message: Message, state: FSMContext):
     data = await StateUtils.prepare_next_state(obj=message, state=state)
     phone = data.get("phone")
     user_id = data.get("id")
-    telegram_id = message.from_user.id
     new_password = message.text.strip()
 
     if not Validator.validate_password(plain_password=new_password):
@@ -36,7 +35,7 @@ async def set_client_password(message: Message, state: FSMContext):
         await state.update_data(error_message=sent.message_id)
         return
 
-    await StateUtils.prepare_next_state(obj=message, state=state)
+    data = await StateUtils.prepare_next_state(obj=message, state=state)
 
     # Запрос в БД через эндпоинт в API
     async with httpx.AsyncClient() as client:
@@ -45,10 +44,9 @@ async def set_client_password(message: Message, state: FSMContext):
                 f"{settings.BASE_FASTAPI_URL}/auth/set_password",
                 json={"user_id": user_id, "plain_password": new_password}
             )
-            response.raise_for_status()
-            response_json = response.json()
-            hashed_password = response_json.get("hashed_password")
             
+            response.raise_for_status()
+        
         except httpx.HTTPStatusError:
             data = await StateUtils.prepare_next_state(obj=message, state=state)
             sent = await message.answer(
@@ -72,5 +70,5 @@ async def set_client_password(message: Message, state: FSMContext):
     sent = await message.answer("✅ Пароль принят. Введите его ещё раз для входа.",
                                 reply_markup=await BackButtons.back_to_phone())
     
-    await state.update_data(last_bot_message=sent.message_id, phone=phone, new_password=hashed_password)
+    await state.update_data(last_bot_message=sent.message_id, phone=phone, new_password=new_password)
     await state.set_state(CustomerAuth.confirm_password)

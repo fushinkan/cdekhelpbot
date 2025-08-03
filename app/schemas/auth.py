@@ -33,7 +33,7 @@ class AcceptPasswordSchema(BaseModel):
 
 class ConfirmPasswordSchema(BaseModel):
     user_id: int
-    plain_password: str = Field(min_length=8)
+    confirm_password: str = Field(min_length=8)
 
 
 class TelegramIDInputSchema(BaseModel):

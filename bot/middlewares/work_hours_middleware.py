@@ -31,6 +31,9 @@ class WorkHoursMiddleware(BaseMiddleware):
         await asyncio.sleep(15)
         await sent.delete()
         
+        return 
+    
+    
     @classmethod
     async def is_work_time(cls) -> bool:
         """
@@ -44,11 +47,11 @@ class WorkHoursMiddleware(BaseMiddleware):
         current_time = now.time()
         weekday = now.weekday()
         
-        if weekday in (0, 5):
+        if 0 <= weekday <= 4:
             return time(9, 0) <= current_time <= time(18, 0)
         
-        elif weekday in (6, 7):
-            return time(9, 30) <= current_time <= time(16, 30)
+        elif weekday in (5, 6):
+            return time(9, 30) <= current_time <= time(23, 30)
         
         return False
             

@@ -30,9 +30,9 @@ async def confirm_password(message: Message, state: FSMContext):
     user_id = data.get("id")
     telegram_id = message.from_user.id
     first_password = data.get('new_password')
-    match_psw = Security.verify_password(plain_password=message.text.strip(), hashed_password=first_password)
+    second_psw = message.text.strip()
     
-    if not match_psw:
+    if first_password != second_psw:
         data = await StateUtils.prepare_next_state(obj=message, state=state)
         sent = await message.answer("Пароли не совпадают, попробуйте заново", reply_markup=await BackButtons.back_to_phone())
         
@@ -48,7 +48,7 @@ async def confirm_password(message: Message, state: FSMContext):
                 f"{settings.BASE_FASTAPI_URL}/auth/confirm_password",
                 json={
                     "user_id": user_id,
-                    "plain_password": first_password
+                    "confirm_password": second_psw
                 }
             )
             

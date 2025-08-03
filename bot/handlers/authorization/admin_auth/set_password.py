@@ -23,7 +23,6 @@ async def set_client_password(message: Message, state: FSMContext):
     
     data = await StateUtils.prepare_next_state(obj=message, state=state)
     phone = data.get("phone")
-    telegram_id = message.from_user.id
     user_id = data.get("id")
     new_password = message.text.strip()
 
@@ -46,8 +45,6 @@ async def set_client_password(message: Message, state: FSMContext):
                 json={"user_id": user_id, "plain_password": new_password}
             )
             response.raise_for_status()
-            response_json = response.json()
-            hashed_password = response_json.get("hashed_password")
             
         except httpx.HTTPStatusError:
             data = await StateUtils.prepare_next_state(obj=message, state=state)
@@ -72,5 +69,5 @@ async def set_client_password(message: Message, state: FSMContext):
     sent = await message.answer("✅ Пароль принят. Введите его ещё раз для входа.",
                                 reply_markup=await BackButtons.back_to_phone())
     
-    await state.update_data(last_bot_message=sent.message_id, phone=phone, new_password=hashed_password)
+    await state.update_data(last_bot_message=sent.message_id, phone=phone, new_password=new_password)
     await state.set_state(AdminAuth.confirm_password)

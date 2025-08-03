@@ -16,6 +16,7 @@ class AuthService:
         IncorrectPasswordException: Кастомный класс с исключением.
         UserNotExistsException: Кастомный класс с исключением.
     """
+    _temp_passwords: dict[int, str] = {}
     
     @classmethod
     async def update_login_status(
@@ -89,10 +90,9 @@ class AuthService:
         if not user:
             raise UserNotExistsException(UserNotExistsException.__doc__)
         
-        # Хэширование первого введенного пароля
-        hashed = Security.hashed_password(password=plain_password)
+        cls._temp_passwords[user_id] = plain_password
         
-        return hashed
+        return True
 
 
     @classmethod
@@ -100,7 +100,7 @@ class AuthService:
         cls,
         *,
         user_id: int,
-        plain_password: str,
+        confirm_password: str, 
         session: AsyncSession
     ):
         """
@@ -116,10 +116,11 @@ class AuthService:
             IncorrectPasswordException: Кастомный класс с ошибкой.
             UserNotExistsException: Кастомный класс с ошибкой.
         """
+        plain_password = cls._temp_passwords[user_id]
         
         # Проверка первичного пароля, со вторым введенным
-        #if plain_password != confirm_password:
-        #    raise IncorrectPasswordException(IncorrectPasswordException.__doc__)
+        if plain_password != confirm_password:
+            raise IncorrectPasswordException(IncorrectPasswordException.__doc__)
         
         # Получение пользователя по ID из БД (admin или user)
         user = await UserInDB.get_user_by_id(id=user_id, session=session)
@@ -133,6 +134,8 @@ class AuthService:
         
         # Установка пароля для пользователя
         user.hashed_psw = Security.hashed_password(password=plain_password)
+        
+        del cls._temp_passwords[user_id]
         
         await session.commit()
         

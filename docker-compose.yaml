@@ -4,9 +4,8 @@ services:
   alembic:
     build:
       context: .
-      dockerfile: app/Dockerfile  # или другой путь, если alembic зависит от app
+      dockerfile: migrations/Dockerfile  # или другой путь, если alembic зависит от app
     image: alembic_image
-    command: "alembic upgrade head"
     working_dir: /project
     volumes:
       - .:/project
