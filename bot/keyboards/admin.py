@@ -90,9 +90,10 @@ class AdminKeyboards():
     async def edit_or_confirm_customer(cls):
         
         return InlineKeyboardMarkup(inline_keyboard=[
-            [InlineKeyboardButton(text="✏️ Наименования контрагента", callback_data="edit_customer_name")],
+            [InlineKeyboardButton(text="✏️ Наименование контрагента", callback_data="edit_customer_contractor")],
             [InlineKeyboardButton(text="✏️ Город контрагента", callback_data="edit_customer_city")],
-            [InlineKeyboardButton(text="✏️ Номер(а) телефона", callback_data="edit_customer_phone")],
+            [InlineKeyboardButton(text="✏️ Номер договора", callback_data="edit_customer_contract_number")],
+            [InlineKeyboardButton(text="✏️ Номер(а) телефона", callback_data="edit_customer_number")],
             
             [InlineKeyboardButton(text="✅ Подтвердить", callback_data="confirm_customer"), 
              InlineKeyboardButton(text="❌ Отмена", callback_data="cancel_customer")]
