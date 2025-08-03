@@ -31,10 +31,10 @@ async def get_insurance_amount(message: Message, state: FSMContext):
     
     try:
         await Validator.correct_insurance(text=insurance_amount)
-        data = await BotUtils.delete_error_messages(obj=message, state=state)
+        data = await StateUtils.prepare_next_state(obj=message, state=state)
         
     except IncorrectInsuranceException as e:
-        data = await BotUtils.delete_error_messages(obj=message, state=state)
+        data = await StateUtils.prepare_next_state(obj=message, state=state)
         sent = await message.answer(str(e), parse_mode="HTML")
         await state.update_data(error_message=sent.message_id)
 

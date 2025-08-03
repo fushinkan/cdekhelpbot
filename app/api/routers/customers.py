@@ -1,9 +1,15 @@
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 
+from app.db.models.users import Users
 from app.db.base import get_session
 from app.api.handlers.customers import Customers
 from app.schemas.users import PaginateUserResponse
+from app.schemas.customers import CustomerResponseSchema, CustomerInputSchema
+from app.schemas.auth import PhoneResponseSchema
+from bot.utils.exceptions import CustomerAlreadyExistsException
 
 import math
 
@@ -19,7 +25,7 @@ async def get_customers_pagination_endpoint(page: int = 1, per_page: int = 10, s
     Args:
         page (int, optional): Стартовая страница для пагинации. Defaults to 1.
         per_page (int, optional): Лимит пользователей на странице. Defaults to 10.
-        session (AsyncSession, optional): Асинхронная сессия. По умолчанию берется из настроек через DI.
+        session (AsyncSession): Асинхронная сессия. По умолчанию берется из настроек через DI.
 
     Returns:
         dict: Pydantic-схема преобразованная к словарю.
@@ -41,3 +47,49 @@ async def get_customers_pagination_endpoint(page: int = 1, per_page: int = 10, s
     )
     
     return response.model_dump()
+
+
+@router.post("/add_customer", status_code=status.HTTP_201_CREATED, response_model=CustomerResponseSchema)
+async def add_customer_endpoint(customer: CustomerInputSchema, session: AsyncSession = Depends(get_session)):
+    """
+    Эндпоинт для добавления нового контрагента в таблицу Users и его номеров телефона в таблицу PhoneNumbers.
+
+    Args:
+        customer (CustomerInputSchema): Pydantic-схема для валидации данных.
+        session (AsyncSession: Асинхронная сессия. По умолчанию берется из настроек через DI.
+    """
+    
+    try:
+        phone_numbers = [phone.number.strip() for phone in customer.number]
+        
+        await Customers.add_customer(
+            contractor=customer.contractor,
+            contract_number=customer.contract_number,
+            city=customer.city,
+            number=phone_numbers,
+            session=session
+        )
+        
+    except CustomerAlreadyExistsException as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e)
+        )
+    
+    result = await session.execute(
+        select(Users)
+        .options(selectinload(Users.phones))
+        .where(Users.contract_number == customer.contract_number)
+    )
+    
+    user = result.scalar_one()
+    
+    phones_response = [PhoneResponseSchema.model_validate(phone) for phone in user.phones]
+    
+    return CustomerResponseSchema(
+        id=user.id,
+        contractor=user.contractor,
+        contract_number=user.contract_number,
+        city=user.city,
+        number=phones_response
+    )

@@ -32,14 +32,14 @@ async def process_tin(message: Message, state: FSMContext):
         
         await state.update_data(tin_number=tin_number)
         
-        data = await BotUtils.delete_error_messages(obj=message, state=state)
+        data = await StateUtils.prepare_next_state(obj=message, state=state)
         sent = await StateUtils.get_contractor_summary(message=message, data=data)
 
 
         await state.update_data(last_bot_message=sent.message_id)
         
     except IncorrectTinNumberException as e:
-        data = await BotUtils.delete_error_messages(obj=message, state=state)
+        data = await StateUtils.prepare_next_state(obj=message, state=state)
        
         sent = await message.answer(str(e), parse_mode="HTML")
         await state.update_data(error_message=sent.message_id)

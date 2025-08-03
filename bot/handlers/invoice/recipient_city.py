@@ -21,7 +21,7 @@ async def get_recipient_city(message: Message, state: FSMContext):
     """
     
     data = await StateUtils.prepare_next_state(obj=message, state=state)
-    recipient_city = message.text.strip()
+    recipient_city = message.text.strip().title()
     
     await state.update_data(recipient_city=recipient_city)
     

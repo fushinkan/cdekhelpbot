@@ -36,15 +36,14 @@ async def process_role(message: Message, state: FSMContext):
         phone = await Normalize.normalize_phone(phone=phone_number)
 
     except IncorrectPhoneException as e:
-        data = await BotUtils.delete_error_messages(obj=message, state=state)
+        data = await StateUtils.prepare_next_state(obj=message, state=state)
         sent = await message.answer(str(e), parse_mode="HTML")
         
         await state.update_data(error_message=sent.message_id)
         
         return
     
-    data = await BotUtils.delete_error_messages(obj=message, state=state)
-    
+    data = await StateUtils.prepare_next_state(obj=message, state=state)
     
     # Запрос в БД через эндпоинт в API
     async with httpx.AsyncClient() as client:
@@ -56,7 +55,7 @@ async def process_role(message: Message, state: FSMContext):
             user_id = data["id"]
             
         except httpx.HTTPStatusError:
-            data = await BotUtils.delete_error_messages(obj=message, state=state)
+            data = await StateUtils.prepare_next_state(obj=message, state=state)
             sent = await message.answer(
                 str(UserNotExistsException(UserNotExistsException.__doc__)),
                 reply_markup=await BackButtons.back_to_welcoming_screen()
@@ -65,7 +64,7 @@ async def process_role(message: Message, state: FSMContext):
             return
         
         except httpx.RequestError:
-            data = await BotUtils.delete_error_messages(obj=message, state=state)
+            data = await StateUtils.prepare_next_state(obj=message, state=state)
             sent = await message.answer(
                 str(RequestErrorException(RequestErrorException.__doc__)),
                 reply_markup=await BackButtons.back_to_welcoming_screen()

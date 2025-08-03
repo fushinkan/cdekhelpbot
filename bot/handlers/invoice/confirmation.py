@@ -23,4 +23,4 @@ async def confirmation(message: Message, state: FSMContext):
     
     sent = await StateUtils.get_summary(message=message, data=data)
     
-    await state.update_data(last_bot_message=sent.message_id)
+    await state.update_data(last_bot_message=sent.message_id, role="user")

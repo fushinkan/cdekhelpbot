@@ -28,7 +28,7 @@ async def set_client_password(message: Message, state: FSMContext):
     new_password = message.text.strip()
 
     if not Validator.validate_password(plain_password=new_password):
-        data = await BotUtils.delete_error_messages(obj=message, state=state)
+        data = await StateUtils.prepare_next_state(obj=message, state=state)
         sent = await message.answer(
             str(InvalidPasswordException(InvalidPasswordException.__doc__)), 
             reply_markup=await BackButtons.back_to_phone()
@@ -36,7 +36,7 @@ async def set_client_password(message: Message, state: FSMContext):
         await state.update_data(error_message=sent.message_id)
         return
 
-    await BotUtils.delete_error_messages(obj=message, state=state)
+    await StateUtils.prepare_next_state(obj=message, state=state)
 
     # Запрос в БД через эндпоинт в API
     async with httpx.AsyncClient() as client:
@@ -48,7 +48,7 @@ async def set_client_password(message: Message, state: FSMContext):
             response.raise_for_status()
             
         except httpx.HTTPStatusError:
-            data = await BotUtils.delete_error_messages(obj=message, state=state)
+            data = await StateUtils.prepare_next_state(obj=message, state=state)
             sent = await message.answer(
                 "❌ Ошибка при установке пароля. Попробуйте заново",
                 reply_markup=await BackButtons.back_to_welcoming_screen()
@@ -58,7 +58,7 @@ async def set_client_password(message: Message, state: FSMContext):
             return
         
         except httpx.RequestError:
-            data = await BotUtils.delete_error_messages(obj=message, state=state)
+            data = await StateUtils.prepare_next_state(obj=message, state=state)
             sent = await message.answer(
                 str(RequestErrorException(RequestErrorException.__doc__)),
                 reply_markup=await BackButtons.back_to_welcoming_screen()

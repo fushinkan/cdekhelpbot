@@ -1,10 +1,15 @@
 from aiogram import Router, F
-from aiogram.types import CallbackQuery
+from aiogram.types import CallbackQuery, Message
 from aiogram.fsm.context import FSMContext
 
+from app.api.utils.normalize import Normalize
 from app.core.config import settings
 from bot.utils.state import StateUtils
+from bot.utils.validate import Validator
+from bot.utils.bot_utils import BotUtils
+from bot.utils.exceptions import IncorrectAgreementException, IncorrectPhoneException
 from bot.states.send_invoice import SendInvoice
+from bot.states.customer import Customer
 from bot.keyboards.admin import AdminKeyboards
 from bot.keyboards.backbuttons import BackButtons
 

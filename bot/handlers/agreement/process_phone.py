@@ -28,7 +28,7 @@ async def process_tin_contractor(message: Message, state: FSMContext):
     
     try:
         phone = await Normalize.normalize_phone(phone=message.text.strip())
-        data = await BotUtils.delete_error_messages(obj=message, state=state)
+        data = await StateUtils.prepare_next_state(obj=message, state=state)
         
         await state.update_data(phone=phone)
         
@@ -36,7 +36,7 @@ async def process_tin_contractor(message: Message, state: FSMContext):
             return
         
     except IncorrectPhoneException as e:
-        data = await BotUtils.delete_error_messages(obj=message, state=state)
+        data = await StateUtils.prepare_next_state(obj=message, state=state)
         sent = await message.answer(str(e), parse_mode="HTML")
         
         await state.update_data(error_message=sent.message_id)

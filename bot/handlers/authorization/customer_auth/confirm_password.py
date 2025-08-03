@@ -34,7 +34,7 @@ async def confirm_password(message: Message, state: FSMContext):
     confirm_password = message.text.strip()
     
     if confirm_password != first_password:
-        data = await BotUtils.delete_error_messages(obj=message, state=state)
+        data = await StateUtils.prepare_next_state(obj=message, state=state)
         sent = await message.answer("Пароли не совпадают, попробуйте заново", reply_markup=await BackButtons.back_to_phone())
         
         await state.update_data(error_message=sent.message_id)
@@ -43,7 +43,7 @@ async def confirm_password(message: Message, state: FSMContext):
         return
    
     if not Validator.validate_password(plain_password=confirm_password):
-        data = await BotUtils.delete_error_messages(obj=message, state=state)
+        data = await StateUtils.prepare_next_state(obj=message, state=state)
         sent = await message.answer(
             str(InvalidPasswordException(InvalidPasswordException.__doc__)),
             reply_markup=await BackButtons.back_to_phone()
@@ -59,7 +59,7 @@ async def confirm_password(message: Message, state: FSMContext):
             response = await client.put(
                 f"{settings.BASE_FASTAPI_URL}/auth/confirm_password",
                 json={
-                    "telegram_id": telegram_id,
+                    "user_id": user_id,
                     "plain_password": first_password,
                     "confirm_password": confirm_password
                 }
@@ -67,7 +67,7 @@ async def confirm_password(message: Message, state: FSMContext):
             
             response.raise_for_status()
 
-            response_user = await client.get(f"{settings.BASE_FASTAPI_URL}/auth/users/{user_id}")
+            response_user = await client.get(f"{settings.BASE_FASTAPI_URL}/user/{user_id}")
             response_user.raise_for_status()
             user_data = response_user.json()
             
@@ -85,7 +85,7 @@ async def confirm_password(message: Message, state: FSMContext):
             )
             
         except httpx.HTTPStatusError:
-            data = await BotUtils.delete_error_messages(obj=message, state=state)
+            data = await StateUtils.prepare_next_state(obj=message, state=state)
             sent = await message.answer(
                 "❌ Ошибка при подтверждении пароля. Попробуйте заново",
                 reply_markup=await BackButtons.back_to_welcoming_screen()
@@ -95,7 +95,7 @@ async def confirm_password(message: Message, state: FSMContext):
             return
         
         except httpx.RequestError:
-            data = await BotUtils.delete_error_messages(obj=message, state=state)
+            data = await StateUtils.prepare_next_state(obj=message, state=state)
             sent = await message.answer(
                 str(RequestErrorException(RequestErrorException.__doc__)),
                 reply_markup=await BackButtons.back_to_welcoming_screen()
@@ -105,7 +105,7 @@ async def confirm_password(message: Message, state: FSMContext):
             return   
             
     
-        data = await BotUtils.delete_error_messages(obj=message, state=state)
+        data = await StateUtils.prepare_next_state(obj=message, state=state)
             
             
         await proceed_to_main_menu(role=user_data.get("role"), user_data=user_data, message=message)

@@ -28,10 +28,10 @@ async def get_recipient_phone(message: Message, state: FSMContext):
 
     try:
         recipient_phone = await Normalize.normalize_phone(phone=recipient_phone_raw)
-        data = await BotUtils.delete_error_messages(obj=message, state=state)
+        data = await StateUtils.prepare_next_state(obj=message, state=state)
         
     except IncorrectPhoneException as e:
-        data = await BotUtils.delete_error_messages(obj=message, state=state)
+        data = await StateUtils.prepare_next_state(obj=message, state=state)
         sent = await message.answer(str(e), parse_mode="HTML")
         await state.update_data(error_message=sent.message_id)
 

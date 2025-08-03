@@ -19,7 +19,7 @@ class Users(Base):
     telegram_id: Mapped[int | None] = mapped_column(BigInteger, unique=True, nullable=True)
     telegram_name: Mapped[str | None] = mapped_column(String(100), nullable=True)
     
-    contract_number: Mapped[str] = mapped_column(String(20), nullable=False)
+    contract_number: Mapped[str] = mapped_column(String(20), nullable=False, unique=True)
     city: Mapped[str] = mapped_column(String(32), nullable=False)
     contractor: Mapped[str] = mapped_column(String(100), nullable=False)
     hashed_psw: Mapped[str] = mapped_column(String(255), nullable=True)

@@ -36,7 +36,7 @@ async def accept_enter(message: Message, state: FSMContext):
     telegram_id = message.from_user.id
     telegram_name = message.from_user.username
 
-    data = await BotUtils.delete_error_messages(obj=message, state=state)
+    data = await StateUtils.prepare_next_state(obj=message, state=state)
 
     # Запрос в БД через эндпоинт в API
     async with httpx.AsyncClient() as client:
@@ -72,7 +72,7 @@ async def accept_enter(message: Message, state: FSMContext):
             )
             
         except httpx.HTTPStatusError:
-            data = await BotUtils.delete_error_messages(obj=message, state=state)
+            data = await StateUtils.prepare_next_state(obj=message, state=state)
             sent = await message.answer(
                 str(IncorrectPasswordException(IncorrectPasswordException(IncorrectPasswordException.__doc__))),
                 reply_markup=await BackButtons.back_to_welcoming_screen()
@@ -82,7 +82,7 @@ async def accept_enter(message: Message, state: FSMContext):
             return
         
         except httpx.RequestError:
-            data = await BotUtils.delete_error_messages(obj=message, state=state)
+            data = await StateUtils.prepare_next_state(obj=message, state=state)
             sent = await message.answer(
                 str(RequestErrorException(RequestErrorException.__doc__)),
                 reply_markup=await BackButtons.back_to_welcoming_screen()
@@ -92,7 +92,7 @@ async def accept_enter(message: Message, state: FSMContext):
             return    
             
     
-        data = await BotUtils.delete_error_messages(obj=message, state=state)
+        data = await StateUtils.prepare_next_state(obj=message, state=state)
             
             
         await proceed_to_main_menu(role=user_data.get("role"), user_data=user_data, message=message)

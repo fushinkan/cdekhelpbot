@@ -1,4 +1,9 @@
 # Custom Exceptions
+class CustomerAlreadyExistsException(Exception):
+    """👤 Пользователь уже существует"""
+
+    pass
+
 class AlreadyLoggedException(Exception):
     """👤 Пользователь уже авторизован в системе."""
 

@@ -90,7 +90,7 @@ async def confirm_password_endpoint(data: ConfirmPasswordSchema, session: AsyncS
     
     try:
         await AuthService.confirm_password(
-            telegram_id=data.telegram_id,
+            user_id=data.user_id,
             plain_password=data.plain_password,
             confirm_password=data.confirm_password,
             session=session

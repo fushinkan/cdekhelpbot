@@ -37,7 +37,7 @@ async def first_client_login(message: Message, state: FSMContext):
             user = response.json()
             
         except httpx.HTTPStatusError:
-            data = await BotUtils.delete_error_messages(obj=message, state=state)
+            data = await StateUtils.prepare_next_state(obj=message, state=state)
             sent = await message.answer(
                 str(UserNotExistsException(UserNotExistsException.__doc__)),
                 reply_markup=await BackButtons.back_to_welcoming_screen()
@@ -46,7 +46,7 @@ async def first_client_login(message: Message, state: FSMContext):
             return
         
         except httpx.RequestError:
-            data = await BotUtils.delete_error_messages(obj=message, state=state)
+            data = await StateUtils.prepare_next_state(obj=message, state=state)
             sent = await message.answer(
                 str(RequestErrorException(RequestErrorException.__doc__)),
                 reply_markup=await BackButtons.back_to_welcoming_screen()

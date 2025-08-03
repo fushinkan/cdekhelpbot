@@ -21,7 +21,7 @@ async def get_recipient_address(message: Message, state: FSMContext):
     """
     
     data = await StateUtils.prepare_next_state(obj=message, state=state)
-    recipient_address = message.text.strip()
+    recipient_address = message.text.strip().title()
     
     await state.update_data(recipient_address=recipient_address)
     

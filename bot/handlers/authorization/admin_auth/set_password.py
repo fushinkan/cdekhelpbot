@@ -28,7 +28,7 @@ async def set_client_password(message: Message, state: FSMContext):
     new_password = message.text.strip()
 
     if not Validator.validate_password(plain_password=new_password):
-        data = await BotUtils.delete_error_messages(obj=message, state=state)
+        data = await StateUtils.prepare_next_state(obj=message, state=state)
         sent = await message.answer(
             str(InvalidPasswordException(InvalidPasswordException.__doc__)), 
             reply_markup=await BackButtons.back_to_phone()
@@ -36,19 +36,19 @@ async def set_client_password(message: Message, state: FSMContext):
         await state.update_data(error_message=sent.message_id)
         return
 
-    await BotUtils.delete_error_messages(obj=message, state=state)
+    await StateUtils.prepare_next_state(obj=message, state=state)
 
     # Запрос в БД через эндпоинт в API
     async with httpx.AsyncClient() as client:
         try:
             response = await client.put(
                 f"{settings.BASE_FASTAPI_URL}/auth/set_password",
-                json={"user_id": telegram_id, "plain_password": new_password}
+                json={"user_id": user_id, "plain_password": new_password}
             )
             response.raise_for_status()
             
         except httpx.HTTPStatusError:
-            data = await BotUtils.delete_error_messages(obj=message, state=state)
+            data = await StateUtils.prepare_next_state(obj=message, state=state)
             sent = await message.answer(
                 "❌ Ошибка при установке пароля. Попробуйте заново",
                 reply_markup=await BackButtons.back_to_welcoming_screen()
@@ -58,7 +58,7 @@ async def set_client_password(message: Message, state: FSMContext):
             return
         
         except httpx.RequestError:
-            data = await BotUtils.delete_error_messages(obj=message, state=state)
+            data = await StateUtils.prepare_next_state(obj=message, state=state)
             sent = await message.answer(
                 str(RequestErrorException(RequestErrorException.__doc__)),
                 reply_markup=await BackButtons.back_to_welcoming_screen()
@@ -70,5 +70,5 @@ async def set_client_password(message: Message, state: FSMContext):
     sent = await message.answer("✅ Пароль установлен. Введите его ещё раз для входа.",
                                 reply_markup=await BackButtons.back_to_phone())
     
-    await state.update_data(last_bot_message=sent.message_id, phone=phone)
+    await state.update_data(last_bot_message=sent.message_id, phone=phone, new_password=new_password)
     await state.set_state(AdminAuth.confirm_password)

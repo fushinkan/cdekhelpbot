@@ -165,3 +165,69 @@ class BackButtons:
         """
         
         return await cls.get_back_button(callback_data="customers")
+    
+    @classmethod
+    async def back_to_customer_contractor(cls):
+        """
+        Возвращает менеджера ко вводу наименования контрагента.
+
+        Returns:
+            InlineKeyboardMarkup: Клавиатура с кнопкой для возврата к этапу ввода наименования контрагента.
+        """
+        
+        return await cls.get_back_button(callback_data="go_back_to_customer_contractor")
+    
+    @classmethod
+    async def back_to_customer_contract_number(cls):
+        """
+        Возвращает менеджера ко вводу номера договора для контрагента.
+
+        Returns:
+            InlineKeyboardMarkup: Клавиатура с кнопкой для возврата к этапу ввода номера договора контрагента.
+        """
+        
+        return await cls.get_back_button(callback_data="go_back_to_customer_contract_number")
+    
+    @classmethod
+    async def back_to_customer_city(cls):
+        """
+        Возвращает менеджера ко вводу города для контрагента.
+
+        Returns:
+            InlineKeyboardMarkup: Клавиатура с кнопкой для возврата к этапу ввода города контрагента.
+        """
+        
+        return await cls.get_back_button(callback_data="go_back_to_customer_city")
+    
+    @classmethod
+    async def back_to_customer_number(cls):
+        """
+        Возвращает менеджера ко вводу номеров телефона для контрагентов.
+
+        Returns:
+            InlineKeyboardMarkup: Клавиатура с кнопкой для возврата к этапу ввода номеров телефона контрагента.
+        """
+        
+        return await cls.get_back_button(callback_data="go_back_to_customer_number")
+    
+    @classmethod
+    async def back_to_admin_panel(cls):
+        """
+        Возвращает менеджера к админской панели.
+
+        Returns:
+            InlineKeyboardMarkup: Клавиатура с кнопкой для возврата к админской панели.
+        """
+        
+        return await cls.get_back_button(callback_data="admin_panel")
+    
+    @classmethod
+    async def back_to_customer_summary(cls):
+        """
+        Возвращает менеджера к сводке с новым контрагентом.
+
+        Returns:
+            InlineKeyboardMarkup: Клавиатура с кнопкой для возврата к сводке с новыми контрагентом.
+        """
+        
+        return await cls.get_back_button(callback_data="customer_summary")

@@ -5,17 +5,46 @@ from aiogram.exceptions import TelegramBadRequest
 from bot.utils.bot_utils import BotUtils
 from bot.states.invoice import InvoiceForm
 from bot.states.invoice import INVOICE_STATE
+from bot.states.customer import CUSTOMER_STATE
 from bot.keyboards.admin import AdminKeyboards
 from bot.keyboards.customer import CustomerKeyboards
+from bot.keyboards.backbuttons import BackButtons
 
 import asyncio
 from typing import Union
 
+ALL_STATES = list(INVOICE_STATE) + list(CUSTOMER_STATE)
 
 class StateUtils():
     """
     Управление состоянием пользователя в Telegram-боте.
     """
+    
+
+    @classmethod
+    async def show_customer_summary(cls, *, message: Message, data: dict):
+        """
+        Отправляет администратору сводку введённых данных по контрагенту.
+
+        Args:
+            message (Message): Объект входящего сообщения Telegram.
+            data (dict): Словарь с данными контрагента.
+
+        Returns:
+            Message: Отправленное сообщение со сводкой.
+        """
+        
+        summary = (
+            f"📋 <b>Сводка по введённым данным контрагента:</b>\n\n"
+            f"👤 Имя: {data.get('contractor', 'Не указано')}\n"
+            f"🏙 Город: {data.get('city', 'Не указан')}\n"
+            f"📄 Номер договора: {data.get('contract_number', 'Не указан')}\n"
+            f"📱 Телефоны: {data.get('phone', 'Не указаны')}"
+        )
+        
+        sent = await message.answer(summary, reply_markup=await AdminKeyboards.edit_or_confirm_customer(), parse_mode="HTML")
+        
+        return sent
     
     @classmethod
     async def get_contractor_summary(cls, *, message: Message, data: dict):
@@ -158,8 +187,8 @@ class StateUtils():
             if history:
                 prev_state = history[-1]
                 
-                for st in INVOICE_STATE:
-                    if st.state == prev_state:
+                for st in ALL_STATES:
+                    if st == prev_state:
                         await state.set_state(st)
                         await state.update_data(state_history=history)
                         return st
@@ -187,6 +216,7 @@ class StateUtils():
         
         data = await state.get_data()
         last_bot_message_id = data.get("last_bot_message")
+        error_message_id = data.get("error_message")
         message = None
         
         if isinstance(obj, CallbackQuery):
@@ -209,8 +239,11 @@ class StateUtils():
             
             message = obj  
             
-        if message and last_bot_message_id:
-            await BotUtils.delete_prev_messages(obj=message, message_id=last_bot_message_id)
+        if message:
+            if last_bot_message_id:
+                await BotUtils.delete_prev_messages(obj=message, message_id=last_bot_message_id)
+            if error_message_id:
+                await BotUtils.delete_prev_messages(obj=message, message_id=error_message_id)
    
         return data
     
@@ -238,7 +271,9 @@ class StateUtils():
             if current_state and current_state.startswith("InvoiceForm:"):
                 updated_summary = await StateUtils.get_summary(message=message, data=updated_data)
             elif current_state and current_state.startswith("Contractor:"):
-                updated_summary = await StateUtils.get_contractor_summary(message=message, data=updated_data)                
+                updated_summary = await StateUtils.get_contractor_summary(message=message, data=updated_data)
+            elif current_state and current_state.startswith("Customer:") :
+                updated_summary = await StateUtils.show_customer_summary(message=message, data=updated_data)            
             
             await state.update_data(last_bot_message_id=updated_summary.message_id)
             await BotUtils.delete_prev_messages(obj=message, message_id=updated_data.get("last_bot_message_id"))

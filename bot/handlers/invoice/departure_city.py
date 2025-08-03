@@ -21,7 +21,7 @@ async def get_departure_city(message: Message, state: FSMContext):
     """
     
     data = await StateUtils.prepare_next_state(obj=message, state=state)
-    departure_city = message.text.strip()   
+    departure_city = message.text.strip().title()
     await state.update_data(departure_city=departure_city)
 
     if await StateUtils.edit_invoice_or_data(data=data, message=message, state=state):

@@ -36,9 +36,9 @@ async def handle_invoice_upload(message: Message, state: FSMContext):
     try:
         parts = file_name.replace(".pdf", "").split("-")
         departure_city, recipient_city, invoice_number = parts
-        data = await BotUtils.delete_error_messages(obj=message, state=state)
+        data = await StateUtils.prepare_next_state(obj=message, state=state)
     except (IncorrectFileNameException, ValueError) as e:
-        data = await BotUtils.delete_error_messages(obj=message, state=state)
+        data = await StateUtils.prepare_next_state(obj=message, state=state)
         sent = await message.answer(str(IncorrectFileNameException(IncorrectFileNameException.__doc__)), parse_mode="HTML")
         await state.update_data(error_message=sent.message_id)
         
