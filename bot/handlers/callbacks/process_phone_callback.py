@@ -1,11 +1,11 @@
-import asyncio
-
 from aiogram.fsm.context import FSMContext
 from aiogram import F, Router
 from aiogram.types import CallbackQuery
 
 from bot.keyboards.backbuttons import BackButtons
 from bot.states.auth import Auth
+
+import asyncio
 
 
 router = Router()

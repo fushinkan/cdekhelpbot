@@ -7,7 +7,6 @@ from bot.utils.exceptions import IncorrectPhoneException
 from bot.states.invoice import InvoiceForm
 from bot.keyboards.backbuttons import BackButtons
 from bot.utils.state import StateUtils
-from bot.utils.bot_utils import BotUtils
 
 
 router = Router()
@@ -47,5 +46,4 @@ async def get_recipient_phone(message: Message, state: FSMContext):
         
     sent = await message.answer("🌆 Пожалуйста, укажите город получателя для доставки", reply_markup=await BackButtons.back_to_recipient_phone())
         
-    await state.update_data(last_bot_message=sent.message_id)
-        
+    await state.update_data(last_bot_message=sent.message_id)        

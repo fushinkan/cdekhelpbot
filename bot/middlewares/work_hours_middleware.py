@@ -4,6 +4,7 @@ from aiogram.types import TelegramObject
 import asyncio
 from datetime import datetime, time
 from typing import Callable, Dict, Any, Awaitable
+from zoneinfo import ZoneInfo
 
 
 class WorkHoursMiddleware(BaseMiddleware):
@@ -24,7 +25,7 @@ class WorkHoursMiddleware(BaseMiddleware):
         data: Dict[str, Any]
     ) -> Any:
 
-        if await self.is_work_time():
+        if not await self.is_work_time():
             return await handler(event, data)
 
         sent = await event.answer("График работы: ПН-ПТ с 9 до 18, СБ-ВС с 9:30 до 16:30")
@@ -43,15 +44,17 @@ class WorkHoursMiddleware(BaseMiddleware):
             bool: True, если время рабочее.
         """
         
-        now = datetime.now()
+        moscow_tz = ZoneInfo("Europe/Moscow")
+        now = datetime.now(tz=moscow_tz)
         current_time = now.time()
         weekday = now.weekday()
+        
         
         if 0 <= weekday <= 4:
             return time(9, 0) <= current_time <= time(18, 0)
         
         elif weekday in (5, 6):
-            return time(9, 30) <= current_time <= time(23, 30)
+            return time(9, 30) <= current_time <= time(16, 30)
         
         return False
             

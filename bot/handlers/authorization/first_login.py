@@ -1,4 +1,3 @@
-import httpx
 from aiogram import Router
 from aiogram.types import Message
 from aiogram.fsm.context import FSMContext
@@ -9,7 +8,8 @@ from bot.keyboards.backbuttons import BackButtons
 from bot.states.admin_auth import AdminAuth
 from bot.states.customer_auth import CustomerAuth
 from bot.utils.state import StateUtils
-from bot.utils.bot_utils import BotUtils
+
+import httpx
 
 
 router = Router()

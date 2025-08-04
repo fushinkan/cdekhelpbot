@@ -1,5 +1,3 @@
-import asyncio
-
 from aiogram.fsm.context import FSMContext
 from aiogram import F, Router
 from aiogram.types import CallbackQuery
@@ -9,6 +7,8 @@ from bot.states.invoice import  INVOICE_PROMPTS, STATE_MAP
 from bot.states.customer import CUSTOMER_PROMPTS, CUSTOMER_STATE_MAP
 from bot.keyboards.backbuttons import BackButtons
 from bot.utils.state import StateUtils
+
+import asyncio
 
 
 router = Router()

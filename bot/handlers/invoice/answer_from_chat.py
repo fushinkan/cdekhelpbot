@@ -1,4 +1,3 @@
-import httpx
 from aiogram import Router, F
 from aiogram.types import Message
 from aiogram.fsm.context import FSMContext
@@ -6,8 +5,10 @@ from aiogram.fsm.context import FSMContext
 from app.core.config import settings
 from bot.utils.state import StateUtils
 from bot.utils.exceptions import IncorrectFileNameException
-from bot.utils.bot_utils import BotUtils
 from bot.states.send_invoice import SendInvoice
+
+import httpx
+
 
 router = Router()
 

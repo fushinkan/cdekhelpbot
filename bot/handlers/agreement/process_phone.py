@@ -5,7 +5,6 @@ from aiogram.fsm.context import FSMContext
 from app.api.utils.normalize import Normalize
 from bot.states.contractor import Contractor
 from bot.utils.state import StateUtils
-from bot.utils.bot_utils import BotUtils
 from bot.utils.exceptions import IncorrectPhoneException
 from bot.keyboards.backbuttons import BackButtons
 

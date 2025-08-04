@@ -1,15 +1,12 @@
-from aiogram.exceptions import TelegramBadRequest
 from aiogram.fsm.context import FSMContext
 from aiogram import Router
 from aiogram.types import Message
-
 
 from bot.utils.validate import Validator
 from bot.utils.exceptions import IncorrectInsuranceException
 from bot.utils.state import StateUtils
 from bot.states.invoice import InvoiceForm
 from bot.keyboards.customer import CustomerKeyboards
-from bot.utils.bot_utils import BotUtils
 
 
 router = Router()
@@ -47,5 +44,4 @@ async def get_insurance_amount(message: Message, state: FSMContext):
     
     sent = await message.answer("🛠️ Добавить доп. услуги к заказу?", reply_markup=await CustomerKeyboards.extra_services())
     
-    await state.update_data(last_bot_message=sent.message_id)
-    
+    await state.update_data(last_bot_message=sent.message_id)    

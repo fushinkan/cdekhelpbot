@@ -33,5 +33,4 @@ async def get_recipient_city(message: Message, state: FSMContext):
     
     sent = await message.answer("📍 Отлично! Теперь укажите адрес получения/доставки", reply_markup=await BackButtons.back_to_recipient_city())
     
-    await state.update_data(last_bot_message=sent.message_id)
-    
+    await state.update_data(last_bot_message=sent.message_id)    

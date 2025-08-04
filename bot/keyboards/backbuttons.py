@@ -23,6 +23,7 @@ class BackButtons:
             [InlineKeyboardButton(text=text, callback_data=callback_data)]
         ])
     
+    
     @classmethod
     async def back_to_welcoming_screen(cls):
         """
@@ -33,6 +34,7 @@ class BackButtons:
         """
         
         return await cls.get_back_button(callback_data="back_to_welcoming_screen")
+    
     
     @classmethod 
     async def back_to_phone(cls):
@@ -45,6 +47,7 @@ class BackButtons:
         
         return await cls.get_back_button(callback_data="back_to_phone")
     
+    
     @classmethod
     async def go_back_to_phone(cls):
         """
@@ -55,6 +58,7 @@ class BackButtons:
         """ 
         
         return await cls.get_back_button(callback_data="go_back_to_phone")
+    
     
     @classmethod
     async def back_to_menu(cls):
@@ -67,6 +71,7 @@ class BackButtons:
         
         return await cls.get_back_button(callback_data="go_back_to_menu")
     
+    
     @classmethod
     async def back_to_departure_city(cls):
         """
@@ -77,6 +82,7 @@ class BackButtons:
         """
         
         return await cls.get_back_button(callback_data="go_back_to_city")
+    
     
     @classmethod
     async def back_to_departure_address(cls):
@@ -89,6 +95,7 @@ class BackButtons:
         
         return await cls.get_back_button(callback_data="go_back_to_address")
     
+    
     @classmethod
     async def back_to_recipient_phone(cls):
         """
@@ -99,6 +106,7 @@ class BackButtons:
         """
         
         return await cls.get_back_button(callback_data="go_back_to_recipient_phone")
+    
     
     @classmethod
     async def back_to_recipient_city(cls):
@@ -111,6 +119,7 @@ class BackButtons:
         
         return await cls.get_back_button(callback_data="go_back_to_recipient_city")
     
+    
     @classmethod
     async def back_to_recipient_address(cls):
         """
@@ -121,6 +130,7 @@ class BackButtons:
         """
         
         return await cls.get_back_button(callback_data="go_back_to_recipient_address")
+    
     
     @classmethod
     async def back_to_summary(cls):
@@ -133,6 +143,7 @@ class BackButtons:
             
         return await cls.get_back_button(callback_data="back_to_summary")
     
+    
     @classmethod
     async def back_to_contractor_phone(cls):
         """
@@ -143,6 +154,7 @@ class BackButtons:
         """
         
         return await cls.get_back_button(callback_data="back_to_contractor_phone")
+    
     
     @classmethod
     async def back_to_contractor_summary(cls):
@@ -155,6 +167,7 @@ class BackButtons:
         
         return await cls.get_back_button(callback_data="back_to_contractor_summary")
     
+    
     @classmethod
     async def back_to_customers(cls):
         """
@@ -165,6 +178,7 @@ class BackButtons:
         """
         
         return await cls.get_back_button(callback_data="customers")
+    
     
     @classmethod
     async def back_to_customer_contractor(cls):
@@ -177,6 +191,7 @@ class BackButtons:
         
         return await cls.get_back_button(callback_data="go_back_to_customer_contractor")
     
+    
     @classmethod
     async def back_to_customer_contract_number(cls):
         """
@@ -187,6 +202,7 @@ class BackButtons:
         """
         
         return await cls.get_back_button(callback_data="go_back_to_customer_contract_number")
+    
     
     @classmethod
     async def back_to_customer_city(cls):
@@ -199,6 +215,7 @@ class BackButtons:
         
         return await cls.get_back_button(callback_data="go_back_to_customer_city")
     
+    
     @classmethod
     async def back_to_customer_number(cls):
         """
@@ -209,6 +226,7 @@ class BackButtons:
         """
         
         return await cls.get_back_button(callback_data="go_back_to_customer_number")
+    
     
     @classmethod
     async def back_to_admin_panel(cls):
@@ -221,6 +239,7 @@ class BackButtons:
         
         return await cls.get_back_button(callback_data="admin_panel")
     
+    
     @classmethod
     async def back_to_customer_summary(cls):
         """
@@ -231,3 +250,15 @@ class BackButtons:
         """
         
         return await cls.get_back_button(callback_data="customer_summary")
+    
+    
+    @classmethod
+    async def back_to_tariffs(cls):
+        """
+        Возвращает пользователя ко всем тарифам.
+
+        Returns:
+            InlineKeyboardMarkup: Клавиатура с кнопкой для возврата ко всем тарифам.
+        """
+        
+        return await cls.get_back_button(callback_data="tariffs")

@@ -1,4 +1,3 @@
-import httpx
 from aiogram import Router
 from aiogram.types import Message
 from aiogram.fsm.context import FSMContext
@@ -7,13 +6,14 @@ from app.core.config import settings
 from app.api.utils.normalize import Normalize
 from bot.utils.exceptions import IncorrectPhoneException
 from bot.utils.state import StateUtils
-from bot.utils.bot_utils import BotUtils
 from bot.states.auth import Auth
 from bot.states.admin_auth import AdminAuth
 from bot.states.customer_auth import CustomerAuth
 from bot.handlers.authorization.first_login import first_client_login
 from bot.keyboards.backbuttons import BackButtons
 from bot.utils.exceptions import UserNotExistsException, RequestErrorException
+
+import httpx
 
 
 router = Router()

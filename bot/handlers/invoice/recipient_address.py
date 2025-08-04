@@ -34,4 +34,3 @@ async def get_recipient_address(message: Message, state: FSMContext):
     sent = await message.answer("🛡️ На какую сумму нужна страховка?", reply_markup=await BackButtons.back_to_recipient_address())
     
     await state.update_data(last_bot_message=sent.message_id)
-    

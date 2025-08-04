@@ -3,7 +3,6 @@ from aiogram.enums import ChatAction
 from aiogram import filters, types
 from aiogram import Router
 
-
 from bot.keyboards.customer import CustomerKeyboards
 from bot.keyboards.admin import AdminKeyboards
 from bot.middlewares.logging_middleware import LoggingMiddleware

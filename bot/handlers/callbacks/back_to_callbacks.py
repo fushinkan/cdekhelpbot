@@ -1,4 +1,3 @@
-import httpx
 from aiogram.fsm.context import FSMContext
 from aiogram import F, Router
 from aiogram.types import CallbackQuery
@@ -15,6 +14,7 @@ from bot.utils.exceptions import IncorrectPhoneException
 from bot.handlers.authorization.main_menu import proceed_to_main_menu
 from bot.states.state_map import get_prompt_for_state
 
+import httpx
 import asyncio
 
 
@@ -206,7 +206,7 @@ async def back_to_menu(callback: CallbackQuery, state: FSMContext):
             response.raise_for_status()
             
             user_data = response.json()
-            role = user_data.get("role", None)
+            role = user_data.get("role", "user")
         
         except httpx.HTTPError:
             await callback.message.answer("❌ Не удалось получить информацию о пользователе. Попробуйте позже.")
@@ -215,4 +215,3 @@ async def back_to_menu(callback: CallbackQuery, state: FSMContext):
         await state.clear()
         await state.update_data(phone=phone_number)
         await proceed_to_main_menu(role=role, user_data=user_data, message=callback.message)
-        

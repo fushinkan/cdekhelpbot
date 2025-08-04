@@ -1,15 +1,15 @@
-import httpx
 from aiogram import Router
 from aiogram.types import Message
 from aiogram.fsm.context import FSMContext
 
 from app.core.config import settings
-from bot.utils.bot_utils import BotUtils
 from bot.utils.state import StateUtils
 from bot.states.customer_auth import CustomerAuth
 from bot.handlers.authorization.main_menu import proceed_to_main_menu
 from bot.keyboards.backbuttons import BackButtons
 from bot.utils.exceptions import RequestErrorException, IncorrectPasswordException
+
+import httpx
 
 
 router = Router()

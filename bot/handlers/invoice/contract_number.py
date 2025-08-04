@@ -1,4 +1,3 @@
-import httpx
 from aiogram.fsm.context import FSMContext
 from aiogram import F, Router
 from aiogram.types import CallbackQuery
@@ -12,6 +11,7 @@ from bot.keyboards.backbuttons import BackButtons
 from bot.utils.state import StateUtils
 
 import asyncio
+import httpx
 
 
 router = Router()

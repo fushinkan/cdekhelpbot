@@ -44,4 +44,5 @@ class PhoneResponseSchema(BaseModel):
     id: int
     number: str
     
+    
     model_config = ConfigDict(from_attributes=True)

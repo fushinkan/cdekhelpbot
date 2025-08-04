@@ -15,6 +15,7 @@ class UserResponseSchema(BaseModel):
     
     model_config = ConfigDict(from_attributes=True)
 
+
 class PaginateUserResponse(BaseModel):
     total: int
     page: int
@@ -24,6 +25,7 @@ class PaginateUserResponse(BaseModel):
 
 
     model_config = ConfigDict(from_attributes=True)
+        
         
 class UserIDInputSchema(BaseModel):
     user_id: int

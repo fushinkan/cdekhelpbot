@@ -17,5 +17,6 @@ class CustomerResponseSchema(BaseModel):
     contract_number: str
     number: list[PhoneResponseSchema]
     
+    
     model_config = ConfigDict(from_attributes=True)
     

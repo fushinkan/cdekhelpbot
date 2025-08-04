@@ -1,4 +1,5 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 class CustomerKeyboards():
     """
@@ -47,3 +48,63 @@ class CustomerKeyboards():
             [InlineKeyboardButton(text="✏️ ИНН", callback_data="editt_contractor_tin_number"), InlineKeyboardButton(text="✏️ Номер телефона", callback_data="editt_contractor_phone")],
             [InlineKeyboardButton(text="✅ Заключить договор", callback_data="allow_agreement"), InlineKeyboardButton(text="❌ Отмена", callback_data="back_to_welcoming_screen")]
         ])
+        
+    
+    @classmethod
+    async def get_main_titles(cls, *, titles: list[str], data: dict):
+        keyboard = InlineKeyboardBuilder()
+        
+        for title in titles:
+            keyboard.add(
+                InlineKeyboardButton(
+                    text=title,
+                    callback_data=f"tariff:{title}"
+                )
+            )
+        
+        callback_data = "admin_panel" if data.get("role") == "admin" else "back_to_menu"
+        
+        keyboard.row(
+            InlineKeyboardButton(
+                text="⬅️ Назад",
+                callback_data=callback_data
+            )
+        )
+        
+        return keyboard.adjust(2).as_markup()
+    
+    
+    @classmethod
+    async def get_sub_titles(cls, *, subtitles: list[str]):
+        keyboard = InlineKeyboardBuilder()
+        
+        for sub in subtitles:
+            keyboard.add(
+                InlineKeyboardButton(
+                    text=sub,
+                    callback_data=f"subtariff:{sub}"
+                )
+            )
+        
+        keyboard.row(
+            InlineKeyboardButton(
+                text="⬅️ Назад",
+                callback_data="tariffs"
+            )
+        )    
+            
+        return keyboard.adjust(1).as_markup()
+    
+    
+    @classmethod
+    async def get_back_to_parent_tariff(cls, *, parent_tariff: str):
+        keyboard = InlineKeyboardBuilder()
+        
+        keyboard.add(
+            InlineKeyboardButton(
+                text=f"⬅️ Назад",
+                callback_data=f"tariff:{parent_tariff}"
+            )
+        )
+        
+        return keyboard.as_markup()

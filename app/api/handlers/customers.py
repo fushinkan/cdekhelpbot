@@ -6,6 +6,7 @@ from app.db.models.phone_numbers import PhoneNumbers
 from app.db.models.users import Users
 from bot.utils.exceptions import CustomerAlreadyExistsException
 
+
 class Customers:
     """
     Класс с пагинацией для получения всех клиентов для менеджера.
@@ -25,7 +26,7 @@ class Customers:
             per_page (int, optional): Лимит пользователей на странице. Defaults to 10.
 
         Returns:
-            _type_: _description_
+            Users, Func(COUNT): ORM-Модель Users и кол-во записей в ней.
         """
         
         offset = (page - 1) * per_page

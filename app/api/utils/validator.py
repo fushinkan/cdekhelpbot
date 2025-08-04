@@ -1,5 +1,6 @@
 import re
 
+
 class Validator:
     """
     Валидация данных в Telegram-боте.

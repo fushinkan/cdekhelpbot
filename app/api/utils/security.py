@@ -1,5 +1,6 @@
 import bcrypt
 
+
 class Security:
     """Класс с методами защиты в Telegtam-боте."""
     

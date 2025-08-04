@@ -1,6 +1,7 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
+
 class AdminKeyboards():
     """
     Клавиатуры администраторов.
@@ -18,10 +19,12 @@ class AdminKeyboards():
         return InlineKeyboardMarkup(inline_keyboard=[
             [InlineKeyboardButton(text="👥 Клиенты", callback_data="customers"), 
              InlineKeyboardButton(text="🆕 Добавить контрагента", callback_data="add_contractor")],
+            [InlineKeyboardButton(text="💰 Тарифы", callback_data="tariffs"), InlineKeyboardButton(text="➕ Услуги", callback_data="services")],
             [InlineKeyboardButton(text="👔 Добавить менеджера", callback_data="add_admin")], 
             [InlineKeyboardButton(text="⚙ Настройки", callback_data="settings")],
             [InlineKeyboardButton(text="🚪 Выйти", callback_data="back_to_welcoming_screen")]
         ])
+
 
     @classmethod
     async def send_answer(cls, user_id: int, username: str):
@@ -39,6 +42,7 @@ class AdminKeyboards():
             [InlineKeyboardButton(text="📤 Ответить", callback_data=f"answer_to_client:{user_id}:{username}"),
              InlineKeyboardButton(text="❌ Отменить", callback_data=f"reject_answer:{user_id}:{username}")]
         ])
+        
         
     @classmethod
     async def get_customers(cls, *, clients: list[dict], page: int, total_pages: int) -> InlineKeyboardMarkup:
@@ -97,6 +101,12 @@ class AdminKeyboards():
     
     @classmethod
     async def edit_or_confirm_customer(cls):
+        """
+        Клавиатура для редактирования сводки нового контрагента.
+
+        Returns:
+            InlineKeyboardMarkup: Клавиатура с кнопками для редактирования сводки контрагента.
+        """
         
         return InlineKeyboardMarkup(inline_keyboard=[
             [InlineKeyboardButton(text="✏️ Наименование контрагента", callback_data="edit_customer_contractor")],
@@ -106,5 +116,4 @@ class AdminKeyboards():
             
             [InlineKeyboardButton(text="✅ Подтвердить", callback_data="confirm_customer"), 
              InlineKeyboardButton(text="❌ Отмена", callback_data="cancel_customer")]
-        ])
-        
+        ])        

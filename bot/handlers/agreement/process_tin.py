@@ -6,9 +6,7 @@ from bot.states.contractor import Contractor
 from bot.utils.state import StateUtils
 from bot.utils.validate import Validator
 from bot.utils.exceptions import IncorrectTinNumberException
-from bot.utils.bot_utils import BotUtils
 from bot.utils.state import StateUtils
-from bot.states.invoice import InvoiceForm
 
 
 router = Router()

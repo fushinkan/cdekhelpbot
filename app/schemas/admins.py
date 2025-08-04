@@ -1,4 +1,5 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
+
 
 class AdminsResponseSchema(BaseModel):
     id: int
@@ -6,6 +7,6 @@ class AdminsResponseSchema(BaseModel):
     tg_name: str | None = None
     full_name: str
     phone_number: str
-    
-    class Config:
-        from_attributes = True
+
+
+    model_config = ConfigDict(from_attributes=True)

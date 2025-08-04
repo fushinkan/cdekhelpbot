@@ -1,16 +1,15 @@
-import httpx
 from aiogram import Router
 from aiogram.types import Message
 from aiogram.fsm.context import FSMContext
 
-from app.api.utils.security import Security
-from app.api.utils.validator import Validator
 from app.core.config import settings
 from bot.keyboards.backbuttons import BackButtons
 from bot.states.admin_auth import AdminAuth
 from bot.handlers.authorization.main_menu import proceed_to_main_menu
 from bot.utils.state import StateUtils
-from bot.utils.exceptions import RequestErrorException, InvalidPasswordException
+from bot.utils.exceptions import RequestErrorException
+
+import httpx
 
 
 router = Router()
@@ -94,5 +93,4 @@ async def confirm_password(message: Message, state: FSMContext):
         data = await StateUtils.prepare_next_state(obj=message, state=state)
                 
         await proceed_to_main_menu(role=user_data.get("role"), user_data=user_data, message=message)
-        await state.clear()
- 
+        await state.clear() 

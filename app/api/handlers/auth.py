@@ -16,6 +16,7 @@ class AuthService:
         IncorrectPasswordException: Кастомный класс с исключением.
         UserNotExistsException: Кастомный класс с исключением.
     """
+    
     _temp_passwords: dict[int, str] = {}
     
     @classmethod

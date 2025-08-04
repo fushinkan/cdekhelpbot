@@ -110,7 +110,7 @@ class UserInDB:
             Users | Admins: ORM-модель в зависимости от роли по переданному Telegram ID.
         """
         
-        admin_res= await session.execute(
+        admin_res = await session.execute(
             select(Admins)
             .where(Admins.telegram_id == telegram_id)
         )
