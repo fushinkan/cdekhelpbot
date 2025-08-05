@@ -1,7 +1,7 @@
 from aiogram.fsm.context import FSMContext
 from aiogram.enums import ChatAction
 from aiogram import filters, types
-from aiogram import Router
+from aiogram import Router, F
 
 from bot.keyboards.customer import CustomerKeyboards
 from bot.keyboards.admin import AdminKeyboards
@@ -103,3 +103,8 @@ async def chat_id(message: types.Message):
     
     chat_id = message.chat.id
     await message.answer(f"ID: {chat_id}")
+    
+@router.message(F.document)
+async def get_document_id(message: types.Message):
+    file_id = message.document.file_id
+    await message.answer(file_id)

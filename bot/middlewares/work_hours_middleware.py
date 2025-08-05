@@ -25,7 +25,7 @@ class WorkHoursMiddleware(BaseMiddleware):
         data: Dict[str, Any]
     ) -> Any:
 
-        if not await self.is_work_time():
+        if await self.is_work_time():
             return await handler(event, data)
 
         sent = await event.answer("График работы: ПН-ПТ с 9 до 18, СБ-ВС с 9:30 до 16:30")
@@ -51,10 +51,10 @@ class WorkHoursMiddleware(BaseMiddleware):
         
         
         if 0 <= weekday <= 4:
-            return time(9, 0) <= current_time <= time(18, 0)
+            return time(1, 0) <= current_time <= time(23, 0)
         
         elif weekday in (5, 6):
-            return time(9, 30) <= current_time <= time(16, 30)
+            return time(1, 0) <= current_time <= time(23, 0)
         
         return False
             
