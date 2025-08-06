@@ -62,4 +62,4 @@ CDEKBot облегчает повседневные задачи менедже�
 git clone https://github.com/fushinkan/cdekhelpbot
 cd /yourproject
 
-docker-compose up -d --build
+docker compose up -d --build
