@@ -1,4 +1,8 @@
 # Custom Exceptions
+class EmptyHistoryException(Exception):
+    """⚠️ История пуста! Нет ни одного заказа."""
+    
+    pass
 class TariffNotExistException(Exception):
     """💰 Тариф не найден"""
     

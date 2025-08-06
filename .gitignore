@@ -2,3 +2,4 @@
 __pycache__/
 .env
 api/setup_db.py
+backup.sql

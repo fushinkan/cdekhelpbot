@@ -31,7 +31,7 @@ async def show_main_tariffs_bot_handler(callback: CallbackQuery, state: FSMConte
             response.raise_for_status()
             main_titles = response.json()
             
-            # Получение роли пользователя
+            # Получение пользователя для возврата главного меню по роли
             resp_user = await client.get(f"{settings.BASE_FASTAPI_URL}/user/telegram/{callback.from_user.id}")
             resp_user.raise_for_status()
             user_data = resp_user.json()
@@ -44,7 +44,7 @@ async def show_main_tariffs_bot_handler(callback: CallbackQuery, state: FSMConte
 
     sent = await callback.message.edit_text(
         tariff_text,
-        reply_markup=await CustomerKeyboards.get_main_titles(titles=main_titles, data=user_data),
+        reply_markup=await CustomerKeyboards.get_main_titles(titles=main_titles, data=user_data, callback_prefix="tariff"),
         parse_mode="HTML"
     )
     
@@ -64,7 +64,7 @@ async def get_tariff_description_bot_handler(callback: CallbackQuery, state: FSM
     title = callback.data.removeprefix("tariff:")  
 
     async with httpx.AsyncClient() as client:
-        if title.lower() == "доставка до маркетплейсов":
+        if title.lower() == "«доставка до маркетплейсов»":
 
             try:
                 # Получение списка подвариантов
@@ -76,12 +76,7 @@ async def get_tariff_description_bot_handler(callback: CallbackQuery, state: FSM
                 resp_main = await client.get(rf"{settings.BASE_FASTAPI_URL}/tariffs/{title}")
                 resp_main.raise_for_status()
                 main_desc = resp_main.json().get("description", "Описание отсутствует.")
-                
-                # Получение роли пользователя
-                resp_user = await client.get(f"{settings.BASE_FASTAPI_URL}/user/telegram/{callback.from_user.id}")
-                resp_user.raise_for_status()
-                role = resp_user.json().get("role")
-                
+
             except httpx.HTTPStatusError as e:
                 sent = await callback.message.answer(f"Ошибка при получении данных: {e}")
                 await asyncio.sleep(5)
@@ -90,7 +85,7 @@ async def get_tariff_description_bot_handler(callback: CallbackQuery, state: FSM
 
             sent = await callback.message.edit_text(
                 text=main_desc,
-                reply_markup=await CustomerKeyboards.get_sub_titles(subtitles=sub_titles),
+                reply_markup=await CustomerKeyboards.get_sub_titles(subtitles=sub_titles, callback_prefix="subtariff"),
                 parse_mode="HTML"
             )
             
@@ -135,6 +130,7 @@ async def get_sub_tariff_title_bot_handler(callback: CallbackQuery, state: FSMCo
             resp_sub_title = await client.get(f"{settings.BASE_FASTAPI_URL}/tariffs/{sub_title}")
             resp_sub_title.raise_for_status()
             description = resp_sub_title.json().get("description", "Описание отсутствует")
+            
         except httpx.HTTPStatusError as e:
             sent = await callback.message.answer(f"Ошибка при при получении описания тарифа: {sub_title} - {e}")
             await asyncio.sleep(5)
@@ -143,7 +139,7 @@ async def get_sub_tariff_title_bot_handler(callback: CallbackQuery, state: FSMCo
 
     sent = await callback.message.edit_text(
         description,
-        reply_markup=await CustomerKeyboards.get_back_to_parent_tariff(parent_tariff="Доставка до маркетплейсов"),
+        reply_markup=await CustomerKeyboards.get_back_to_parent_tariff(parent_tariff="«Доставка до маркетплейсов»"),
         parse_mode='HTML'
     )
     

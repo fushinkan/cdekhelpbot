@@ -20,7 +20,6 @@ class AdminKeyboards():
             [InlineKeyboardButton(text="👥 Клиенты", callback_data="customers"), 
              InlineKeyboardButton(text="🆕 Добавить контрагента", callback_data="add_contractor")],
             [InlineKeyboardButton(text="💰 Тарифы", callback_data="tariffs"), InlineKeyboardButton(text="➕ Услуги", callback_data="services")],
-            [InlineKeyboardButton(text="👔 Добавить менеджера", callback_data="add_admin")], 
             [InlineKeyboardButton(text="⚙ Настройки", callback_data="settings")],
             [InlineKeyboardButton(text="🚪 Выйти", callback_data="back_to_welcoming_screen")]
         ])

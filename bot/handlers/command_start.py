@@ -8,6 +8,7 @@ from bot.keyboards.admin import AdminKeyboards
 from bot.middlewares.logging_middleware import LoggingMiddleware
 from bot.middlewares.work_hours_middleware import WorkHoursMiddleware
 from bot.keyboards.basic import BasicKeyboards
+from bot.handlers.authorization.main_menu import proceed_to_main_menu
 
 import asyncio
 
@@ -42,16 +43,8 @@ async def cmd_start(message: types.Message, state: FSMContext, **data: dict):
     if is_logged and user_obj:
         if role == "admin":
             
-            sent = await message.answer((
-                f"👋 Здравствуйте, {user_obj["contractor"]}\n\n"
-                "Добро пожаловать в панель управления.\n"
-                "Здесь вы можете управлять пользователями и контролировать систему.\n"
-                "Выберите нужный пункт меню, чтобы начать работу."
-            ), reply_markup=await AdminKeyboards.get_admin_kb())
-            
-            await asyncio.sleep(1)
-            await message.delete()
-            
+            sent = await proceed_to_main_menu(role=role, user_data=user_obj, message=message)
+            await state.update_data(last_bot_message=sent.message_id)
             return
         
         elif role == "user":
@@ -59,17 +52,9 @@ async def cmd_start(message: types.Message, state: FSMContext, **data: dict):
                 await state.update_data(phone=user_obj["phones"][0]["number"])
             else:
                 await state.update_data(phone=None)
-                
-            sent = await message.answer((
-                "👋 Приветствую!\n\n"
-                "Здесь ты можешь быстро оформить накладную, подобрать тарифы и подключить дополнительные услуги. 🚀\n"
-                "Не нужно ломать голову — просто выбери, что нужно, и я всё сделаю быстро и без лишних хлопот! 💼✨\n"
-                "Если возникнут вопросы — пиши, всегда рад помочь! 😊👍"
-            ), reply_markup=await CustomerKeyboards.customer_kb())
-            
-            await asyncio.sleep(1)
-            await message.delete()
-            
+
+            sent = await proceed_to_main_menu(role=role, user_data=user_obj, message=message)
+            await state.update_data(last_bot_message=sent.message_id)
             return
 
     welcoming_text = (
@@ -104,7 +89,7 @@ async def chat_id(message: types.Message):
     chat_id = message.chat.id
     await message.answer(f"ID: {chat_id}")
     
-@router.message(F.document)
-async def get_document_id(message: types.Message):
-    file_id = message.document.file_id
-    await message.answer(file_id)
+#@router.message(F.document)
+#async def get_document_id(message: types.Message):
+#    file_id = message.document.file_id
+#    await message.answer(file_id)

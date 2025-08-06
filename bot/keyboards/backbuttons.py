@@ -262,3 +262,15 @@ class BackButtons:
         """
         
         return await cls.get_back_button(callback_data="tariffs")
+    
+    
+    @classmethod
+    async def back_to_services(cls):
+        """
+        Возвращает пользователя ко всем услугам
+
+        Returns:
+            InlineKeyboardMarkup: Клавиатура с кнопкой для возврата ко всем услугам.
+        """
+        
+        return await cls.get_back_button(callback_data="services")
