@@ -43,6 +43,7 @@ async def cmd_start(message: types.Message, state: FSMContext, **data: dict):
     if is_logged and user_obj:
         if role == "admin":
             
+            await message.delete()
             sent = await proceed_to_main_menu(role=role, user_data=user_obj, message=message)
             await state.update_data(last_bot_message=sent.message_id)
             return
@@ -53,6 +54,7 @@ async def cmd_start(message: types.Message, state: FSMContext, **data: dict):
             else:
                 await state.update_data(phone=None)
 
+            await message.delete()
             sent = await proceed_to_main_menu(role=role, user_data=user_obj, message=message)
             await state.update_data(last_bot_message=sent.message_id)
             return
