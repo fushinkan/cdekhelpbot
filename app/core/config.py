@@ -8,7 +8,6 @@ class Settings(BaseSettings):
     
     # Telegram settings
     SECRET_TOKEN: str
-    ADMIN_ID: int
     INVOICE_CHAT_ID: int
     
     # Redis URL
