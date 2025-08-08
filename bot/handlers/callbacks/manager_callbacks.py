@@ -14,6 +14,8 @@ import httpx
 
 router = Router()
 
+pending_pdf_sends = {}  # key: manager_telegram_id, value: dict с info для отправки
+
 
 @router.callback_query(F.data == "confirm")
 async def send_invoice_summary(callback: CallbackQuery, state: FSMContext):
@@ -35,7 +37,7 @@ async def send_invoice_summary(callback: CallbackQuery, state: FSMContext):
     await StateUtils.send_summary(
         message=callback,
         data=data,
-        chat_id=settings.INVOICE_CHAT_ID
+        for_admin=True
     )
     
     await callback.answer("✅ Данные отправлены менеджеру.")
@@ -58,7 +60,7 @@ async def send_contractor_summary(callback: CallbackQuery, state: FSMContext):
     await StateUtils.send_contractor_summary(
         message=callback,
         data=data,
-        chat_id=settings.INVOICE_CHAT_ID
+        for_admin=True
     )
     
     sent = await callback.message.answer(
@@ -81,7 +83,8 @@ async def handle_answer_invoice(callback: CallbackQuery, state: FSMContext):
         callback (CallbackQuery): Объект callback-запроса от пользователя.
         state (FSMContext): Текущее состояние FSM и данные пользователя.
     """
-    
+
+
     user_id = int(callback.data.split(":")[1])
     username = callback.data.split(":")[2]
     
@@ -89,8 +92,12 @@ async def handle_answer_invoice(callback: CallbackQuery, state: FSMContext):
         text="📎 Пришлите PDF-файл с накладной для клиента.",
     )
     
-    await state.set_state(SendInvoice.waiting_for_invoice)
-    await state.update_data(user_id=user_id, username=username, last_bot_message=sent.message_id)
+    
+    pending_pdf_sends[callback.from_user.id] = {
+        "user_id": user_id,
+        "username": username
+    }
+    
 
     await callback.answer()
     

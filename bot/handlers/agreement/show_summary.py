@@ -21,6 +21,6 @@ async def show_contractor_summary(message: Message, state: FSMContext):
     
     data = await StateUtils.prepare_next_state(obj=message, state=state)
 
-    sent = await StateUtils.get_contractor_summary(message=message, data=data)
+    sent = await StateUtils.send_contractor_summary(message=message, data=data, for_admin=False)
     
     await state.update_data(last_bot_message=sent.message_id)

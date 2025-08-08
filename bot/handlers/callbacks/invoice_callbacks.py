@@ -21,7 +21,7 @@ async def no_extra_services(callback: CallbackQuery, state: FSMContext):
     """
     
     data = await StateUtils.prepare_next_state(obj=callback, state=state)  
-    sent = await StateUtils.get_summary(message=callback.message, data=data)
+    sent = await StateUtils.send_summary(message=callback.message, data=data, for_admin=False)
     
     await state.set_state(InvoiceForm.confirmation)
     await state.update_data(last_bot_message=sent.message_id)

@@ -2,13 +2,13 @@ from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
 from aiogram.exceptions import TelegramBadRequest
 
+from app.core.config import settings
 from bot.utils.bot_utils import BotUtils
 from bot.states.invoice import InvoiceForm
 from bot.states.invoice import INVOICE_STATE
 from bot.states.customer import CUSTOMER_STATE
 from bot.keyboards.admin import AdminKeyboards
 from bot.keyboards.customer import CustomerKeyboards
-from bot.keyboards.backbuttons import BackButtons
 
 import asyncio
 from typing import Union
@@ -19,7 +19,6 @@ class StateUtils():
     """
     Управление состоянием пользователя в Telegram-боте.
     """
-    
 
     @classmethod
     async def show_customer_summary(cls, *, message: Message, data: dict):
@@ -47,7 +46,7 @@ class StateUtils():
         return sent
     
     @classmethod
-    async def get_contractor_summary(cls, *, message: Message, data: dict):
+    async def format_contractor_summary(cls, *, message: Message, data: dict, for_admin: bool):
         """
         Отправляет пользователю сводку введённых данных.
 
@@ -59,18 +58,20 @@ class StateUtils():
             Message: Отправленное сообщение со сводкой.
         """
         
-        contractor_summary = (
-            f"💼 <b>Перед отправкой проверьте данные внимательно!</b>\n\n"
+        if for_admin:
+            header = f"💼 <b>Связаться по поводу заключения договора с @{data.get('username')}!</b>"
+        
+        else:
+            header = f"💼 <b>Перед отправкой проверьте данные внимательно!</b>"
+        
+        return (
+            f"{header}\n\n"
             f"🧾 ИНН: {data.get('tin_number')}\n"
             f"📱 Номер телефона: {data.get('phone')}"
         )
-        
-        sent = await message.answer(contractor_summary, reply_markup= await CustomerKeyboards.edit_or_confirm_agreement(), parse_mode="HTML")
-        
-        return sent
     
     @classmethod
-    async def send_contractor_summary(cls, *, message: Message | CallbackQuery, data: dict, chat_id: int):
+    async def send_contractor_summary(cls, *, message: Message | CallbackQuery, data: dict, for_admin: bool):
         """
         Отправляет сводку с данными накладной в указанный чат.
 
@@ -83,18 +84,20 @@ class StateUtils():
             Message: Отправленное сообщение в чат.
         """
         
-        contractor_summary = (
-            f"💼 <b>Связаться по поводу заключения договора с @{data.get('user_full_name')}!</b>\n\n"
-            f"🧾 ИНН: {data.get('tin_number')}\n"
-            f"📱 Номер телефона: {data.get('phone')}"
-        )
+        summary = await cls.format_contractor_summary(data=data, message=message, for_admin=for_admin)
         
-        sent = await message.bot.send_message(chat_id=chat_id, text=contractor_summary, parse_mode="HTML", reply_markup=await AdminKeyboards.send_answer(user_id=data.get("user_id"), username=data.get("username")))
+        if for_admin:
+            chat_id = settings.INVOICE_CHAT_ID        
+            sent = await message.bot.send_message(chat_id=chat_id, text=summary, parse_mode="HTML")
+                #reply_markup=await AdminKeyboards.send_answer(user_id=data.get("user_id"), username=data.get("username")))
         
+        else:
+            sent = await message.answer(summary, reply_markup=await CustomerKeyboards.edit_or_confirm_agreement(), parse_mode="HTML")
+
         return sent
-    
+        
     @classmethod
-    async def get_summary(cls, *, message: Message, data: dict):
+    async def format_summary(cls, *, message: Message, data: dict, for_admin: bool):
         """
         Отправляет пользователю сводку введённых данных.
 
@@ -106,23 +109,27 @@ class StateUtils():
             Message: Отправленное сообщение со сводкой.
         """
         
-        summary = (
-            f"📦 <b>Перед отправкой проверьте данные внимательно!</b>\n\n"
+        if for_admin:
+            header = f"📦 <b>Создать накладную для @{data.get('user_full_name')}</b>"
+        
+        else:
+            header = f"📦 <b>Перед отправкой проверьте данные внимательно!</b>"
+        
+        return (
+            f"{header}\n\n"
             f"📄 Номер договора: {data.get('contract_number')}\n"
             f"🚚 Город отправления: {data.get('departure_city')}\n"
             f"🏠 Адрес отправления: {data.get('departure_address')}\n"
             f"📞 Номер получателя: {data.get('recipient_phone')}\n"
             f"🏙️ Город получателя: {data.get('recipient_city')}\n"
             f"🏡 Адрес доставки: {data.get('recipient_address')}\n"
-            f"💰 Сумма страхования: {data.get('insurance_amount')} ₽"
+            f"💰 Сумма страхования: {data.get('insurance_amount')} ₽\n"
+            f"➕ Доп.услуги: {data.get('extra', 'Нет')}"
         )
 
-        sent = await message.answer(summary, reply_markup=await CustomerKeyboards.edit_or_confirm(), parse_mode="HTML")
-        
-        return sent
     
     @classmethod
-    async def send_summary(cls, *, message: Message | CallbackQuery, data: dict, chat_id: int):
+    async def send_summary(cls, *, message: Message | CallbackQuery, data: dict, for_admin: bool):
         """
         Отправляет сводку с данными накладной в указанный чат.
 
@@ -135,18 +142,14 @@ class StateUtils():
             Message: Отправленное сообщение в чат.
         """
         
-        summary = (
-            f"📦 <b>Создать накладную для @{data.get('user_full_name')}</b>\n\n"
-            f"📄 Номер договора: {data.get('contract_number')}\n"
-            f"🚚 Город отправления: {data.get('departure_city')}\n"
-            f"🏠 Адрес отправления: {data.get('departure_address')}\n"
-            f"📞 Номер получателя: {data.get('recipient_phone')}\n"
-            f"🏙️ Город получателя: {data.get('recipient_city')}\n"
-            f"🏡 Адрес доставки: {data.get('recipient_address')}\n"
-            f"💰 Сумма страхования: {data.get('insurance_amount')} ₽"
-        )
+        summary = await cls.format_summary(data=data, for_admin=for_admin, message=message)
 
-        sent = await message.bot.send_message(chat_id=chat_id, text=summary, parse_mode="HTML", reply_markup=await AdminKeyboards.send_answer(user_id=data.get("user_id"), username=data.get("username")))
+        if for_admin:
+            chat_id = settings.INVOICE_CHAT_ID
+            sent = await message.bot.send_message(chat_id=chat_id, text=summary, parse_mode="HTML", 
+                                                  reply_markup=await AdminKeyboards.send_answer(user_id=data.get("user_id"), username=data.get("username")))
+        else:
+            sent = await message.answer(text=summary, reply_markup=await CustomerKeyboards.edit_or_confirm(), parse_mode="HTML")
         
         return sent
     
@@ -269,9 +272,9 @@ class StateUtils():
             current_state = await state.get_state()
             
             if current_state and current_state.startswith("InvoiceForm:"):
-                updated_summary = await StateUtils.get_summary(message=message, data=updated_data)
+                updated_summary = await StateUtils.send_summary(message=message, data=updated_data, for_admin=False)
             elif current_state and current_state.startswith("Contractor:"):
-                updated_summary = await StateUtils.get_contractor_summary(message=message, data=updated_data)
+                updated_summary = await StateUtils.send_contractor_summary(message=message, data=updated_data, for_admin=False)
             elif current_state and current_state.startswith("Customer:") :
                 updated_summary = await StateUtils.show_customer_summary(message=message, data=updated_data)            
             

@@ -6,6 +6,7 @@ from app.core.config import settings
 from bot.utils.state import StateUtils
 from bot.utils.exceptions import IncorrectFileNameException
 from bot.states.send_invoice import SendInvoice
+from bot.handlers.callbacks.manager_callbacks import pending_pdf_sends
 
 import httpx
 
@@ -13,44 +14,30 @@ import httpx
 router = Router()
 
 
-@router.message(SendInvoice.waiting_for_invoice, F.document)
-async def handle_invoice_upload(message: Message, state: FSMContext):
-    """
-    Отвечает пользователю файлом PDF из чата с менеджерами.
+@router.message(F.document.mime_type == "application/pdf")
+async def handle_invoice_upload(message: Message):
+    manager_id = message.from_user.id
+    if manager_id not in pending_pdf_sends:
+        return await message.answer("❗ У вас нет активной задачи на отправку PDF.")
 
-    Args:
-        message (Message): Сводка приходящая от пользователя
-        state (FSMContext): Контейнер для хранения и управления состоянием пользователя в процессе ответа в виде файла.
+    task = pending_pdf_sends[manager_id]
+    user_id = task["user_id"]
+    username = task["username"]
 
-    Returns:
-        Message: Предупреждает менеджера о том, что ответ должен быть в формате PDF
-    """
-    
-    data = await StateUtils.prepare_next_state(obj=message, state=state)
-    tg_id = data.get("user_id")
-    username = data.get("username")
-    
     document = message.document
     file_name = document.file_name
 
-    
+    # Валидация имени файла (как у тебя)
     try:
         parts = file_name.replace(".pdf", "").split("-")
         departure_city, recipient_city, invoice_number = parts
-        data = await StateUtils.prepare_next_state(obj=message, state=state)
-    except (IncorrectFileNameException, ValueError) as e:
-        data = await StateUtils.prepare_next_state(obj=message, state=state)
-        sent = await message.answer(str(IncorrectFileNameException(IncorrectFileNameException.__doc__)), parse_mode="HTML")
-        await state.update_data(error_message=sent.message_id)
-        
-        return
-        
-    if document.mime_type != "application/pdf":
-        return await message.answer("❗ Пожалуйста, отправьте файл в формате PDF.")
+    except Exception:
+        return await message.answer("❗ Неверное имя файла. Ожидается формат: departure-recipient-invoice.pdf")
 
+    # Тут можно сделать запросы в API, как у тебя
     async with httpx.AsyncClient() as client:
         try:
-            response_user = await client.get(f"{settings.BASE_FASTAPI_URL}/user/telegram/{tg_id}")
+            response_user = await client.get(f"{settings.BASE_FASTAPI_URL}/user/telegram/{user_id}")
             response_user.raise_for_status()
             user_data = response_user.json()
 
@@ -63,18 +50,20 @@ async def handle_invoice_upload(message: Message, state: FSMContext):
                     "telegram_file_id": document.file_id
                 }
             )
-            
             response_save_invoice.raise_for_status()
-            
+
         except httpx.HTTPError as e:
-            await message.answer(str(e))
-            return
-        
+            return await message.answer(f"Ошибка при сохранении накладной: {str(e)}")
+
+    # Отправляем клиенту
     await message.bot.send_document(
-        chat_id=tg_id,
+        chat_id=user_id,
         document=document.file_id,
         caption="📄 Ваша накладная готова!"
     )
 
+    # Подтверждаем менеджеру
     await message.answer(f"✅ Накладная успешно отправлена пользователю @{username}")
-    await state.clear()
+
+    # Убираем задачу из ожиданий
+    del pending_pdf_sends[manager_id]

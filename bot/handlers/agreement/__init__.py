@@ -10,5 +10,4 @@ router = Router()
 router.include_routers(
     pp_router,
     pt_router,
-    #sd_router
 )

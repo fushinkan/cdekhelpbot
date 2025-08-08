@@ -51,7 +51,7 @@ class Validator:
     async def correct_tin_number_validator(cls, *, text: str) -> bool:
         """Проверяет совпадение введенного ИНН с паттерном"""
         
-        return bool(cls.TIN_NUMBER.fullmatch(text)) and len(text) in (10, 15)
+        return bool(cls.TIN_NUMBER.fullmatch(text)) and 10<= len(text) <= 15
     
     @classmethod
     async def correct_agreement(cls, *, text: str) -> bool:
