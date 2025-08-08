@@ -12,8 +12,7 @@ from bot.keyboards.customer import CustomerKeyboards
 
 import asyncio
 from typing import Union
-import logging
-logger = logging.getLogger(__name__)
+
 
 # Объединяем множества состояний
 ALL_STATES_SET = INVOICE_STATE | CUSTOMER_STATE  # множество объединенных состояний
@@ -191,16 +190,13 @@ class StateUtils():
         history = data.get("state_history", [])
 
         if not history:
-            logger.info("pop_state_from_history: История состояний пуста, откат невозможен.")
             return None
 
         # Удаляем текущее состояние из истории
-        removed_state = history.pop()
-        logger.info(f"pop_state_from_history: Удалено текущее состояние из истории: {removed_state}")
+        history.pop()
 
         if not history:
             # Если после удаления истории нет — обновляем данные и возвращаем None
-            logger.info("pop_state_from_history: История после удаления пуста, состояние не откатывается.")
             await state.update_data(state_history=history)
             return None
 
@@ -210,14 +206,13 @@ class StateUtils():
 
         if prev_state is None:
             # Если состояние не найдено — очистить историю, вернуть None
-            logger.warning(f"pop_state_from_history: Состояние '{prev_state_str}' не найдено в ALL_STATES, история очищена.")
             await state.update_data(state_history=[])
             return None
 
         # Устанавливаем предыдущее состояние и обновляем историю
         await state.set_state(prev_state)
         await state.update_data(state_history=history)
-        logger.info(f"pop_state_from_history: Откат к состоянию '{prev_state_str}' выполнен.")
+
         return prev_state
 
     
