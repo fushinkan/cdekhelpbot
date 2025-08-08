@@ -28,7 +28,8 @@ class InvoiceForm(StatesGroup):
     recipient_city = State()
     recipient_address = State()
     insurance_amount = State()
-    confirmation = State()
+    extra_services = State()
+    #confirmation = State()
     editing_field = State()
     
     
@@ -39,6 +40,8 @@ INVOICE_STATE = {
     InvoiceForm.recipient_phone,
     InvoiceForm.recipient_city,
     InvoiceForm.recipient_address,
+    InvoiceForm.insurance_amount,
+    InvoiceForm.extra_services
 }
 
 
@@ -49,7 +52,7 @@ INVOICE_PROMPTS = {
     InvoiceForm.recipient_city.state: ("🌆 Пожалуйста, укажите город получателя для доставки", BackButtons.back_to_recipient_phone),
     InvoiceForm.recipient_address.state: ("📍 Укажите адрес получения/доставки", BackButtons.back_to_recipient_city),
     InvoiceForm.insurance_amount.state: ("🛡️ На какую сумму нужна страховка?", BackButtons.back_to_recipient_address),
-    InvoiceForm.confirmation.state: ("🛠️ Добавить доп. услуги к заказу?", CustomerKeyboards.extra_services), 
+    InvoiceForm.extra_services.state: ("🛠️ Пожалуйста, введите дополнительные услуги", BackButtons.back_to_insurance_amount)
 }
 
 
@@ -60,4 +63,5 @@ STATE_MAP = {
     "recipient_city": InvoiceForm.recipient_city,
     "recipient_address": InvoiceForm.recipient_address,
     "insurance_amount": InvoiceForm.insurance_amount,
+    "extra_services": InvoiceForm.extra_services
 }

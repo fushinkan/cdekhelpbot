@@ -32,6 +32,7 @@ class CustomerKeyboards():
             [InlineKeyboardButton(text="✏️ Город отправления", callback_data="edit_invoice_departure_city"), InlineKeyboardButton(text="✏️ Город получателя", callback_data="edit_invoice_recipient_city")],
             [InlineKeyboardButton(text="✏️ Адрес отправления", callback_data="edit_invoice_departure_address"), InlineKeyboardButton(text="✏️ Адрес доставки", callback_data="edit_invoice_recipient_address")],
             [InlineKeyboardButton(text="✏️ Телефон получателя", callback_data="edit_invoice_recipient_phone"), InlineKeyboardButton(text="✏️ Сумма страховки", callback_data="edit_invoice_insurance_amount")],
+            [InlineKeyboardButton(text="✏️ Доп. услуги", callback_data="edit_invoice_extra_services")],
             
             [InlineKeyboardButton(text="✅ Подтвердить", callback_data="confirm"), 
              InlineKeyboardButton(text="❌ Отмена", callback_data="cancel")]

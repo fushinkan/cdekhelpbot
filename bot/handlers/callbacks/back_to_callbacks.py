@@ -154,10 +154,10 @@ async def back_to_summary(callback: CallbackQuery, state: FSMContext):
     
     data = await StateUtils.prepare_next_state(obj=callback, state=state)
         
-    await state.set_state(InvoiceForm.confirmation)
+
     await state.update_data(editing_field=None)
 
-    await StateUtils.get_summary(message=callback.message, data=data)
+    await StateUtils.send_summary(message=callback.message, data=data, for_admin=False)
 
 
 @router.callback_query(F.data == "back_to_contractor_phone")

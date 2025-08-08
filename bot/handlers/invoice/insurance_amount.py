@@ -40,7 +40,7 @@ async def get_insurance_amount(message: Message, state: FSMContext):
     if await StateUtils.edit_invoice_or_data(data=data, message=message, state=state):
         return
 
-    await state.set_state(InvoiceForm.confirmation)
+    await StateUtils.push_state_to_history(state=state, new_state=InvoiceForm.insurance_amount)
     
     sent = await message.answer("🛠️ Добавить доп. услуги к заказу?", reply_markup=await CustomerKeyboards.extra_services())
     

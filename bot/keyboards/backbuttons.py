@@ -133,6 +133,18 @@ class BackButtons:
     
     
     @classmethod
+    async def back_to_insurance_amount(cls):
+        """
+        Формирует клавиатуру для возврата к изменению суммы страховки
+
+        Returns:
+            InlineKeyboardMarkup: Клавиатура с кнопкой для возврата к изменению суммы страховки.
+        """
+
+        return await cls.get_back_button(callback_data="go_back_to_insurance_amount")
+    
+    
+    @classmethod
     async def back_to_summary(cls):
         """
         Формирует клавиатуру для возврата к сводке заказа.

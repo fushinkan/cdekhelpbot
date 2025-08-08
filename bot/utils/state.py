@@ -12,8 +12,15 @@ from bot.keyboards.customer import CustomerKeyboards
 
 import asyncio
 from typing import Union
+import logging
+logger = logging.getLogger(__name__)
 
-ALL_STATES = list(INVOICE_STATE) + list(CUSTOMER_STATE)
+# Объединяем множества состояний
+ALL_STATES_SET = INVOICE_STATE | CUSTOMER_STATE  # множество объединенных состояний
+
+# Строим словарь для быстрого поиска по строковому имени состояния
+ALL_STATES = {state: state for state in ALL_STATES_SET}
+
 
 class StateUtils():
     """
@@ -89,7 +96,6 @@ class StateUtils():
         if for_admin:
             chat_id = settings.INVOICE_CHAT_ID        
             sent = await message.bot.send_message(chat_id=chat_id, text=summary, parse_mode="HTML")
-                #reply_markup=await AdminKeyboards.send_answer(user_id=data.get("user_id"), username=data.get("username")))
         
         else:
             sent = await message.answer(summary, reply_markup=await CustomerKeyboards.edit_or_confirm_agreement(), parse_mode="HTML")
@@ -178,28 +184,42 @@ class StateUtils():
             state (FSMContext): Текущее состояние FSM.
 
         Returns:
-            InvoiceForm | None: Предыдущее состояние или None, если истории нет.
+            InvoiceForm.State | None: Предыдущее состояние или None, если истории нет.
         """
         
         data = await state.get_data()
         history = data.get("state_history", [])
-        
-        if history:
-            history.pop()
-            
-            if history:
-                prev_state = history[-1]
-                
-                for st in ALL_STATES:
-                    if st == prev_state:
-                        await state.set_state(st)
-                        await state.update_data(state_history=history)
-                        return st
-                    
-            else:
-                await state.update_data(state_history=history)
-                
-        return None
+
+        if not history:
+            logger.info("pop_state_from_history: История состояний пуста, откат невозможен.")
+            return None
+
+        # Удаляем текущее состояние из истории
+        removed_state = history.pop()
+        logger.info(f"pop_state_from_history: Удалено текущее состояние из истории: {removed_state}")
+
+        if not history:
+            # Если после удаления истории нет — обновляем данные и возвращаем None
+            logger.info("pop_state_from_history: История после удаления пуста, состояние не откатывается.")
+            await state.update_data(state_history=history)
+            return None
+
+        prev_state_str = history[-1]
+        prev_state = ALL_STATES.get(prev_state_str)
+
+
+        if prev_state is None:
+            # Если состояние не найдено — очистить историю, вернуть None
+            logger.warning(f"pop_state_from_history: Состояние '{prev_state_str}' не найдено в ALL_STATES, история очищена.")
+            await state.update_data(state_history=[])
+            return None
+
+        # Устанавливаем предыдущее состояние и обновляем историю
+        await state.set_state(prev_state)
+        await state.update_data(state_history=history)
+        logger.info(f"pop_state_from_history: Откат к состоянию '{prev_state_str}' выполнен.")
+        return prev_state
+
     
     
     @classmethod
