@@ -4,7 +4,6 @@ from aiogram.fsm.context import FSMContext
 
 from app.core.config import settings
 from bot.utils.state import StateUtils
-from bot.states.send_invoice import SendInvoice
 from bot.keyboards.admin import AdminKeyboards
 from bot.keyboards.backbuttons import BackButtons
 

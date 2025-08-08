@@ -7,6 +7,7 @@ from bot.handlers.callbacks.edit_field_callbacks import router as edit_field_rou
 from bot.handlers.callbacks.manager_callbacks import router as send_router 
 from bot.handlers.callbacks.add_customer_callbacks import router as add_customer_router
 from bot.handlers.callbacks.client_callbacks import router as client_router
+from bot.handlers.callbacks.merch_callbacks import router as merch_callbacks_router
 
 
 router = Router()
@@ -19,5 +20,6 @@ router.include_routers(
     edit_field_router,
     send_router,
     add_customer_router,
-    client_router
+    client_router,
+    merch_callbacks_router
 )

@@ -1,7 +1,5 @@
 from aiogram import Router
 
-
-
 from bot.handlers.invoice.contract_number import router as cn_router 
 from bot.handlers.invoice.departure_address import router as da_router
 from bot.handlers.invoice.departure_city import router as dc_router
@@ -14,6 +12,7 @@ from bot.handlers.invoice.extra_services import router as  services_router
 
 
 router = Router()
+
 
 router.include_routers(
     cn_router,
