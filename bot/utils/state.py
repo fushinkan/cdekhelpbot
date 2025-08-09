@@ -9,6 +9,7 @@ from bot.states.invoice import INVOICE_STATE
 from bot.states.customer import CUSTOMER_STATE
 from bot.keyboards.admin import AdminKeyboards
 from bot.keyboards.customer import CustomerKeyboards
+from bot.utils.storage import AdminText, CustomerText
 
 import asyncio
 from typing import Union
@@ -39,17 +40,18 @@ class StateUtils():
             Message: Отправленное сообщение со сводкой.
         """
         
-        summary = (
-            f"📋 <b>Сводка по введённым данным контрагента:</b>\n\n"
-            f"👤 Имя: {data.get('contractor', 'Не указано')}\n"
-            f"🏙 Город: {data.get('city', 'Не указан')}\n"
-            f"📄 Номер договора: {data.get('contract_number', 'Не указан')}\n"
-            f"📱 Телефоны: {data.get('phone', 'Не указаны')}"
+        
+        summary = AdminText.NEW_CONTRACTOR_TEXT.format(
+            contractor=data.get('contractor', 'Не указано'),
+            city=data.get('city', 'Не указан'),
+            contract_number=data.get('contract_number', 'Не указан'),
+            phone=data.get('phone', 'Не указаны')
         )
         
         sent = await message.answer(summary, reply_markup=await AdminKeyboards.edit_or_confirm_customer(), parse_mode="HTML")
         
         return sent
+    
     
     @classmethod
     async def format_contractor_summary(cls, *, message: Message, data: dict, for_admin: bool):
@@ -70,11 +72,12 @@ class StateUtils():
         else:
             header = f"💼 <b>Перед отправкой проверьте данные внимательно!</b>"
         
-        return (
-            f"{header}\n\n"
-            f"🧾 ИНН: {data.get('tin_number')}\n"
-            f"📱 Номер телефона: {data.get('phone')}"
+        return CustomerText.CONTRACTOR_TEXT.format(
+            header=header,
+            tin_number=data.get('tin_number'),
+            phone=data.get('phone')
         )
+
     
     @classmethod
     async def send_contractor_summary(cls, *, message: Message | CallbackQuery, data: dict, for_admin: bool):
@@ -101,6 +104,7 @@ class StateUtils():
 
         return sent
         
+        
     @classmethod
     async def format_summary(cls, *, message: Message, data: dict, for_admin: bool):
         """
@@ -115,23 +119,23 @@ class StateUtils():
         """
         
         if for_admin:
-            header = f"📦 <b>Создать накладную для @{data.get('user_full_name')}</b>"
+            header = f"📦 <b>Создать накладную для @{data.get('username')}</b>"
         
         else:
             header = f"📦 <b>Перед отправкой проверьте данные внимательно!</b>"
         
-        return (
-            f"{header}\n\n"
-            f"📄 Номер договора: {data.get('contract_number')}\n"
-            f"🚚 Город отправления: {data.get('departure_city')}\n"
-            f"🏠 Адрес отправления: {data.get('departure_address')}\n"
-            f"📞 Номер получателя: {data.get('recipient_phone')}\n"
-            f"🏙️ Город получателя: {data.get('recipient_city')}\n"
-            f"🏡 Адрес доставки: {data.get('recipient_address')}\n"
-            f"💰 Сумма страхования: {data.get('insurance_amount')} ₽\n"
-            f"➕ Доп.услуги: {data.get('extra', 'Нет')}"
+        return CustomerText.INVOICE_TEXT.format(
+            header=header,
+            contract_number=data.get('contract_number'),
+            departure_city=data.get('departure_city'),
+            departure_address=data.get('departure_address'),
+            recipient_phone=data.get('recipient_phone'),
+            recipient_city=data.get('recipient_city'),
+            recipient_address=data.get('recipient_address'),
+            insurance_amount=data.get('insurance_amount'),
+            extra=data.get('extra', 'Нет')
         )
-
+    
     
     @classmethod
     async def send_summary(cls, *, message: Message | CallbackQuery, data: dict, for_admin: bool):
@@ -174,6 +178,7 @@ class StateUtils():
         history.append(new_state.state)
         await state.update_data(state_history=history)
     
+    
     @classmethod
     async def pop_state_from_history(cls, *, state: FSMContext):
         """
@@ -215,7 +220,6 @@ class StateUtils():
 
         return prev_state
 
-    
     
     @classmethod
     async def prepare_next_state(cls, *, obj: Union[Message, CallbackQuery], state: FSMContext) -> dict:

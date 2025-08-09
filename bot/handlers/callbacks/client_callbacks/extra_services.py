@@ -3,7 +3,7 @@ from aiogram.types import CallbackQuery
 from aiogram.fsm.context import FSMContext
 
 from app.core.config import settings
-from bot.utils.storage import tariff_text
+from bot.utils.storage import CustomerText
 from bot.keyboards.customer import CustomerKeyboards
 from bot.keyboards.backbuttons import BackButtons
 
@@ -43,7 +43,7 @@ async def get_extra_services_titles_bot_handler(callback: CallbackQuery, state: 
             return
     
     sent = await callback.message.edit_text(
-        tariff_text,
+        CustomerText.NOTIFICATION_TEXT,
         reply_markup=await CustomerKeyboards.get_main_titles(titles=titles, callback_prefix="extra", data=user_data),
         parse_mode="HTML"
     )

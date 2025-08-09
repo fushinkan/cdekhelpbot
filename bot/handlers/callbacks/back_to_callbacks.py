@@ -6,13 +6,13 @@ from app.api.utils.normalize import Normalize
 from app.core.config import settings
 from bot.keyboards.backbuttons import BackButtons
 from bot.keyboards.basic import BasicKeyboards
-from bot.states.invoice import InvoiceForm
 from bot.states.auth import Auth
 from bot.states.contractor import Contractor
 from bot.utils.state import StateUtils
 from bot.utils.exceptions import IncorrectPhoneException
 from bot.handlers.authorization.main_menu import proceed_to_main_menu
 from bot.states.state_map import get_prompt_for_state
+from bot.utils.storage import Welcome
 
 import httpx
 import asyncio
@@ -61,13 +61,7 @@ async def back_to_welcoming_screen(callback: CallbackQuery, state: FSMContext):
     await asyncio.sleep(0.2)
     await state.clear()
     
-    welcoming_text = (
-        "👋 Привет!\n\n"
-        "Я — электронный помощник менеджера по продажам СДЭК.\n\n"
-        "Работаю по адресу:\n" 
-        "Липецкая область, г. Данков,\n 1-й Спортивный переулок, 3\n\n"
-        "Выбери нужный пункт меню, чтобы начать работу."
-    )
+    welcoming_text = Welcome.WELCOME
     
     await callback.message.edit_text(welcoming_text, reply_markup=await BasicKeyboards.get_welcoming_kb())
 

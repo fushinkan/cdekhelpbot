@@ -51,10 +51,10 @@ class WorkHoursMiddleware(BaseMiddleware):
         
         
         if 0 <= weekday <= 4:
-            return time(1, 0) <= current_time <= time(23, 0)
+            return time(9, 0) <= current_time <= time(18, 0)
         
         elif weekday in (5, 6):
-            return time(1, 0) <= current_time <= time(23, 0)
+            return time(9, 30) <= current_time <= time(16, 30)
         
         return False
             

@@ -7,6 +7,7 @@ from bot.states.merch import Merch
 from bot.utils.validate import Validator
 from bot.utils.exceptions import IncorrectTinNumberException
 from bot.utils.state import StateUtils
+from bot.utils.storage import CustomerText
 
 import asyncio
 
@@ -28,12 +29,10 @@ async def receive_tin(message: Message, state: FSMContext):
     data = await StateUtils.prepare_next_state(obj=message, state=state)
 
     try:
-        await Validator.correct_agreement(text=tin)
-        text = (
-            "🎁 <b>Новая заявка на мерч!</b>\n\n"
-            f"🧾 ИНН: <b>{tin}</b>\n"
-            f"👤 Пользователь: @{message.from_user.username or '—'}\n"
-            "Проверьте ИНН и свяжитесь с пользователем для уточнения деталей."
+        await Validator.correct_tin_number(text=tin)
+        text = CustomerText.MERCH_REQUEST_TEXT.format(
+            tin=tin,
+            username=message.from_user.username or "-"
         )
 
     except IncorrectTinNumberException as e:

@@ -2,6 +2,7 @@ from aiogram.types import Message
 
 from bot.keyboards.admin import AdminKeyboards
 from bot.keyboards.customer import CustomerKeyboards
+from bot.utils.storage import AdminText, CustomerText
 
 
 async def proceed_to_main_menu(*, role: str, user_data: dict, message: Message):
@@ -17,24 +18,9 @@ async def proceed_to_main_menu(*, role: str, user_data: dict, message: Message):
     """
     
     if role == "admin":
-        sent = await message.answer((
-            f"👋 Отдел сопровождения\n\n"
-            "Добро пожаловать в панель управления.\n"
-            "Здесь вы можете просматривать клиентов, их историю заказов, тарифы и услуги, а также управлять доступом.\n"
-            "Выберите нужный пункт меню, чтобы начать работу."
-        ), reply_markup=await AdminKeyboards.get_admin_kb())
+        sent = await message.answer(AdminText.WELCOME, reply_markup=await AdminKeyboards.get_admin_kb(), parse_mode="HTML")
            
     else:
-        sent = await message.answer((
-            "👋 Привет!\n\n"
-            "Здесь ты можешь:\n"
-            "📦 Создавать накладные и просматривать историю заказов\n"
-            "📜 Изучать информацию о тарифах и дополнительных услугах\n"
-            "🎁 Получить мерч\n\n"
-            "⚙️ В настройках можно изменить пароль в любое время.\n\n"
-            "💬 Если нужна помощь — всегда можешь написать в Telegram @CDEK48\n"
-            "📞 Или позвонить/написать в WhatsApp по номеру +7-951-305-30-36\n\n"
-            "Действуй — всё просто и удобно! 🚀"
-        ), reply_markup=await CustomerKeyboards.customer_kb())
+        sent = await message.answer(CustomerText.WELCOME, reply_markup=await CustomerKeyboards.customer_kb(), parse_mode="HTML")
         
     return sent

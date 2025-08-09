@@ -6,6 +6,7 @@ from app.core.config import settings
 from bot.utils.state import StateUtils
 from bot.keyboards.admin import AdminKeyboards
 from bot.keyboards.backbuttons import BackButtons
+from bot.utils.storage import AdminText, CustomerText
 
 import asyncio
 import httpx
@@ -62,11 +63,7 @@ async def send_contractor_summary(callback: CallbackQuery, state: FSMContext):
         for_admin=True
     )
     
-    sent = await callback.message.answer(
-        (f"📩 Данные успешно переданы менеджеру!\n"
-        f"С вами свяжутся в течение 1–2 рабочих дней для уточнения деталей и заключения договора.\n"
-        f"Благодарим за обращение!")
-    )
+    sent = await callback.message.answer(CustomerText.AGREEMENT_ANSWER)
     
     await asyncio.sleep(15)
     
@@ -83,7 +80,6 @@ async def handle_answer_invoice(callback: CallbackQuery, state: FSMContext):
         state (FSMContext): Текущее состояние FSM и данные пользователя.
     """
 
-
     user_id = int(callback.data.split(":")[1])
     username = callback.data.split(":")[2]
     
@@ -91,12 +87,10 @@ async def handle_answer_invoice(callback: CallbackQuery, state: FSMContext):
         text="📎 Пришлите PDF-файл с накладной для клиента.",
     )
     
-    
     pending_pdf_sends[callback.from_user.id] = {
         "user_id": user_id,
         "username": username
     }
-    
 
     await callback.answer()
     
@@ -116,10 +110,7 @@ async def reject_invoice(callback: CallbackQuery, state: FSMContext):
 
     sent = await callback.message.bot.send_message(
         chat_id=user_id,
-        text=(
-            "❌ Ваш запрос был отменен.\n"
-            "Если нужна помощь, пожалуйста, свяжитесь с нами по номеру +7-951-305-30-36"
-        )
+        text=CustomerText.REJECT_ANSWER
     )
 
     await callback.answer("✅ Пользователь уведомлен об отмене.")
@@ -154,6 +145,7 @@ async def get_customers_pagination_bot_handler(callback: CallbackQuery, state: F
     data = response.json()
     clients = data["users"]
     total_pages = data["total_pages"]
+    text = AdminText.CONTRACTOR_LIST_TEXT.format(page=page, total_pages=total_pages)
         
     keyboard = await AdminKeyboards.get_customers(
         clients=clients,
@@ -162,12 +154,7 @@ async def get_customers_pagination_bot_handler(callback: CallbackQuery, state: F
     )
     
     await callback.message.edit_text(
-        text=(
-            "👥 Все клиенты, обслуживаемые отделом продаж в городе Данков\n"
-            "🏢 Адрес: 1-й Спортивный переулок, 3\n\n"
-            f"📇 Кол-во контрагентов: {data.get('total')}\n"
-            f"📄 Страница: {page}/{total_pages}"
-        ),
+        text=text,
         reply_markup=keyboard
     )
 
@@ -207,6 +194,7 @@ async def forward_or_backward_bot_handler(callback: CallbackQuery, state: FSMCon
     data = response.json()
     clients = data["users"]
     total_pages = data['total_pages']
+    text = AdminText.CONTRACTOR_LIST_TEXT.format(page=page, total_pages=total_pages)
         
     keyboard = await AdminKeyboards.get_customers(
         clients=clients,
@@ -215,12 +203,7 @@ async def forward_or_backward_bot_handler(callback: CallbackQuery, state: FSMCon
     )
         
     await callback.message.edit_text(
-        text=(
-            "👥 Все клиенты, обслуживаемые отделом продаж в городе Данков\n"
-            "🏢 Адрес: 1-й Спортивный переулок, 3\n\n"
-            f"📇 Кол-во контрагентов: {data.get('total')}\n"
-            f"📄 Страница: {page}/{total_pages}"
-        ),
+        text=text,
         reply_markup=keyboard
     )
 
@@ -255,11 +238,11 @@ async def show_client_summary_bot_handler(callback: CallbackQuery, state: FSMCon
     
     phones_text = "\n".join(f"📞 {phone['number']}" for phone in user_data.get("phones", [])) or "📞 Нет номеров"
     
-    message_text = (
-        f"👤 <b>{user_data['contractor']}</b>\n"
-        f"📍 Город: {user_data['city']}\n"
-        f"📄 Договор: {user_data['contract_number']}\n"
-        f"{phones_text}"
+    message_text = AdminText.CONTRACTOR_DESCRIPTION.format(
+        contractor=user_data["contractor"],
+        city=user_data["city"],
+        contract_number=user_data["contract_number"],
+        phones_text=phones_text
     )
     
     await callback.message.edit_text(message_text, reply_markup=await BackButtons.back_to_customers(), parse_mode="HTML")

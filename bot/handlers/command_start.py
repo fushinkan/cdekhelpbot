@@ -1,21 +1,20 @@
 from aiogram.fsm.context import FSMContext
 from aiogram.enums import ChatAction
 from aiogram import filters, types
-from aiogram import Router, F
+from aiogram import Router
 
-from bot.keyboards.customer import CustomerKeyboards
-from bot.keyboards.admin import AdminKeyboards
 from bot.middlewares.logging_middleware import LoggingMiddleware
 from bot.middlewares.work_hours_middleware import WorkHoursMiddleware
 from bot.keyboards.basic import BasicKeyboards
 from bot.handlers.authorization.main_menu import proceed_to_main_menu
+from bot.utils.storage import Welcome
 
 import asyncio
 
 
 router = Router()
 router.message.middleware(LoggingMiddleware())
-router.message.middleware(WorkHoursMiddleware())
+#router.message.middleware(WorkHoursMiddleware())
 
 
 @router.message(filters.CommandStart(), flags={"data": True})
@@ -59,13 +58,7 @@ async def cmd_start(message: types.Message, state: FSMContext, **data: dict):
             await state.update_data(last_bot_message=sent.message_id)
             return
 
-    welcoming_text = (
-        "👋 Привет!\n\n"
-        "Я — электронный помощник менеджера по продажам СДЭК.\n\n"
-        "Работаю по адресу:\n" 
-        "Липецкая область, г. Данков,\n 1-й Спортивный переулок, 3\n\n"
-        "Выбери нужный пункт меню, чтобы начать работу."
-    )
+    welcoming_text = Welcome.WELCOME
     
     
     await message.bot.send_chat_action(chat_id=message.chat.id, action=ChatAction.TYPING)
@@ -90,8 +83,3 @@ async def chat_id(message: types.Message):
     
     chat_id = message.chat.id
     await message.answer(f"ID: {chat_id}")
-    
-#@router.message(F.document)
-#async def get_document_id(message: types.Message):
-#    file_id = message.document.file_id
-#    await message.answer(file_id)
