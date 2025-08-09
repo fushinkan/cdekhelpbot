@@ -34,6 +34,7 @@ class AcceptPasswordSchema(BaseModel):
 class ConfirmPasswordSchema(BaseModel):
     user_id: int
     confirm_password: str = Field(min_length=8)
+    is_change: bool = False
 
 
 class TelegramIDInputSchema(BaseModel):

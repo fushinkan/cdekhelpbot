@@ -33,14 +33,12 @@ async def get_contract_number(callback: CallbackQuery, state: FSMContext):
     await asyncio.sleep(0.2)
     
     data = await state.get_data()
-    phone_raw = data.get("phone")
-    phone_number = await Normalize.normalize_phone(phone=phone_raw)
-    
+    telegram_id = callback.from_user.id
     
     async with httpx.AsyncClient() as client:
         try:
             response = await client.get(
-                f"{settings.BASE_FASTAPI_URL}/user/phone/{phone_number}"
+                f"{settings.BASE_FASTAPI_URL}/user/telegram/{telegram_id}"
             )
             
             response.raise_for_status()
@@ -56,7 +54,7 @@ async def get_contract_number(callback: CallbackQuery, state: FSMContext):
                 reply_markup=await BackButtons.back_to_menu()
             )
             
-            await state.update_data(phone=phone_number, last_bot_message=sent.message_id)
+            await state.update_data(user_data=user_data, last_bot_message=sent.message_id)
 
         except (UserNotExistsException, IncorrectPhoneException) as e:
             sent = await callback.message.answer(str(e))

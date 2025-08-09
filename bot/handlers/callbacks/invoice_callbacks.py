@@ -59,4 +59,4 @@ async def cancel_extra_services(callback: CallbackQuery, state: FSMContext):
     
     data = await StateUtils.prepare_next_state(obj=callback, state=state) 
      
-    await proceed_to_main_menu(role=data.get('role'), user_data=data, message=callback.message)
+    await proceed_to_main_menu(user_data=data, message=callback.message)

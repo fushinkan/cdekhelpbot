@@ -95,7 +95,7 @@ async def accept_enter(message: Message, state: FSMContext):
         data = await StateUtils.prepare_next_state(obj=message, state=state)
             
             
-        await proceed_to_main_menu(role=user_data.get("role"), user_data=user_data, message=message)
+        await proceed_to_main_menu(user_data=user_data, message=message)
         await state.clear()
         await state.set_state(CustomerAuth.main_menu)
-        await state.update_data(phone=phone)
+        await state.update_data(user_data=user_data)

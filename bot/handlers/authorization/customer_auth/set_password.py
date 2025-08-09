@@ -20,11 +20,12 @@ async def set_client_password(message: Message, state: FSMContext):
     """
     Устанавливает пароль для пользователя через FastAPI, если его изначально не было.
     """
-    
+
     data = await StateUtils.prepare_next_state(obj=message, state=state)
     phone = data.get("phone")
     user_id = data.get("id")
     new_password = message.text.strip()
+    is_change = data.get("is_change", False)
 
     if not Validator.validate_password(plain_password=new_password):
         data = await StateUtils.prepare_next_state(obj=message, state=state)
@@ -66,9 +67,13 @@ async def set_client_password(message: Message, state: FSMContext):
             
             await state.update_data(error_message=sent.message_id)
             return
-
-    sent = await message.answer("✅ Пароль принят. Введите его ещё раз для входа.",
-                                reply_markup=await BackButtons.back_to_phone())
+        
+    if not is_change:
+        sent = await message.answer("✅ Пароль принят. Введите его ещё раз для входа.",
+                                    reply_markup=await BackButtons.back_to_phone())
+    else:
+        sent = await message.answer("✅ Пароль принят. Введите его ещё раз для входа.",
+                                    reply_markup=await BackButtons.back_to_settings())
     
     await state.update_data(last_bot_message=sent.message_id, phone=phone, new_password=new_password)
     await state.set_state(CustomerAuth.confirm_password)

@@ -101,7 +101,8 @@ class AuthService:
         cls,
         *,
         user_id: int,
-        confirm_password: str, 
+        confirm_password: str,
+        is_change: bool = False,
         session: AsyncSession
     ):
         """
@@ -129,9 +130,11 @@ class AuthService:
         if not user:
             raise UserNotExistsException(UserNotExistsException.__doc__)
         
-        # Проверка, залогинен ли пользователь
-        if user.is_logged:
-            raise AlreadyLoggedException(AlreadyLoggedException.__doc__)
+        if is_change:
+            user.is_logged = False
+        
+        else:
+            user.is_logged = True
         
         # Установка пароля для пользователя
         user.hashed_psw = Security.hashed_password(password=plain_password)

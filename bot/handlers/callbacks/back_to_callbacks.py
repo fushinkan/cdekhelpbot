@@ -116,7 +116,7 @@ async def go_back(callback: CallbackQuery, state: FSMContext):
         if phone:
             await state.update_data(phone=phone)
             
-        await proceed_to_main_menu(role=role, user_data=data, message=callback.message)
+        await proceed_to_main_menu(user_data=data, message=callback.message)
         return
 
     # Установка предыдущего состояния
@@ -208,4 +208,4 @@ async def back_to_menu(callback: CallbackQuery, state: FSMContext):
         
         await state.clear()
         await state.update_data(phone=phone_number)
-        await proceed_to_main_menu(role=role, user_data=user_data, message=callback.message)
+        await proceed_to_main_menu(user_data=user_data, message=callback.message)

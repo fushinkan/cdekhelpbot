@@ -8,6 +8,8 @@ from bot.states.customer_auth import CustomerAuth
 from bot.handlers.authorization.main_menu import proceed_to_main_menu
 from bot.utils.state import StateUtils
 from bot.utils.exceptions import RequestErrorException
+from bot.utils.storage import Welcome
+from bot.keyboards.basic import BasicKeyboards
 
 import httpx
 
@@ -31,6 +33,7 @@ async def confirm_password(message: Message, state: FSMContext):
     user_id = data.get("id")
     first_password = data.get('new_password')
     second_psw = message.text.strip()
+    is_change = data.get("is_change", False)
     
     if first_password != second_psw:
         data = await StateUtils.prepare_next_state(obj=message, state=state)
@@ -48,7 +51,8 @@ async def confirm_password(message: Message, state: FSMContext):
                 f"{settings.BASE_FASTAPI_URL}/auth/confirm_password",
                 json={
                     "user_id": user_id,
-                    "confirm_password": second_psw
+                    "confirm_password": second_psw,
+                    "is_change": is_change
                 }
             )
             
@@ -62,14 +66,25 @@ async def confirm_password(message: Message, state: FSMContext):
             telegram_id = telegram_id
             telegram_name = message.from_user.full_name
 
-            await client.put(
-                f"{settings.BASE_FASTAPI_URL}/auth/{role}/{user_id}/login_status",
-                json={
-                    "is_logged": True,
-                    "telegram_id": telegram_id,
-                    "telegram_name": telegram_name
-                }
-            )
+            if not is_change:
+                await client.put(
+                    f"{settings.BASE_FASTAPI_URL}/auth/{role}/{user_id}/login_status",
+                    json={
+                        "is_logged": True,
+                        "telegram_id": telegram_id,
+                        "telegram_name": telegram_name
+                    }
+                )
+            
+            else:
+                await client.put(
+                    f"{settings.BASE_FASTAPI_URL}/auth/{role}/{user_id}/login_status",
+                    json={
+                        "is_logged": False,
+                        "telegram_id": telegram_id,
+                        "telegram_name": telegram_name
+                    }
+                )
             
         except httpx.HTTPStatusError:
             data = await StateUtils.prepare_next_state(obj=message, state=state)
@@ -94,8 +109,11 @@ async def confirm_password(message: Message, state: FSMContext):
     
         data = await StateUtils.prepare_next_state(obj=message, state=state)
             
-            
-        await proceed_to_main_menu(role=user_data.get("role"), user_data=user_data, message=message)
-        await state.clear()
-        await state.set_state(CustomerAuth.main_menu)
-        await state.update_data(phone=phone) 
+        if not is_change:
+            await proceed_to_main_menu(user_data=user_data, message=message)
+            await state.clear()
+            await state.set_state(CustomerAuth.main_menu)
+            await state.update_data(user_data=user_data)
+        
+        else:
+            await message.answer(Welcome.WELCOME, reply_markup=await BasicKeyboards.get_welcoming_kb())

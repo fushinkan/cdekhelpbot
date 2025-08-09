@@ -286,3 +286,15 @@ class BackButtons:
         """
         
         return await cls.get_back_button(callback_data="services")
+    
+    
+    @classmethod
+    async def back_to_settings(cls):
+        """
+        Возвращает пользователя к настройкам
+
+        Returns:
+            InlineKeyboardMarkup: Клавиатура с кнопкой в настройки.
+        """
+        
+        return await cls.get_back_button(callback_data="settings")

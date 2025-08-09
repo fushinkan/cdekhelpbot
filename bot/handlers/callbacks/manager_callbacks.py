@@ -114,6 +114,8 @@ async def reject_invoice(callback: CallbackQuery, state: FSMContext):
     )
 
     await callback.answer("✅ Пользователь уведомлен об отмене.")
+    await asyncio.sleep(5)
+    await sent.delete()
     
 
 @router.callback_query(F.data == "customers")
@@ -131,6 +133,10 @@ async def get_customers_pagination_bot_handler(callback: CallbackQuery, state: F
     
     async with httpx.AsyncClient() as client:
         try:
+            resp_user = await client.get(f"{settings.BASE_FASTAPI_URL}/user/telegram/{callback.from_user.id}")
+            resp_user.raise_for_status()
+            user_data = resp_user.json()
+            
             response = await client.get(
                 f"{settings.BASE_FASTAPI_URL}/customers/all_customers",
                 params={"page": page, "per_page": per_page}
@@ -145,7 +151,7 @@ async def get_customers_pagination_bot_handler(callback: CallbackQuery, state: F
     data = response.json()
     clients = data["users"]
     total_pages = data["total_pages"]
-    text = AdminText.CONTRACTOR_LIST_TEXT.format(page=page, total_pages=total_pages)
+    text = AdminText.CONTRACTOR_LIST_TEXT.format(page=page, total_pages=total_pages, total=data.get("total"))
         
     keyboard = await AdminKeyboards.get_customers(
         clients=clients,
@@ -157,6 +163,8 @@ async def get_customers_pagination_bot_handler(callback: CallbackQuery, state: F
         text=text,
         reply_markup=keyboard
     )
+    
+    await state.update_data(user_data=user_data)
 
     
 @router.callback_query(F.data.startswith("forward_page_") | F.data.startswith("backward_page_"))
@@ -194,7 +202,7 @@ async def forward_or_backward_bot_handler(callback: CallbackQuery, state: FSMCon
     data = response.json()
     clients = data["users"]
     total_pages = data['total_pages']
-    text = AdminText.CONTRACTOR_LIST_TEXT.format(page=page, total_pages=total_pages)
+    text = AdminText.CONTRACTOR_LIST_TEXT.format(page=page, total_pages=total_pages, total=data.get('total'))
         
     keyboard = await AdminKeyboards.get_customers(
         clients=clients,
@@ -246,3 +254,5 @@ async def show_client_summary_bot_handler(callback: CallbackQuery, state: FSMCon
     )
     
     await callback.message.edit_text(message_text, reply_markup=await BackButtons.back_to_customers(), parse_mode="HTML")
+    
+    await state.update_data(user_data=user_data)

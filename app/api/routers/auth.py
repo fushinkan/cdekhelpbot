@@ -92,7 +92,8 @@ async def confirm_password_endpoint(data: ConfirmPasswordSchema, session: AsyncS
         await AuthService.confirm_password(
             user_id=data.user_id,
             confirm_password=data.confirm_password,
-            session=session
+            session=session,
+            is_change=data.is_change
         )
     
     except UserNotExistsException as e:
