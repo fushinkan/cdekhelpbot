@@ -52,10 +52,8 @@ async def admin_panel(callback: CallbackQuery, state: FSMContext):
     
     data = await StateUtils.prepare_next_state(obj=callback, state=state)
     user_data = data.get("user_data")
-
-    await state.clear()
     
-    await proceed_to_main_menu(user_data=user_data, message=callback.message)
+    await proceed_to_main_menu(user_data=user_data, message=callback.message, state=state)
     await callback.answer()
     
 

@@ -15,7 +15,7 @@ class SettingsKeyboards:
             InlineKeyboardMarkup: Клавиатура настроек.
         """
 
-        callback_data = "admin_panel" if user_data.get("role") == "admin" else "back_to_menu"
+        callback_data = "admin_panel" if user_data.get("role") == "admin" else "go_back_to_menu"
         
         return InlineKeyboardMarkup(inline_keyboard=[
             [InlineKeyboardButton(text="🔑 Сменить пароль", callback_data="change_password")],

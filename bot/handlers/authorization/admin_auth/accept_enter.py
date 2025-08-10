@@ -2,14 +2,16 @@ from aiogram import Router
 from aiogram.types import Message
 from aiogram.fsm.context import FSMContext
 
+from app.api.utils.security import Security
 from app.core.config import settings
 from bot.utils.state import StateUtils
 from bot.states.admin_auth import AdminAuth
 from bot.handlers.authorization.main_menu import proceed_to_main_menu
 from bot.keyboards.backbuttons import BackButtons
-from bot.utils.exceptions import RequestErrorException, IncorrectPasswordException
+from bot.utils.exceptions import RequestErrorException, IncorrectPasswordException, InvalidTokenException
 
 import httpx
+import asyncio
 
 
 router = Router()
@@ -54,48 +56,35 @@ async def accept_enter(message: Message, state: FSMContext):
             )
             
             response.raise_for_status()
-
-            response_user = await client.get(f"{settings.BASE_FASTAPI_URL}/user/{user_id}")
-            response_user.raise_for_status()
-            user_data = response_user.json()
+            response_data = response.json()
+            access_token = response_data.get("access_token")
+            if not access_token:
+                sent = await message.answer(str(InvalidTokenException(InvalidTokenException.__doc__)))
+                await asyncio.sleep(5)
+                await sent.delete()
+                return
             
-            role = user_data.get("role")
-            telegram_id = message.from_user.id
-            telegram_name = message.from_user.full_name
-
-            await client.put(
-                f"{settings.BASE_FASTAPI_URL}/auth/{role}/{user_id}/login_status",
-                json={
-                    "is_logged": True,
-                    "telegram_id": telegram_id,
-                    "telegram_name": telegram_name
-                }
-            )
+            user_data = await Security.decode_jwt(access_token=access_token)
             
         except httpx.HTTPStatusError:
-            data = await StateUtils.prepare_next_state(obj=message, state=state)
             sent = await message.answer(
                 str(IncorrectPasswordException(IncorrectPasswordException(IncorrectPasswordException.__doc__))),
                 reply_markup=await BackButtons.back_to_welcoming_screen()
             )
             
-            await state.update_data(error_message=sent.message_id)
+            await asyncio.sleep(5)
+            await sent.delete()
             return
         
         except httpx.RequestError:
-            data = await StateUtils.prepare_next_state(obj=message, state=state)
             sent = await message.answer(
                 str(RequestErrorException(RequestErrorException.__doc__)),
                 reply_markup=await BackButtons.back_to_welcoming_screen()
             )
             
-            await state.update_data(error_message=sent.message_id)
-            return    
+            await asyncio.sleep(5)
+            await sent.delete()
+            return 
             
-    
-        data = await StateUtils.prepare_next_state(obj=message, state=state)
-            
-            
-        await proceed_to_main_menu(user_data=user_data, message=message)
-        await state.clear()
-        await state.update_data(user_data=user_data)
+        await proceed_to_main_menu(user_data=user_data, message=message, state=state)
+        await state.update_data(user_data=user_data, access_token=access_token)

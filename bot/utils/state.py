@@ -234,7 +234,7 @@ class StateUtils():
             dict: Текущие данные состояния.
         """
         
-        await asyncio.sleep(0.2)
+        await asyncio.sleep(0.1)
         
         data = await state.get_data()
         last_bot_message_id = data.get("last_bot_message")

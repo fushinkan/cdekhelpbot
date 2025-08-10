@@ -108,15 +108,11 @@ async def go_back(callback: CallbackQuery, state: FSMContext):
                 phone = None
         else:
             phone = None
-            
-
-        await asyncio.sleep(0.2)
-        await state.clear()
         
         if phone:
-            await state.update_data(phone=phone)
+            await state.update_data(phone=phone, access_token=data.get("access_token"))
             
-        await proceed_to_main_menu(user_data=data, message=callback.message)
+        await proceed_to_main_menu(user_data=data, message=callback.message, state=state)
         return
 
     # Установка предыдущего состояния
@@ -200,12 +196,10 @@ async def back_to_menu(callback: CallbackQuery, state: FSMContext):
             response.raise_for_status()
             
             user_data = response.json()
-            role = user_data.get("role", "user")
         
         except httpx.HTTPError:
             await callback.message.answer("❌ Не удалось получить информацию о пользователе. Попробуйте позже.")
             return
         
-        await state.clear()
-        await state.update_data(phone=phone_number)
-        await proceed_to_main_menu(user_data=user_data, message=callback.message)
+        await proceed_to_main_menu(user_data=user_data, message=callback.message, state=state)
+        await state.update_data(phone=phone_number, access_token=data.get("access_token"))

@@ -1,4 +1,7 @@
 import bcrypt
+from jose import jwt
+
+from app.core.config import settings
 
 
 class Security:
@@ -26,3 +29,51 @@ class Security:
         """
         
         return bcrypt.checkpw(plain_password.encode("utf-8"), hashed_password.encode("utf-8"))
+    
+    
+    @classmethod
+    async def encode_jwt(
+        cls, 
+        *, 
+        payload: dict, 
+        private_key: str = settings.jwt_settings.private_key_path.read_text(), 
+        algorithm: str = settings.jwt_settings.algorithm
+        ):
+        
+        """
+        Создает access_token.
+
+        Args:
+            payload (dict): Данные для кодирования.
+            key (str): Приватный ключ для подписи токена.
+            algorithm (str): Алгоритм шифрования по умолчанию взят из настроек.
+
+        Returns:
+            _type_: _description_
+        """
+    
+        return jwt.encode(payload, key=private_key, algorithm=algorithm)
+    
+    
+    @classmethod
+    async def decode_jwt(
+        cls, 
+        *, 
+        access_token: str | bytes, 
+        public_key: str = settings.jwt_settings.public_key_path.read_text(),
+        algorithm: str = settings.jwt_settings.algorithm
+        ):
+        
+        """
+        Расшифровывает токен
+        
+        Args:
+            access_token (str): Access Token созданный для пользователя.
+            public_key (str): Публичный ключ для подписи токена.
+            algorithm (str): Алгоритм шифрования по умолчанию взят из настроек.
+
+        Returns:
+            _type_: _description_
+        """
+        
+        return jwt.decode(token=access_token, key=public_key, algorithms=[algorithm])

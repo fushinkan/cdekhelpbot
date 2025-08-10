@@ -7,6 +7,8 @@ from app.db.models.admins import Admins
 from app.db.models.users import Users
 from bot.utils.exceptions import UserNotExistsException, IncorrectPasswordException, AlreadyLoggedException, InvalidRoleException
 
+from datetime import datetime, timedelta, timezone
+
 
 class AuthService:
     """
@@ -26,8 +28,6 @@ class AuthService:
         session: AsyncSession,
         user_id: int,
         is_logged: bool,
-        telegram_name: str | None = None,
-        telegram_id: int | None = None,
         role: str = "user",
     ):
         """
@@ -48,23 +48,17 @@ class AuthService:
         # Получение модели для поиска пользователя (Users или Admins)
         model = Users if role == "user" else Admins
         
-        update_data = {"is_logged": is_logged}
-
-        if telegram_name is not None:
-            update_data["telegram_name"] = telegram_name
-            
-        if telegram_id is not None:
-            update_data["telegram_id"] = telegram_id
-                
-        await session.execute(
-            update(model)
-            .where(model.id == user_id)
-            .values(**update_data)
-        )
+        user = await session.get(model, user_id)
+        if not user:
+            raise UserNotExistsException(UserNotExistsException.__doc__)
+        
+        user.is_logged = is_logged
         
         await session.commit()
-        
-        
+
+        return user
+    
+                
     @classmethod
     async def set_password(
         cls,
@@ -103,6 +97,8 @@ class AuthService:
         user_id: int,
         confirm_password: str,
         is_change: bool = False,
+        telegram_name: str | None = None,
+        telegram_id: int | None = None,
         session: AsyncSession
     ):
         """
@@ -129,20 +125,66 @@ class AuthService:
         
         if not user:
             raise UserNotExistsException(UserNotExistsException.__doc__)
+         
+        if telegram_id is not None:
+            user.telegram_id = telegram_id
+        if telegram_name is not None:
+            user.telegram_name = telegram_name
+        
+        session.add(user)
         
         if is_change:
-            user.is_logged = False
+            # Установка пароля для пользователя
+            user.hashed_psw = Security.hashed_password(password=plain_password)
+            
+            # Обновление статуса is_logged на False
+            await cls.update_login_status(
+                user_id=user_id,
+                role=user.role,
+                is_logged=False,
+                session=session
+            )
         
         else:
-            user.is_logged = True
-        
-        # Установка пароля для пользователя
-        user.hashed_psw = Security.hashed_password(password=plain_password)
-        
+            # Установка пароля для пользователя
+            user.hashed_psw = Security.hashed_password(password=plain_password)
+            
+            # Обновление статуса is_logged на True
+            await cls.update_login_status(
+                user_id=user_id,
+                role=user.role,
+                is_logged=True,
+                session=session
+            )
+                
         del cls._temp_passwords[user_id]
         
+        await session.flush()
         await session.commit()
         
+        if user.role == 'user':
+            # Телефоны у user через phones связь
+            phone_obj = user.phones[0] if user.phones else None
+            phone = phone_obj.number if phone_obj else None
+        elif user.role == 'admin':
+            # Телефон у админа, например, в поле phone_number (пример)
+            phone = getattr(user, 'phone_number', None)
+        else:
+            phone = None
+        
+        payload = {
+            "sub": str(user.id),
+            "role": user.role,
+            "telegram_id": user.telegram_id,
+            "telegram_name": user.telegram_name,
+            "phone": phone,
+            "exp": datetime.now(tz=timezone.utc) + timedelta(minutes=15)
+        }
+        
+        access_token = await Security.encode_jwt(payload=payload)
+        
+        return access_token
+
         
     @classmethod
     async def accept_enter(
@@ -180,6 +222,13 @@ class AuthService:
         if user.is_logged:
             raise AlreadyLoggedException(AlreadyLoggedException.__doc__)
         
+        if telegram_id is not None:
+            user.telegram_id = telegram_id
+        if telegram_name is not None:
+            user.telegram_name = telegram_name
+        
+        session.add(user)
+        
         # Проверка введенного пароля и захэшированного пароля в БД
         if not Security.verify_password(plain_password=password, hashed_password=user.hashed_psw):
             raise IncorrectPasswordException(IncorrectPasswordException.__doc__)
@@ -189,7 +238,30 @@ class AuthService:
             user_id=user_id,
             role=user.role,
             is_logged=True,
-            telegram_id=telegram_id,
-            telegram_name=telegram_name,
             session=session
         )
+        
+        await session.flush()
+        await session.commit()
+        
+        if user.role == 'user':
+            # Телефоны у user через phones связь
+            phone_obj = user.phones[0] if user.phones else None
+            phone = phone_obj.number if phone_obj else None
+        elif user.role == 'admin':
+            # Телефон у админа, например, в поле phone_number (пример)
+            phone = getattr(user, 'phone_number', None)
+        else:
+            phone = None
+        
+        payload = {
+            "sub": str(user.id),
+            "role": user.role,
+            "telegram_id": user.telegram_id,
+            "phone": phone,
+            "exp": datetime.now(tz=timezone.utc) + timedelta(minutes=15)
+        }
+        
+        access_token = await Security.encode_jwt(payload=payload)
+        
+        return access_token

@@ -53,7 +53,7 @@ async def show_user_orders_all_years_bot_handler(callback: CallbackQuery, state:
             await asyncio.sleep(5)
             await sent.delete()
             
-            menu = await proceed_to_main_menu(message=callback.message, role=user_data.get("role"), user_data=user_data)
+            menu = await proceed_to_main_menu(message=callback.message, user_data=user_data, state=state)
 
             await state.update_data(last_bot_message=menu.message_id)
             return

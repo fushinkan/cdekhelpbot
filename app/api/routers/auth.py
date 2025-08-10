@@ -35,8 +35,6 @@ async def update_login_status_endpoint(
         session=session,
         user_id=user_id,
         is_logged=data.is_logged,
-        telegram_id=data.telegram_id,
-        telegram_name=data.telegram_name,
         role=role
     )
 
@@ -89,11 +87,13 @@ async def confirm_password_endpoint(data: ConfirmPasswordSchema, session: AsyncS
     """
     
     try:
-        await AuthService.confirm_password(
+        access_token = await AuthService.confirm_password(
             user_id=data.user_id,
             confirm_password=data.confirm_password,
             session=session,
-            is_change=data.is_change
+            is_change=data.is_change,
+            telegram_id=data.telegram_id,
+            telegram_name=data.telegram_name
         )
     
     except UserNotExistsException as e:
@@ -108,7 +108,7 @@ async def confirm_password_endpoint(data: ConfirmPasswordSchema, session: AsyncS
             detail=str(e)
         )
     
-    return {"message": "Password Successfully Confirmed and Setted"}
+    return {"message": "Password is set", "access_token": access_token, "token_type": "bearer"}
 
 
 @router.post("/accept_enter", status_code=status.HTTP_200_OK)
@@ -132,7 +132,7 @@ async def accept_enter_endpoint(data: AcceptPasswordSchema, session: AsyncSessio
     phone_number = await Normalize.normalize_phone(phone=data.phone_number)
     
     try:
-        await AuthService.accept_enter(
+        access_token = await AuthService.accept_enter(
             password=data.password,
             user_id=data.user_id,
             telegram_id=data.telegram_id,
@@ -152,4 +152,4 @@ async def accept_enter_endpoint(data: AcceptPasswordSchema, session: AsyncSessio
             detail=str(e)
         )
         
-    return {"message": "Login Successful"}
+    return {"message": "Successfully logged in", "access_token": access_token, "token_type": "bearer"}

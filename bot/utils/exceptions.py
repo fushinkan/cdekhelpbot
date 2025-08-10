@@ -1,4 +1,9 @@
 # Custom Exceptions
+class InvalidTokenException(Exception):
+    """Токен не передан, попробуйте позже"""
+
+    pass
+
 class EmptyHistoryException(Exception):
     """⚠️ История пуста! Нет ни одного заказа."""
     

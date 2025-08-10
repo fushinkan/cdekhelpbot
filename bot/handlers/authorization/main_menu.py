@@ -1,11 +1,12 @@
 from aiogram.types import Message
+from aiogram.fsm.context import FSMContext
 
 from bot.keyboards.admin import AdminKeyboards
 from bot.keyboards.customer import CustomerKeyboards
 from bot.utils.storage import AdminText, CustomerText
 
 
-async def proceed_to_main_menu(*, user_data: dict, message: Message):
+async def proceed_to_main_menu(*, user_data: dict, message: Message, state: FSMContext):
     """
     Главное меню для пользователя/админа в зависимости от role в БД.
 

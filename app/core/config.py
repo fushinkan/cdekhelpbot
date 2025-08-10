@@ -1,10 +1,26 @@
 from pydantic_settings import BaseSettings
+from pydantic import BaseModel
+
+from pathlib import Path
+
+BASE_DIR = Path(__file__).parent.parent
 
 
+class AuthJWT(BaseModel):
+    """Класс с настройками для JWT"""
+    
+    private_key_path: Path = BASE_DIR / "security" / "private.pem"
+    public_key_path: Path = BASE_DIR / "security" / "public.pem"
+    algorithm: str = "RS256"
+    
+    
 class Settings(BaseSettings):
     """
     Настройки основного приложения.
     """
+    
+    # JWT settings
+    jwt_settings: AuthJWT = AuthJWT()
     
     # Telegram settings
     SECRET_TOKEN: str
