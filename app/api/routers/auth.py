@@ -2,7 +2,7 @@ from fastapi import Depends, APIRouter, status, HTTPException, Response
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.utils.normalize import Normalize
-from app.api.handlers.auth import AuthService
+from app.api.services.auth import AuthService
 from app.db.base import get_session
 from app.schemas.auth import LoginStatusSchema, PasswordInputSchema, ConfirmPasswordSchema, AcceptPasswordSchema
 from bot.utils.exceptions import UserNotExistsException, IncorrectPasswordException

@@ -5,7 +5,7 @@ from sqlalchemy.orm import selectinload
 
 from app.db.models.users import Users
 from app.db.base import get_session
-from app.api.handlers.customers import Customers
+from app.api.services.customers import Customers
 from app.schemas.users import PaginateUserResponse
 from app.schemas.customers import CustomerResponseSchema, CustomerInputSchema
 from app.schemas.auth import PhoneResponseSchema

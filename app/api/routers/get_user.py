@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.utils.normalize import Normalize
 from app.db.base import get_session
-from app.api.handlers.get_user import UserInDB
+from app.api.services.get_user import UserInDB
 from bot.utils.exceptions import UserNotExistsException
 
 

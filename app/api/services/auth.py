@@ -1,7 +1,7 @@
 from sqlalchemy import update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.handlers.get_user import UserInDB
+from app.api.services.get_user import UserInDB
 from app.api.utils.security import Security
 from app.db.models.admins import Admins
 from app.db.models.users import Users

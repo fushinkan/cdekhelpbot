@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.base import get_session
 from app.schemas.invoice import SaveInvoiceSchema
-from app.api.handlers.invoice import InvoiceService
+from app.api.services.invoice import InvoiceService
 
 
 router = APIRouter(prefix="/invoices", tags=["Invoice"])

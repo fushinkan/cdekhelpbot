@@ -2,7 +2,7 @@ from fastapi import APIRouter,Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.base import get_session
-from app.api.handlers.history import History
+from app.api.services.history import History
 from bot.utils.exceptions import EmptyHistoryException
 
 

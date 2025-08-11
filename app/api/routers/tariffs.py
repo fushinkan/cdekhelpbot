@@ -2,7 +2,7 @@ from fastapi import APIRouter, status, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.base import get_session
-from app.api.handlers.tariffs import Tariff
+from app.api.services.tariffs import Tariff
 from bot.utils.exceptions import TariffNotExistException
 
 
