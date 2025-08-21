@@ -7,9 +7,10 @@ from aiogram.fsm.storage.redis import RedisStorage
 
 #from api.setup_db import setup_db
 
-
 from app.core.config import settings
 from bot.handlers import router as handlers_router
+from bot.middlewares.logging_middleware import LoggingMiddleware
+from bot.middlewares.work_hours_middleware import WorkHoursMiddleware
 
 
 async def startup(dispatcher: Dispatcher):
@@ -35,6 +36,10 @@ async def start_bot():
     
     # Подключение обработчиков
     dp.include_router(handlers_router)
+    
+    # Подключение middlewares
+    dp.update.middleware(LoggingMiddleware())
+    #dp.update.middleware(WorkHoursMiddleware())
     
     # Запуск бота
     await dp.start_polling(bot)

@@ -68,14 +68,23 @@ async def confirm_password(message: Message, state: FSMContext):
             response.raise_for_status()
             response_data = response.json()
             access_token = response_data.get("access_token")
-            if not access_token:
+            refresh_token = response_data.get("refresh_token")
+            if not access_token and not refresh_token:
                 sent = await message.answer(str(InvalidTokenException(InvalidTokenException.__doc__)))
                 await asyncio.sleep(5)
                 await sent.delete()
                 return
             
             user_data = await Security.decode_jwt(access_token=access_token)
-         
+            
+            await client.post(
+                f"{settings.BASE_FASTAPI_URL}/tokens/",
+                json={
+                    "user_id": user_id,
+                    "access_token": access_token,
+                    "refresh_token": refresh_token
+                }
+            )  
         except httpx.HTTPStatusError:
             data = await StateUtils.prepare_next_state(obj=message, state=state)
             sent = await message.answer(
@@ -96,12 +105,15 @@ async def confirm_password(message: Message, state: FSMContext):
             await state.update_data(error_message=sent.message_id)
             return       
         
+        except Exception as e:
+            await message.answer(f"ALERT: {str(e)}")
+        
         data = await StateUtils.prepare_next_state(obj=message, state=state)
             
         if not is_change:   
             await proceed_to_main_menu(user_data=user_data, message=message, state=state)
-            await state.update_data(user_data=user_data, access_token=access_token)
+            await state.update_data(user_data=user_data)
             
         else:
             await message.answer(Welcome.WELCOME, reply_markup=await BasicKeyboards.get_welcoming_kb())
-            await state.update_data(user_data=user_data, access_token=access_token)
+            await state.update_data(user_data=user_data)

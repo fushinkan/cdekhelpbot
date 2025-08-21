@@ -17,11 +17,13 @@ async def proceed_to_main_menu(*, user_data: dict, message: Message, state: FSMC
     Returns:
         Message: Ответное сообщение, отправленное пользователю с соответствующей клавиатурой для его роли. 
     """
-    
+
     if user_data.get("role") == "admin":
         sent = await message.answer(AdminText.WELCOME, reply_markup=await AdminKeyboards.get_admin_kb(), parse_mode="HTML")
+        await state.update_data(user_data=user_data)
            
     else:
         sent = await message.answer(CustomerText.WELCOME, reply_markup=await CustomerKeyboards.customer_kb(), parse_mode="HTML")
+        await state.update_data(user_data=user_data)
         
     return sent

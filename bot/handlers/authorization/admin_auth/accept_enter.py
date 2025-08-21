@@ -58,7 +58,8 @@ async def accept_enter(message: Message, state: FSMContext):
             response.raise_for_status()
             response_data = response.json()
             access_token = response_data.get("access_token")
-            if not access_token:
+            refresh_token = response_data.get("refresh_token")
+            if not access_token and not refresh_token:
                 sent = await message.answer(str(InvalidTokenException(InvalidTokenException.__doc__)))
                 await asyncio.sleep(5)
                 await sent.delete()
@@ -66,6 +67,14 @@ async def accept_enter(message: Message, state: FSMContext):
             
             user_data = await Security.decode_jwt(access_token=access_token)
             
+            await client.post(
+                f"{settings.BASE_FASTAPI_URL}/tokens/",
+                json={
+                    "user_id": user_id,
+                    "access_token": access_token,
+                    "refresh_token": refresh_token
+                }
+            )  
         except httpx.HTTPStatusError:
             sent = await message.answer(
                 str(IncorrectPasswordException(IncorrectPasswordException(IncorrectPasswordException.__doc__))),
@@ -87,4 +96,4 @@ async def accept_enter(message: Message, state: FSMContext):
             return 
             
         await proceed_to_main_menu(user_data=user_data, message=message, state=state)
-        await state.update_data(user_data=user_data, access_token=access_token)
+        await state.update_data(user_data=user_data)

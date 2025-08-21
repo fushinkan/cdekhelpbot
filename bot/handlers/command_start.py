@@ -13,8 +13,6 @@ import asyncio
 
 
 router = Router()
-router.message.middleware(LoggingMiddleware())
-#router.message.middleware(WorkHoursMiddleware())
 
 
 @router.message(filters.CommandStart(), flags={"data": True})

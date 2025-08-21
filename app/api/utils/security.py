@@ -76,4 +76,4 @@ class Security:
             _type_: _description_
         """
         
-        return jwt.decode(token=access_token, key=public_key, algorithms=[algorithm])
+        return jwt.decode(token=access_token, key=public_key, algorithms=[algorithm], options={"verify_exp": True})

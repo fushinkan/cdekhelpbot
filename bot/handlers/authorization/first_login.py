@@ -71,7 +71,7 @@ async def first_client_login(message: Message, state: FSMContext):
             await state.set_state(CustomerAuth.set_password)
                 
         else:
-            sent = await message.answer("Введите пароль для потдверждения доступа", 
+            sent = await message.answer("Введите пароль для подтверждения доступа", 
                                             reply_markup=await BackButtons.back_to_phone())
                 
             await state.update_data(phone=phone_number, user_id=user["id"], last_bot_message=sent.message_id)
@@ -85,7 +85,7 @@ async def first_client_login(message: Message, state: FSMContext):
             await state.set_state(AdminAuth.set_password)
             
         else:
-            sent = await message.answer("Введите пароль для потдверждения доступа", 
+            sent = await message.answer("Введите пароль для подтверждения доступа", 
                                         reply_markup=await BackButtons.back_to_phone())
             await state.update_data(phone=phone_number, admin_id=user["id"], last_bot_message=sent.message_id)
             await state.set_state(AdminAuth.enter_password)

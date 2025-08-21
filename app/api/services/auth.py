@@ -172,7 +172,7 @@ class AuthService:
         else:
             phone = None
         
-        payload = {
+        access_payload = {
             "sub": str(user.id),
             "role": user.role,
             "telegram_id": user.telegram_id,
@@ -181,9 +181,20 @@ class AuthService:
             "exp": datetime.now(tz=timezone.utc) + timedelta(minutes=15)
         }
         
-        access_token = await Security.encode_jwt(payload=payload)
+        refresh_payload = {
+            "sub": str(user.id),
+            "role": user.role,
+            "telegram_id": user.telegram_id,
+            "telegram_name": user.telegram_name,
+            "phone": phone,
+            "exp": datetime.now(tz=timezone.utc) + timedelta(days=30)
+        }
         
-        return access_token
+        access_token = await Security.encode_jwt(payload=access_payload)
+        refresh_token = await Security.encode_jwt(payload=refresh_payload)
+        
+        
+        return access_token, refresh_token
 
         
     @classmethod
@@ -254,14 +265,26 @@ class AuthService:
         else:
             phone = None
         
-        payload = {
+        access_payload = {
             "sub": str(user.id),
             "role": user.role,
             "telegram_id": user.telegram_id,
+            "telegram_name": user.telegram_name,
             "phone": phone,
             "exp": datetime.now(tz=timezone.utc) + timedelta(minutes=15)
         }
         
-        access_token = await Security.encode_jwt(payload=payload)
+        refresh_payload = {
+            "sub": str(user.id),
+            "role": user.role,
+            "telegram_id": user.telegram_id,
+            "telegram_name": user.telegram_name,
+            "phone": phone,
+            "exp": datetime.now(tz=timezone.utc) + timedelta(days=30)
+        }
         
-        return access_token
+        access_token = await Security.encode_jwt(payload=access_payload)
+        refresh_token = await Security.encode_jwt(payload=refresh_payload)
+        
+        
+        return access_token, refresh_token

@@ -54,12 +54,14 @@ async def back_to_welcoming_screen(callback: CallbackQuery, state: FSMContext):
                     "telegram_name": telegram_name
                 }
             )
+            
+            response_tokens = await client.put(
+                f"{settings.BASE_FASTAPI_URL}/tokens/clear",
+                json={"user_id": user_id}
+            )
         
         except httpx.HTTPStatusError:
             pass
-    
-    await asyncio.sleep(0.2)
-    await state.clear()
     
     welcoming_text = Welcome.WELCOME
     
@@ -110,7 +112,7 @@ async def go_back(callback: CallbackQuery, state: FSMContext):
             phone = None
         
         if phone:
-            await state.update_data(phone=phone, access_token=data.get("access_token"))
+            await state.update_data(phone=phone, user_data=data.get("user_data"))
             
         await proceed_to_main_menu(user_data=data, message=callback.message, state=state)
         return
@@ -202,4 +204,4 @@ async def back_to_menu(callback: CallbackQuery, state: FSMContext):
             return
         
         await proceed_to_main_menu(user_data=user_data, message=callback.message, state=state)
-        await state.update_data(phone=phone_number, access_token=data.get("access_token"))
+        await state.update_data(phone=phone_number, user_data=user_data)

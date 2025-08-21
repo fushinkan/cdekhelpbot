@@ -30,6 +30,9 @@ class Users(Base):
     
     role: Mapped[str] = mapped_column(String(10), default="user", nullable=False)
     
+    access_token: Mapped[str] = mapped_column(nullable=True)
+    refresh_token: Mapped[str] = mapped_column(nullable=True)
+    
     invoices: Mapped[list["Invoice"]] = relationship("Invoice", back_populates="user", cascade="all, delete-orphan")
     
     phones: Mapped[list["PhoneNumbers"]] = relationship(back_populates="user")
