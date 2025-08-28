@@ -10,7 +10,8 @@ services:
     env_file:
       - "./.env"
     depends_on:
-      - db
+      - db_test
+    
 
   fastapi:
     build:
@@ -22,9 +23,8 @@ services:
     env_file:
       - "./.env"
     depends_on:
-      - db
+      - db_test
       - redis
-    restart: always
 
   bot:
     build:
@@ -36,8 +36,7 @@ services:
     depends_on:
       - fastapi
       - redis
-      - db
-    restart: always
+      - db_test
 
   redis:
     image: redis:7.2-alpine
@@ -45,36 +44,21 @@ services:
     ports:
       - "6379:6379"
     env_file:
-      - "./.env"
-    restart: always
+      - "./.env"   # Аналогично для бота
 
-  db:
+  db_test:
     image: postgres:17-alpine
-    container_name: postgres
+    container_name: postgres_test
     environment:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASS}
-      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_DB: ${TEST_DB_NAME}
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
-      - pgdata:/var/lib/postgresql/data
-      - ./backups:/backups
+      - pgdata_test:/var/lib/postgresql/data
     env_file:
       - "./.env"
-    restart: always
-
-backup:
-  build:
-    context: ./backups
-  container_name: backup
-  depends_on:
-    - db
-  volumes:
-    - ./backups:/backups
-  env_file:
-    - "./.env"
-  restart: always
 
 volumes:
-  pgdata:
+  pgdata_test:

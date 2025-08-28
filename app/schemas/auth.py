@@ -2,7 +2,7 @@ from pydantic import BaseModel, Field, ConfigDict
 
 
 class LoginRequestSchema(BaseModel):
-    phone_number: str = Field(..., example="79042803001")
+    phone_number: str = Field(..., json_schema_extra="79042803001")
     plain_password: str = Field(..., min_length=8)
     telegram_id: int | None = None
     telegram_name: str | None = None

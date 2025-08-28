@@ -14,11 +14,11 @@ from bot.middlewares.work_hours_middleware import WorkHoursMiddleware
 
 
 async def startup(dispatcher: Dispatcher):
-    print("Starting up...")
+    logging.info("🚀 Бот запущен и готов к работе")
 
 
 async def shutdown(dispatcher: Dispatcher):
-    print("Shutting down...")
+    logging.info("🛑 Бот остановлен")
 
 
 async def start_bot():

@@ -10,6 +10,7 @@ RUN poetry config virtualenvs.create false && poetry install --no-interaction --
 
 COPY app ./app
 COPY bot ./bot
+COPY tests ./tests
 
 ENV PYTHONPATH=/project
 

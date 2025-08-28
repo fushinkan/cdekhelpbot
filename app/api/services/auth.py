@@ -1,4 +1,3 @@
-from sqlalchemy import update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.services.get_user import UserInDB
@@ -163,11 +162,9 @@ class AuthService:
         await session.commit()
         
         if user.role == 'user':
-            # Телефоны у user через phones связь
             phone_obj = user.phones[0] if user.phones else None
             phone = phone_obj.number if phone_obj else None
         elif user.role == 'admin':
-            # Телефон у админа, например, в поле phone_number (пример)
             phone = getattr(user, 'phone_number', None)
         else:
             phone = None
@@ -256,11 +253,10 @@ class AuthService:
         await session.commit()
         
         if user.role == 'user':
-            # Телефоны у user через phones связь
+
             phone_obj = user.phones[0] if user.phones else None
             phone = phone_obj.number if phone_obj else None
         elif user.role == 'admin':
-            # Телефон у админа, например, в поле phone_number (пример)
             phone = getattr(user, 'phone_number', None)
         else:
             phone = None
