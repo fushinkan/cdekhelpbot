@@ -115,4 +115,21 @@ class AdminKeyboards():
             
             [InlineKeyboardButton(text="✅ Подтвердить", callback_data="confirm_customer"), 
              InlineKeyboardButton(text="❌ Отмена", callback_data="cancel_customer")]
-        ])        
+        ])
+        
+    @classmethod
+    async def back_to_customers_with_history(cls, *, user_id: int):
+        """
+        Показывает менеджеру подробную информацю о пользователе и дает возможность изменить пароль и просмотреть историю заказов.
+
+        Args:
+            user_id (int): ID пользователя из БД.
+
+        Returns:
+            InlineKeyboardMarkup: Клавиатура для просмотра подробной информации о пользователе.
+        """
+        return InlineKeyboardMarkup(inline_keyboard=[
+            [InlineKeyboardButton(text="📜 История заказов", callback_data=f"history"),
+             InlineKeyboardButton(text="🔑 Сменить пароль", callback_data=f"change_password:{user_id}")],
+            [InlineKeyboardButton(text="⬅️ Назад", callback_data="customers")]
+        ])

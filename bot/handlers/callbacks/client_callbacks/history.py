@@ -26,15 +26,24 @@ async def show_user_orders_all_years_bot_handler(callback: CallbackQuery, state:
     """
     
     data = await StateUtils.prepare_next_state(obj=callback, state=state)
+
+    user_data = data.get("user_data")
+    telegram_id = user_data["telegram_id"] or callback.from_user.id
+    user_id = user_data.get("id") 
+    
+    selected_client_id = data.get("selected_client_id")
+
+    if selected_client_id:
+        user_id = selected_client_id
     
     async with httpx.AsyncClient() as client:
         try:
             # Получение user_id по Telegram ID
-            resp_user = await client.get(f"{settings.BASE_FASTAPI_URL}/user/telegram/{callback.from_user.id}")
+            resp_user = await client.get(f"{settings.BASE_FASTAPI_URL}/user/telegram/{telegram_id}")
             resp_user.raise_for_status()
             user_data = resp_user.json()
             user_id = user_data.get("id", None)
-
+            user_data["selected_client_id"] = user_id
             # Получение заказов по годам
             resp_years = await client.get(f"{settings.BASE_FASTAPI_URL}/history/{user_id}")
             resp_years.raise_for_status()
@@ -57,7 +66,8 @@ async def show_user_orders_all_years_bot_handler(callback: CallbackQuery, state:
 
             await state.update_data(last_bot_message=menu.message_id)
             return
-            
+        
+
     sent = await callback.message.answer(
         "🗓️ Выберите год, чтобы посмотреть историю заказов.",
         reply_markup=await CustomerKeyboards.get_years_keyboard(years=years, data=user_data)
@@ -78,9 +88,11 @@ async def show_months_by_year(callback: CallbackQuery, state: FSMContext):
     """
     
     data = await StateUtils.prepare_next_state(obj=callback, state=state)
+
     year = int(callback.data.split(":")[1])
     user_data = data.get("user_data")
-    user_id = user_data["id"]
+    user_id = data.get("selected_client_id") or user_data["id"]
+    
     
     async with httpx.AsyncClient() as client:
         try:
@@ -117,8 +129,9 @@ async def get_user_invoices_by_month_year(callback: CallbackQuery, state: FSMCon
     """
     
     data = await StateUtils.prepare_next_state(obj=callback, state=state)
+
     user_data = data.get("user_data")
-    user_id = user_data["id"]
+    user_id = data.get("selected_client_id") or user_data["id"]
     _, year_raw, month_raw = callback.data.split(":") 
     year, month = int(year_raw), int(month_raw)
     

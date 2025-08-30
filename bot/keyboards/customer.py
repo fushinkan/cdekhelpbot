@@ -169,8 +169,13 @@ class CustomerKeyboards():
                     callback_data=f"year:{year}"
                 )
             )
+
+        if data.get("selected_client_id"):
+            callback_data = f"client_{data['selected_client_id']}"
+        else:
+            callback_data = "back_to_menu"
         
-        callback_data = "admin_panel" if data.get("role") == "admin" else "back_to_menu"
+
         
         keyboard.row(
             InlineKeyboardButton(

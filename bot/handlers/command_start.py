@@ -1,10 +1,9 @@
 from aiogram.fsm.context import FSMContext
 from aiogram.enums import ChatAction
 from aiogram import filters, types
-from aiogram import Router
+from aiogram import Router, F
 
-from bot.middlewares.logging_middleware import LoggingMiddleware
-from bot.middlewares.work_hours_middleware import WorkHoursMiddleware
+from bot.keyboards.backbuttons import BackButtons
 from bot.keyboards.basic import BasicKeyboards
 from bot.handlers.authorization.main_menu import proceed_to_main_menu
 from bot.utils.storage import Welcome
@@ -81,3 +80,17 @@ async def chat_id(message: types.Message):
     
     chat_id = message.chat.id
     await message.answer(f"ID: {chat_id}")
+
+
+@router.callback_query(F.data == "help")
+async def help_callback(callback: types.CallbackQuery, state: FSMContext):
+    """
+    По нажатию на 'Помощь' показывает контакты для связи с поддержкой.
+
+    Args:
+        callback (CallbackQuery): Объект callback-запроса от пользователя.
+    """
+    
+    sent = await callback.message.edit_text(Welcome.HELP_TEXT, reply_markup=await BackButtons.back_to_welcoming_screen())
+    
+    await state.update_data(last_bot_message=sent.message_id)

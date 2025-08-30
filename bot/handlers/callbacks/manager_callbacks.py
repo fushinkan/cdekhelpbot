@@ -5,7 +5,7 @@ from aiogram.fsm.context import FSMContext
 from app.core.config import settings
 from bot.utils.state import StateUtils
 from bot.keyboards.admin import AdminKeyboards
-from bot.keyboards.backbuttons import BackButtons
+from bot.keyboards.customer import CustomerKeyboards
 from bot.utils.storage import AdminText, CustomerText
 
 import asyncio
@@ -228,8 +228,9 @@ async def show_client_summary_bot_handler(callback: CallbackQuery, state: FSMCon
         state (FSMContext): Текущее состояние FSM и данные пользователя.
     """
     
-    user_id = int(callback.data.split("_")[1])
     
+    user_id = int(callback.data.split("_")[1])
+
     async with httpx.AsyncClient() as client:
         try:
             response = await client.get(
@@ -243,7 +244,7 @@ async def show_client_summary_bot_handler(callback: CallbackQuery, state: FSMCon
             return
         
     user_data = response.json()
-    
+
     phones_text = "\n".join(f"📞 {phone['number']}" for phone in user_data.get("phones", [])) or "📞 Нет номеров"
     
     message_text = AdminText.CONTRACTOR_DESCRIPTION.format(
@@ -253,6 +254,6 @@ async def show_client_summary_bot_handler(callback: CallbackQuery, state: FSMCon
         phones_text=phones_text
     )
     
-    await callback.message.edit_text(message_text, reply_markup=await BackButtons.back_to_customers(), parse_mode="HTML")
+    await callback.message.edit_text(message_text, reply_markup=await AdminKeyboards.back_to_customers_with_history(user_id=user_id), parse_mode="HTML")
     
-    await state.update_data(user_data=user_data)
+    await state.update_data(user_data=user_data, selected_client_id=user_data["id"])

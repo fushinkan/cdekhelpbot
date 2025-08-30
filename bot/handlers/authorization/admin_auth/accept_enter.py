@@ -38,7 +38,7 @@ async def accept_enter(message: Message, state: FSMContext):
     telegram_id = message.from_user.id
     telegram_name = message.from_user.username
 
-    data = await StateUtils.prepare_next_state(obj=message, state=state)
+    #data = await StateUtils.prepare_next_state(obj=message, state=state)
 
     # Запрос в БД через эндпоинт в API
     async with httpx.AsyncClient() as client:
@@ -81,8 +81,6 @@ async def accept_enter(message: Message, state: FSMContext):
                 reply_markup=await BackButtons.back_to_welcoming_screen()
             )
             
-            await asyncio.sleep(5)
-            await sent.delete()
             return
         
         except httpx.RequestError:

@@ -64,17 +64,17 @@ services:
       - "./.env"
     restart: always
 
-backup:
-  build:
-    context: ./backups
-  container_name: backup
-  depends_on:
-    - db
-  volumes:
-    - ./backups:/backups
-  env_file:
-    - "./.env"
-  restart: always
+  backup:
+    build:
+      context: ./backups
+    container_name: backup
+    depends_on:
+      - db
+    volumes:
+      - ./backups:/backups
+    env_file:
+      - "./.env"
+    restart: always
 
 volumes:
   pgdata:
