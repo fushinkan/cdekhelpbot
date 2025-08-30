@@ -254,6 +254,6 @@ async def show_client_summary_bot_handler(callback: CallbackQuery, state: FSMCon
         phones_text=phones_text
     )
     
-    await callback.message.edit_text(message_text, reply_markup=await AdminKeyboards.back_to_customers_with_history(user_id=user_id), parse_mode="HTML")
+    await callback.message.edit_text(message_text, reply_markup=await AdminKeyboards.back_to_customers_with_history(), parse_mode="HTML")
     
-    await state.update_data(user_data=user_data, selected_client_id=user_data["id"])
+    await state.update_data(user_data=user_data, selected_client_id=user_data["id"], role="admin")

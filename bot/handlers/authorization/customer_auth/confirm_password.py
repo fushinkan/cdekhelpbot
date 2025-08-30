@@ -37,6 +37,10 @@ async def confirm_password(message: Message, state: FSMContext):
     second_psw = message.text.strip()
     is_change = data.get("is_change", False)
     
+    if is_change:
+        telegram_id = None
+        telegram_name = None
+    
     if first_password != second_psw:
         data = await StateUtils.prepare_next_state(obj=message, state=state)
         if not is_change:

@@ -51,10 +51,12 @@ async def change_password(callback: CallbackQuery, state: FSMContext):
     
     sent = await callback.message.answer("Введите новый пароль", reply_markup=await BackButtons.back_to_settings())
     
+    
     if user_data.get("role") == "admin":
         await state.set_state(AdminAuth.set_password)
     
-    else:
+    selected_client_id = data.get("selected_client_id") 
+    if selected_client_id or user_data.get("role") == "user":
         await state.set_state(CustomerAuth.set_password)
         
     await state.update_data(last_bot_message=sent.message_id, is_change=True)
