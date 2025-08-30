@@ -39,7 +39,7 @@ async def start_bot():
     
     # Подключение middlewares
     dp.update.middleware(LoggingMiddleware())
-    #dp.update.middleware(WorkHoursMiddleware())
+    dp.update.middleware(WorkHoursMiddleware())
     
     # Запуск бота
     await dp.start_polling(bot)

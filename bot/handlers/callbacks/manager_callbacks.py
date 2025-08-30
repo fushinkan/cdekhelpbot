@@ -5,7 +5,6 @@ from aiogram.fsm.context import FSMContext
 from app.core.config import settings
 from bot.utils.state import StateUtils
 from bot.keyboards.admin import AdminKeyboards
-from bot.keyboards.customer import CustomerKeyboards
 from bot.utils.storage import AdminText, CustomerText
 
 import asyncio

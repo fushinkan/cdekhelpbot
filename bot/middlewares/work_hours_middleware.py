@@ -1,10 +1,12 @@
 from aiogram import BaseMiddleware
-from aiogram.types import TelegramObject
+from aiogram.types import TelegramObject, Message, CallbackQuery
 
-import asyncio
+from bot.utils.storage import AdminText
 from datetime import datetime, time
 from typing import Callable, Dict, Any, Awaitable
 from zoneinfo import ZoneInfo
+
+import asyncio
 
 
 class WorkHoursMiddleware(BaseMiddleware):
@@ -28,7 +30,10 @@ class WorkHoursMiddleware(BaseMiddleware):
         if await self.is_work_time():
             return await handler(event, data)
 
-        sent = await event.answer("График работы: ПН-ПТ с 9 до 18, СБ-ВС с 9:30 до 16:30")
+
+        sent = await event.message.answer(text=AdminText.WORK_TIME)
+
+        
         await asyncio.sleep(15)
         await sent.delete()
         
